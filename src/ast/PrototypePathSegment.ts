@@ -13,4 +13,8 @@ export class PrototypePathSegment extends AbstractPathSegment
     {
         return visitor.visitPrototypePathSegment(this, ...args);
     }
+
+    protected debugPrintInner(): void {
+        console.log(`|-identifier:`, this.identifier)
+    }
 }

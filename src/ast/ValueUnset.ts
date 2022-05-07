@@ -1,14 +1,8 @@
+import type { AstNodeVisitorInterface } from "../astNodeVisitorInterface";
+import { AbstractOperation } from "./AbstractOperation";
 
 
-
-
-
-
-
-
-
-
-class ValueUnset extends AbstractOperation
+export class ValueUnset extends AbstractOperation
 {
     public visit(visitor: AstNodeVisitorInterface, ...args: any[])
     {

@@ -17,4 +17,10 @@ export class ObjectPath extends AbstractNode
     {
         return visitor.visitObjectPath(this, ...args)
     }
+
+    protected debugPrintInner(): void {
+        for(const segment of this.segments) {
+            segment.debugPrint()
+        }
+    }
 }

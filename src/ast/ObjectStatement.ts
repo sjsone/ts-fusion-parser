@@ -4,6 +4,7 @@ import { AbstractStatement } from "./AbstractStatement";
 import { ObjectPath } from "./ObjectPath";
 import { ValueCopy } from "./ValueCopy";
 import { ValueAssignment } from "./ValueAssignment";
+import { ValueUnset } from "./ValueUnset";
 
 export class ObjectStatement extends AbstractStatement
 {

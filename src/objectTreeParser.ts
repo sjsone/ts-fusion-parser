@@ -396,7 +396,7 @@ export class ObjectTreeParser {
 
             case this.accept(Token.EEL_EXPRESSION):
                 const eelWrapped = this.consume().getValue();
-                const eelContent = eelWrapped.substring( 2, -1);
+                const eelContent = eelWrapped.substring( 2, eelWrapped.length-1);
                 return new EelExpressionValue(eelContent);
 
             case this.accept(Token.FLOAT):
@@ -417,6 +417,8 @@ export class ObjectTreeParser {
                 this.consume();
                 return new NullValue();
         }
+
+        this.lexer.debug()
 
         throw Error("Could not parse value")
         // throw this.prepareParserException(new ParserException())

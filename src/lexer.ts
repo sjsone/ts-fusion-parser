@@ -4,7 +4,7 @@ import NodeProcess from "process"
 export class Lexer {
     // Difference to: Neos\Eel\Package.EelExpressionRecognizer
     // added an atomic group (to prevent catastrophic backtracking) and removed the end anchor 
-    protected static PATTERN_EEL_EXPRESSION = /^\${(?<exp>(>{ (>exp) }|[^{}"']+|"[^"\\]*(?:\\.[^"\\]*)*"|'[^'\\]*(?:\\.[^'\\]*)*')*)}/.toString();
+    protected static PATTERN_EEL_EXPRESSION = `^\\\${(?<exp>(>{ (>exp) }|[^{}"']+|"[^"\\\\]*(?:\\\\.[^"\\\\]*)*"|'[^'\\\\]*(?:\\\\.[^'\\\\]*)*')*)}`;
 
 
 
@@ -82,7 +82,7 @@ export class Lexer {
     }
 
     public getCachedLookaheadOrTryToGenerateLookaheadForTokenAndGetLookahead(tokenType: number): Token | null {
-        const logging = false // tokenType === Token.SPACE || tokenType === Token.ASSIGNMENT
+        const logging = false // tokenType === Token.EEL_EXPRESSION
         if (this.lookahead !== null) {
             return this.lookahead;
         }
@@ -96,10 +96,13 @@ export class Lexer {
         
         
         const regexStringForToken = Lexer.TOKEN_REGEX[tokenType];
+        if(logging) console.log("regexStringForToken", regexStringForToken);
+
         const remainingCode = this.code.substring(this.cursor)
         const regexForToken = new RegExp(regexStringForToken, 'g')
+        if(logging) console.log("regexForToken", regexForToken);
         const matches = regexForToken.exec(remainingCode)
-
+        if(logging) console.log("matches", matches);
         if (matches === null) {
             return null;
         }
@@ -109,5 +112,13 @@ export class Lexer {
         this.lookahead = new Token(tokenType, matches[0]);
 
         return this.lookahead
+    }
+
+    debug() {
+
+
+        console.log("remainingCode", this.code.substring(this.cursor))
+
+        NodeProcess.exit()
     }
 }

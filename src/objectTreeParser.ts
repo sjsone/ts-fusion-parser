@@ -120,7 +120,7 @@ export class ObjectTreeParser {
                 case this.accept(Token.NEWLINE):
                 case this.accept(Token.SLASH_COMMENT):
                 case this.accept(Token.HASH_COMMENT):
-                case this.accept(Token.MULTILINE_COMMENT):
+                // case this.accept(Token.MULTILINE_COMMENT):
                     this.consume();
                     break;
 
@@ -141,7 +141,7 @@ export class ObjectTreeParser {
                 case this.accept(Token.SPACE):
                 case this.accept(Token.SLASH_COMMENT):
                 case this.accept(Token.HASH_COMMENT):
-                case this.accept(Token.MULTILINE_COMMENT):
+                // case this.accept(Token.MULTILINE_COMMENT):
                     this.consume();
                     break;
 
@@ -190,9 +190,15 @@ export class ObjectTreeParser {
     {
         const statements = [];
         this.lazyBigGap();
-        while (this.accept(Token.EOF) === false
-            && (stopLookahead === null || this.accept(stopLookahead) === false)) {
-            statements.push(this.parseStatement())
+        
+        while (this.accept(Token.EOF) === false && (stopLookahead === null || this.accept(stopLookahead) === false)) {
+            let statement
+            try {
+                statement = this.parseStatement()
+            } catch(e) {
+                throw e
+            }
+            statements.push(statement)
             this.lazyBigGap();
         }
         return new StatementList(...statements);
@@ -208,7 +214,6 @@ export class ObjectTreeParser {
         switch (true) {
             case this.accept(Token.INCLUDE):
                 return this.parseIncludeStatement();
-
             case this.accept(Token.PROTOTYPE_START):
             case this.accept(Token.OBJECT_PATH_PART):
             case this.accept(Token.META_PATH_START):
@@ -216,7 +221,6 @@ export class ObjectTreeParser {
             case this.accept(Token.STRING_DOUBLE_QUOTED):
                 return this.parseObjectStatement();
         }
-
         throw Error("Error while parsing statement")
 
         // throw this.prepareParserException(new ParserException())
@@ -438,7 +442,7 @@ export class ObjectTreeParser {
             //     .setMessageCreator([MessageCreator.class, 'forParseDslExpression'])
             //     .build();
         }
-        dslCode = dslCode.substring(1, -1);
+        dslCode = dslCode.substring(1, dslCode.length-2);
         return new DslExpressionValue(dslIdentifier, dslCode);
     }
 

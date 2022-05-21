@@ -1,0 +1,17 @@
+import { AstNodeVisitorInterface } from "../astNodeVisitorInterface";
+import { AbstractOperation } from "./AbstractOperation";
+import { AssignedObjectPath } from "./AssignedObjectPath";
+
+export class ValueCopy extends AbstractOperation
+{
+    public  assignedObjectPath: AssignedObjectPath
+    public constructor(assignedObjectPath: AssignedObjectPath) {
+        super()
+        this.assignedObjectPath = assignedObjectPath
+    }
+
+    public visit( visitor: AstNodeVisitorInterface, ...args: any[])
+    {
+        return visitor.visitValueCopy(this);
+    }
+}

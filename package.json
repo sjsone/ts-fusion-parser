@@ -1,0 +1,19 @@
+{
+    "name": "ts-fusion-parser",
+    "version": "0.0.1",
+    "description": "PlaceHolder",
+    "dependencies": {
+        "@types/node": "^17.0.31",
+        "typescript": "^4.6.4"
+    },
+    "devDependencies": {},
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "prepublishOnly": "tsc",
+        "watch-ts": "tsc --watch",
+        "watch-src": "nodemon out/main.js"
+    },
+    "main": "out/main.js",
+    "author": "",
+    "license": "ISC"
+}

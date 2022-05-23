@@ -20,6 +20,7 @@ export class ComponentImplementation extends AbstractArrayFusionObject
     {
         const context = this.runtime.getCurrentContext();
         const renderContext = this.prepare(context);
+        // console.log("renderContext", renderContext)
         const result = this.render(renderContext);
         return result;
     }
@@ -58,6 +59,7 @@ export class ComponentImplementation extends AbstractArrayFusionObject
     protected render(context: any)
     {
         this.runtime.pushContextArray(context);
+        console.log("pushed ContextArray", context)
         const result = this.runtime.render(this.path + '/renderer');
         this.runtime.popContext();
         return result;

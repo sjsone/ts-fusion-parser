@@ -1,0 +1,26 @@
+prototype(Neos.Fusion:DataStructure).@class = 'Neos\\Fusion\\FusionObjects\\DataStructureImplementation'
+prototype(Neos.Fusion:Component).@class = "Neos\\Fusion\\FusionObjects\\ComponentImplementation"
+prototype(Neos.Fusion:Matcher).@class = 'Neos\\Fusion\\FusionObjects\\MatcherImplementation'
+prototype(Neos.Fusion:Case).@class = 'Neos\\Fusion\\FusionObjects\\CaseImplementation'
+
+prototype(Test.Tset:Component) { 
+    @class = "Neos\\Fusion\\FusionObjects\\ComponentImplementation"
+    test = afx`
+        <div>test</div>
+    `
+    renderer = ${this.test}
+    @if.test = ${props.test}
+}
+
+root = Neos.Fusion:Case {
+    otherCondition {
+        @position = 'start'
+        condition = ${q(documentNode).property('layout') == 'special'}
+        renderer = ${'<marquee>' + q(node).property('content') + '</marquee>'}
+    }
+
+    fallback {
+        condition = ${true}
+        renderer = "fallbackrenderer"
+    }
+}

@@ -99,7 +99,7 @@ export abstract class AbstractArrayFusionObject extends AbstractFusionObject
             } catch (e) {
                 value = this.runtime.handleRenderingException(this.path + '/' + key, <Error>e);
             }
-            if (value === null && this.runtime.getLastEvaluationStatus() === Runtime.EVALUATION_SKIPPED) {
+            if (value === null ) {
                 continue;
             }
             result[key] = value;
@@ -132,8 +132,10 @@ export abstract class AbstractArrayFusionObject extends AbstractFusionObject
         //     // throw new FusionException('Invalid position string', 1345126502, exception);
         // }
 
-        // for(const ignoredPropertyName of this.ignoreProperties) {
-        //     const key = array_search(ignoredPropertyName, sortedFusionKeys);
+        // const sortedFusionKeys = Object.keys(this.properties)
+
+        // for(const ignoredPropertyName in this.ignoreProperties) {
+        //     const key = ignoredPropertyName in sortedFusionKeys
         //     if (key !== false) {
         //         unset(sortedFusionKeys[key]);
         //     }

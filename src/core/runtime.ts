@@ -1,3 +1,4 @@
+import { EelUtility } from "../eel/eelUtility";
 import { AbstractArrayFusionObject } from "../fusionObjects/abstractArrayFusionObject";
 import { AbstractFusionObject } from "../fusionObjects/abstractFusionObject";
 import { FusionObjectManager } from "../fusionObjects/fusionObjectManager";
@@ -5,34 +6,10 @@ import { Arrays } from "./arrays";
 import { ControllerContext } from "./controllerContext";
 import { Parser } from "./parser";
 import { RuntimeConfiguration } from "./runtimeConfiguration";
-import { RuntimeContentCache } from "./runtimeContentCache";
 
 export class Runtime
 {
-    /**
-     * Internal constants defining how evaluate should work in case of an error
-     */
-    static BEHAVIOR_EXCEPTION = 'Exception';
-    static BEHAVIOR_RETURNNULL = 'NULL';
-
-    /**
-     * Internal constants defining a status of how evaluate was evaluated
-     */
-     static EVALUATION_EXECUTED = 'Executed';
-     static EVALUATION_SKIPPED = 'Skipped';
-
-    // /**
-    //  * @var \Neos\Eel\CompilingEvaluator
-    //  * @Flow\Inject
-    //  */
-    // protected eelEvaluator;
-
-    // /**
-    //  * @var ObjectManagerInterface
-    //  * @Flow\Inject
-    //  */
-    // protected objectManager;
-
+    
     // /**
     //  * Stack of evaluated "@context" values
     //  *
@@ -59,17 +36,12 @@ export class Runtime
     //  *
     //  * @var array
     //  */
-    // protected defaultContextVariables;
+    protected defaultContextVariables: {[key: string]: any} = {};
 
     // /**
     //  * @var array
     //  */
     protected runtimeConfiguration;
-
-    // /**
-    //  * @var ControllerContext
-    //  */
-    protected controllerContext;
 
     /**
      * @var array
@@ -80,11 +52,6 @@ export class Runtime
     //  * @var boolean
     //  */
     // protected debugMode = false;
-
-    /**
-     * @var RuntimeContentCache
-     */
-    protected runtimeContentCache: RuntimeContentCache;
 
     // /**
     //  * @var string
@@ -99,10 +66,9 @@ export class Runtime
     //  */
     constructor(fusionConfiguration: {[key: string]: any}, controllerContext: ControllerContext)
     {
-        this.runtimeConfiguration = new RuntimeConfiguration(fusionConfiguration);
-        this.controllerContext = controllerContext;
-        this.runtimeContentCache = new RuntimeContentCache(this);
         this.settings = {}
+        this.runtimeConfiguration = new RuntimeConfiguration(fusionConfiguration);
+
     }
 
     // /**
@@ -226,7 +192,7 @@ export class Runtime
         //     output = this.handleRenderingException(fusionPath, exception);
         // }
 
-        let output = this.evaluate(fusionPath, null, Runtime.BEHAVIOR_EXCEPTION);
+        let output = this.evaluate(fusionPath, null);
         // if (this.debugMode) {
         //     output = sprintf(
         //         '%1s<!-- Beginning to render Fusion path "%2s" (Context: %3s) -.%4s%1s<!-- End to render Fusion path "%2s" (Context: %3s) -.',
@@ -258,28 +224,28 @@ export class Runtime
         return `${'#'.repeat(10)} \n [${exception.name}]:  ${exception.message} \n\n`
     }
 
-    // /**
-    //  * Determine if the given Fusion path is renderable, which means it exists
-    //  * and has an implementation.
-    //  *
-    //  * @param string fusionPath
-    //  * @return boolean
-    //  * @throws Exception
-    //  */
-    // public canRender(fusionPath)
-    // {
-    //     fusionConfiguration = this.runtimeConfiguration.forPath(fusionPath);
+    /**
+     * Determine if the given Fusion path is renderable, which means it exists
+     * and has an implementation.
+     *
+     * @param string fusionPath
+     * @return boolean
+     * @throws Exception
+     */
+    public canRender(fusionPath: string)
+    {
+        let fusionConfiguration = this.runtimeConfiguration.forPath(fusionPath);
 
-    //     if (isset(fusionConfiguration['__eelExpression']) || isset(fusionConfiguration['__value'])) {
-    //         return true;
-    //     }
+        if (fusionConfiguration['__eelExpression'] !== undefined || fusionConfiguration['__value'] !== undefined) {
+            return true;
+        }
 
-    //     if (isset(fusionConfiguration['__meta']['class']) && isset(fusionConfiguration['__objectType'])) {
-    //         return true;
-    //     }
+        if (fusionConfiguration['__meta']['class'] !== undefined && fusionConfiguration['__objectType'] !== undefined) {
+            return true;
+        }
 
-    //     return false;
-    // }
+        return false;
+    }
 
     // /**
     //  * Evaluate an absolute Fusion path and return the result
@@ -295,11 +261,13 @@ export class Runtime
     //  * @throws RuntimeException
     //  * @throws InvalidConfigurationException
     //  */
-    public evaluate( fusionPath: string, contextObject: AbstractFusionObject|null = null,  behaviorIfPathNotFound: string = Runtime.BEHAVIOR_RETURNNULL): any
+    public evaluate( fusionPath: string, contextObject: AbstractFusionObject|null = null): any
     {
+        const debug = fusionPath === "root<Neos.Fusion:Case>/otherCondition<Neos.Fusion:Matcher>/condition"
+        if(debug) console.log(`[evaluate] fusionPath ${fusionPath}`)
+
         let needToPopContext = false;
         let needToPopApply = false;
-        this.lastEvaluationStatus = Runtime.EVALUATION_EXECUTED;
 
         let fusionConfiguration = this.runtimeConfiguration.forPath(fusionPath);
 
@@ -307,6 +275,7 @@ export class Runtime
         // Check if the current "@apply" contain an entry for the requested fusionPath
         // in which case this value is returned after applying @if and @process rules
         if (this.currentApplyValues[fusionPath] !== undefined) {
+            if(debug) console.log(`[evaluate] Found apply values`)
             if (fusionConfiguration['__meta']['if'] !== undefined && this.evaluateIfCondition(fusionConfiguration, fusionPath, contextObject) === false) {
                 return null;
             }
@@ -322,7 +291,12 @@ export class Runtime
 
         // Fast path for expression or value
         try {
-            if (fusionConfiguration['__eelExpression'] !== undefined || fusionConfiguration['__value'] !== undefined) {
+            const isEelExpression = fusionConfiguration['__eelExpression'] !== null && fusionConfiguration['__eelExpression'] !== undefined
+            const isValue = fusionConfiguration['__value'] !== null && fusionConfiguration['__value'] !== undefined
+            
+            if (isEelExpression || isValue) {
+                if(debug) console.log("[evaluate] fast path for expression or value", fusionConfiguration['__eelExpression'], fusionConfiguration['__value'])
+
                 return this.evaluateExpressionOrValueInternal(fusionPath, fusionConfiguration, <AbstractArrayFusionObject>contextObject);
             }
         } catch (stopActionException) {
@@ -336,12 +310,20 @@ export class Runtime
         //     return this.handleRenderingException(fusionPath, exception, true);
         // }
 
-        const cacheContext = this.runtimeContentCache.enter(fusionConfiguration['__meta']?.['cache'] !== undefined ? fusionConfiguration['__meta']?.['cache'] : [], fusionPath);
-
-        if (!(fusionConfiguration['__meta']?.['class'] !== undefined && fusionConfiguration['__objectType'] !== undefined)) {
+        const cacheContext = {
+            'configuration': fusionConfiguration,
+            'fusionPath': fusionPath,
+            'cacheForPathEnabled': false,
+            'cacheForPathDisabled': true,
+            'currentPathIsEntryPoint': true
+        }
+        //  if (!(isset($fusionConfiguration['__meta']['class']) && isset($fusionConfiguration['__objectType'])))
+        if (!(fusionConfiguration['__meta']?.['class'] !== undefined && fusionConfiguration['__objectType'] !== null)) {
             this.finalizePathEvaluation(cacheContext);
+            if(debug) console.log("[evaluate] fusionConfiguration return null for ", fusionConfiguration, {
+                __objectType: fusionConfiguration['__objectType']
+            })
             // this.throwExceptionForUnrenderablePathIfNeeded(fusionPath, fusionConfiguration, behaviorIfPathNotFound);
-            this.lastEvaluationStatus = Runtime.EVALUATION_SKIPPED;
             return null;
         }
 
@@ -350,6 +332,8 @@ export class Runtime
         try {
             applyPathsToPop = this.prepareApplyValuesForFusionPath(fusionPath, fusionConfiguration);
             let fusionObject = this.instantiateFusionObject(fusionPath, fusionConfiguration, applyPathsToPop);
+            if(debug) console.log("[evaluate] got fusion object", fusionObject.constructor.name)
+            // if(debug) console.log("[evaluate] will prepare context with path", fusionPath)
             needToPopContext = this.prepareContextForFusionObject(fusionObject, fusionPath, fusionConfiguration, cacheContext);
             output = this.evaluateObjectOrRetrieveFromCache(fusionObject, fusionPath, fusionConfiguration, cacheContext);
         } catch ( stopActionException) {
@@ -368,6 +352,9 @@ export class Runtime
         // }
 
         this.finalizePathEvaluation(cacheContext, needToPopContext, applyPathsToPop);
+
+        if(debug) console.log("[evaluate] output", output)
+
         return output;
     }
 
@@ -380,10 +367,9 @@ export class Runtime
      * @param array cacheContext
      * @return mixed
      */
-    protected evaluateObjectOrRetrieveFromCache(fusionObject: AbstractArrayFusionObject, fusionPath: string, fusionConfiguration: {[key: string]: any}, cacheContext: any)
+    protected evaluateObjectOrRetrieveFromCache(fusionObject: AbstractFusionObject, fusionPath: string, fusionConfiguration: {[key: string]: any}, cacheContext: any)
     {
         let output = null;
-        let evaluationStatus = Runtime.EVALUATION_SKIPPED;
         // [cacheHit, cachedResult] = this.runtimeContentCache.preEvaluate(cacheContext, fusionObject);
         // if (cacheHit) {
         //     return cachedResult;
@@ -394,12 +380,11 @@ export class Runtime
             evaluateObject = false;
         }
 
+        console.log("[evaluateObjectOrRetrieveFromCache] evaluateObject", evaluateObject)
+
         if (evaluateObject) {
             output = fusionObject.evaluate();
-            evaluationStatus = Runtime.EVALUATION_EXECUTED;
         }
-
-        this.lastEvaluationStatus = evaluationStatus;
 
         if (evaluateObject && fusionConfiguration['__meta']['process'] !== undefined) {
             output = this.evaluateProcessors(output, fusionConfiguration, fusionPath, fusionObject);
@@ -419,21 +404,25 @@ export class Runtime
     //  */
     protected evaluateExpressionOrValueInternal(fusionPath: string, fusionConfiguration: any, contextObject: AbstractFusionObject)
     {
-        if (fusionConfiguration['__meta']['if'] !== undefined && this.evaluateIfCondition(fusionConfiguration, fusionPath, contextObject) === false) {
-            this.lastEvaluationStatus = Runtime.EVALUATION_SKIPPED;
-
+        if (fusionConfiguration['__meta']?.['if'] !== undefined && this.evaluateIfCondition(fusionConfiguration, fusionPath, contextObject) === false) {
             return null;
         }
 
         let evaluatedValue
-        if (fusionConfiguration['__eelExpression'] !== undefined) {
-            evaluatedValue = this.evaluateEelExpression(fusionConfiguration['__eelExpression'], contextObject);
+        if (fusionConfiguration['__eelExpression'] !== null && fusionConfiguration['__eelExpression'] !== undefined) {
+            try {
+                evaluatedValue = this.evaluateEelExpression(fusionConfiguration['__eelExpression'], contextObject);
+
+            } catch(error) {
+                console.log("ERROR: evaluateExpressionOrValueInternal", fusionPath, fusionConfiguration)
+                throw error
+            }
         } else {
             // must be simple type, as this is the only place where this method is called.
             evaluatedValue = fusionConfiguration['__value'];
         }
 
-        if (fusionConfiguration['__meta']['process'] !== undefined) {
+        if (fusionConfiguration['__meta'] !== undefined && fusionConfiguration['__meta']['process'] !== null && fusionConfiguration['__meta']['process'] !== undefined) {
             evaluatedValue = this.evaluateProcessors(evaluatedValue, fusionConfiguration, fusionPath, contextObject);
         }
 
@@ -486,6 +475,7 @@ export class Runtime
      */
     protected prepareContextForFusionObject(fusionObject: AbstractFusionObject, fusionPath: string, fusionConfiguration: {[key: string]: any}, cacheContext: any)
     {
+        const debug = fusionPath === "root<Neos.Fusion:Case>/otherCondition<Neos.Fusion:Matcher>/condition"
         let newContextArray: any
         if (cacheContext['cacheForPathDisabled'] === true) {
             newContextArray = [];
@@ -502,8 +492,7 @@ export class Runtime
 
             for(const contextKey in fusionConfiguration['__meta']['context']) {
                 const contextValue = fusionConfiguration['__meta']['context'][contextKey]
-                newContextArray[contextKey] = this.evaluate(fusionPath + '/__meta/context/' + contextKey, fusionObject, Runtime.BEHAVIOR_EXCEPTION);
-
+                newContextArray[contextKey] = this.evaluate(fusionPath + '/__meta/context/' + contextKey, fusionObject);
             }
         }
 
@@ -533,7 +522,7 @@ export class Runtime
             this.popApplyValues(applyPathsToPop);
         }
 
-        this.runtimeContentCache.leave(cacheContext);
+        // this.runtimeContentCache.leave(cacheContext);
     }
 
     /**
@@ -549,7 +538,7 @@ export class Runtime
     {
         let fusionObjectType = fusionConfiguration['__objectType'];
 
-        let fusionObjectClassName = fusionConfiguration['__meta']['class'] !== undefined ? fusionConfiguration['__meta']['class'] : null;
+        let fusionObjectClassName = fusionConfiguration['__meta']['class'] !== undefined ? fusionConfiguration['__meta']['class'].__value : null;
 
         
         if (!/<[^>]*>/.test(fusionPath)) {
@@ -560,9 +549,11 @@ export class Runtime
             throw new Error(`The implementation class "${fusionObjectClassName}" defined for Fusion object of type "${fusionObjectType}" does not exist. Maybe a typo in the "@class" property.`);
         }
 
-        /** @var fusionObject AbstractFusionObject */
-        let fusionObject = new fusionObjectClassName(this, fusionPath, fusionObjectType);
-        if (this.isArrayFusionObject(fusionObject)) {
+        const fusionObjectClass = FusionObjectManager.get(fusionObjectClassName)
+
+        /** @type {AbstractFusionObject} fusionObject */
+        let fusionObject = <AbstractFusionObject> new (<any>fusionObjectClass)(this, fusionPath, fusionObjectType);
+        if (fusionObject instanceof AbstractArrayFusionObject) {
             /** @var fusionObject AbstractArrayFusionObject */
             if (fusionConfiguration['__meta']['ignoreProperties'] !== undefined) {
                 let evaluatedIgnores = this.evaluate(fusionPath + '/__meta/ignoreProperties', fusionObject);
@@ -597,10 +588,10 @@ export class Runtime
         for(const key in fusionConfiguration) {
             const value = fusionConfiguration[key]
             // skip keys which start with __, as they are purely internal.
-            if (typeof key === "string" && key[0] === '_' && key[1] === '_' && Parser.reservedParseTreeKeys.includes(key)) {
+            if (typeof key === "string" && key.startsWith('__') && Parser.reservedParseTreeKeys.includes(key)) {
                 continue;
             }
-            (<any>fusionObject)[key] = value
+            (<any>fusionObject).properties[key] = value
         }
 
 
@@ -632,10 +623,28 @@ export class Runtime
                     valueAst['__meta'] = meta;
                 }
                 
-                (<any>fusionObject)[entry['key']]  = valueAst
+                (<any>fusionObject).properties[entry['key']]  = valueAst
             }
         }
     }
+
+    /**
+     * Get variables from configuration that should be set in the context by default.
+     * For example Eel helpers are made available by this.
+     *
+     * @return array Array with default context variable objects.
+     */
+     protected getDefaultContextVariables()
+     {
+         if (this.defaultContextVariables === null || this.defaultContextVariables === undefined ) {
+            this.defaultContextVariables = {};
+            if (this.settings['defaultContext'] !== undefined && typeof this.settings['defaultContext'] === "object") {
+            // this.defaultContextVariables = EelUtility::getDefaultContextVariables(this.settings['defaultContext']);
+            }
+            // this.defaultContextVariables['request'] = this.controllerContext->getRequest();
+         }
+         return this.defaultContextVariables;
+     }
 
     /**
      * Evaluate an Eel expression
@@ -647,20 +656,26 @@ export class Runtime
      */
     protected evaluateEelExpression(expression: string, contextObject: AbstractFusionObject|null = null)
     {
+
+        console.log("[Runtime]::evaluateEelExpression", expression)
+
         if (expression[0] !== '' || expression[1] !== '{') {
             // We still assume this is an EEL expression and wrap the markers for backwards compatibility.
             expression = '{' + expression + '}';
         }
 
+
+
         let contextVariables = Object.assign(this.getDefaultContextVariables(), this.currentContext);
 
         if (contextVariables['this'] !== undefined) {
-            throw new Error('Context variable "this" not allowed, as it is already reserved for a pointer to the current Fusion object.')
+            // console.log("this", this.getDefaultContextVariables(), this.currentContext)
+            // throw new Error('Context variable "this" not allowed, as it is already reserved for a pointer to the current Fusion object.')
             // throw new Exception('Context variable "this" not allowed, as it is already reserved for a pointer to the current Fusion object.', 1344325044);
         }
         contextVariables['this'] = contextObject;
 
-        return EelUtility.evaluateEelExpression(expression, this.eelEvaluator, contextVariables);
+        return EelUtility.evaluateEelExpression(expression, /*this.eelEvaluator*/ undefined, contextVariables);
     }
 
     // /**
@@ -751,8 +766,11 @@ export class Runtime
     protected evaluateProcessors(valueToProcess: any, configurationWithEventualProcessors: any, fusionPath: string,  contextObject: AbstractFusionObject|null = null)
     {
         let processorConfiguration = configurationWithEventualProcessors['__meta']['process'];
-        let positionalArraySorter = new PositionalArraySorter(processorConfiguration, '__meta.position');
-        for (const key of positionalArraySorter.getSortedKeys()) {
+        console.log("processorConfiguration", processorConfiguration)
+        // let positionalArraySorter = new PositionalArraySorter(processorConfiguration, '__meta.position');
+        // for (const key of positionalArraySorter.getSortedKeys()) {
+
+        for (const key of Object.keys(processorConfiguration)) {
             let processorPath = fusionPath + '/__meta/process/' + key;
             if (processorConfiguration[key]['__meta']['if'] !== undefined && this.evaluateIfCondition(processorConfiguration[key], processorPath, contextObject) === false) {
                 continue;
@@ -768,8 +786,9 @@ export class Runtime
             }
 
             this.pushContext('value', valueToProcess);
-            let result = this.evaluate(processorPath, contextObject, Runtime.BEHAVIOR_EXCEPTION);
-            if (this.getLastEvaluationStatus() !== Runtime.EVALUATION_SKIPPED) {
+            let result = this.evaluate(processorPath, contextObject);
+            // if (this.getLastEvaluationStatus() !== Runtime.EVALUATION_SKIPPED) {
+            if(true) {
                 valueToProcess = result;
             }
             this.popContext();
@@ -790,7 +809,7 @@ export class Runtime
     {
         for(const conditionKey in configurationWithEventualIf['__meta']['if']) {
             let conditionValue = configurationWithEventualIf['__meta']['if'][conditionKey]
-            conditionValue = this.evaluate(configurationPath + '/__meta/if/' + conditionKey, contextObject, Runtime.BEHAVIOR_EXCEPTION);
+            conditionValue = this.evaluate(configurationPath + '/__meta/if/' + conditionKey, contextObject);
             if (Boolean(conditionValue) === false) {
                 return false;
             }
@@ -799,16 +818,6 @@ export class Runtime
 
         return true;
     }
-
-    // /**
-    //  * Returns the context which has been passed by the currently active MVC Controller
-    //  *
-    //  * @return ControllerContext
-    //  */
-    // public getControllerContext()
-    // {
-    //     return this.controllerContext;
-    // }
 
     // /**
     //  * Get variables from configuration that should be set in the context by default.
@@ -828,40 +837,6 @@ export class Runtime
     //     return this.defaultContextVariables;
     // }
 
-    // /**
-    //  * Checks and throws an exception for an unrenderable path.
-    //  *
-    //  * @param string fusionPath The Fusion path that cannot be rendered
-    //  * @param array fusionConfiguration
-    //  * @param string behaviorIfPathNotFound One of the BEHAVIOR_* constants
-    //  * @throws Exception\MissingFusionImplementationException
-    //  * @throws Exception\MissingFusionObjectException
-    //  */
-    // protected throwExceptionForUnrenderablePathIfNeeded(fusionPath, fusionConfiguration, behaviorIfPathNotFound)
-    // {
-    //     if (isset(fusionConfiguration['__objectType'])) {
-    //         objectType = fusionConfiguration['__objectType'];
-    //         throw new Exceptions\MissingFusionImplementationException(sprintf(
-    //             "The Fusion object `%s` cannot be rendered:
-	// 				Most likely you mistyped the prototype name or did not define 
-	// 				the Fusion prototype with `prototype(%s) < prototype ...` . 
-	// 				Other possible reasons are a missing parent-prototype or 
-	// 				a missing `@class` annotation for prototypes without parent.
-	// 				It is also possible your Fusion file is not read because 
-	// 				of a missing `include:` statement.",
-    //             objectType,
-    //             objectType
-    //         ), 1332493995);
-    //     }
-
-    //     if (behaviorIfPathNotFound === Runtime.BEHAVIOR_EXCEPTION) {
-    //         throw new Exceptions\MissingFusionObjectException(sprintf(
-    //             'No Fusion object found in path "%s"
-	// 				Please make sure to define one in your Fusion configuration.',
-    //             fusionPath
-    //         ), 1332493990);
-    //     }
-    // }
 
     // /**
     //  * @param boolean debugMode

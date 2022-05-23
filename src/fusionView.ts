@@ -1,6 +1,7 @@
 import { ControllerContext } from "./core/controllerContext";
 import { Parser } from "./core/parser";
 import { Runtime } from "./core/runtime";
+import NodeFs from 'fs'
 
 /**
  * View for using Fusion for standard MVC controllers.
@@ -167,38 +168,23 @@ export class FusionView
     {
         let parsedFusion = {};
         for (const fusion of this.getRawFusion()) {
-            parsedFusion = this.fusionParser.parse(fusion, '/Test.Tset:Component', parsedFusion);
+            parsedFusion = this.fusionParser.parse(fusion, 'root', parsedFusion);
         }
         return parsedFusion;
     }
 
     protected getRawFusion() {
         return [
-            `
-            prototype(Neos.Fusion:Component).@class = "Neos\\Fusion\\FusionObjects\\ComponentImplementation"
-            prototype(Test.Tset:Component) { 
-                test = afx\`
-                    <div>test</div>
-                \`
-
-                renderer = \${this.test}
-                @if.test = \${props.test}
-            }
-            `
+            NodeFs.readFileSync('data/case.fusion').toString()
         ]
     }
 
-    /**
-     * Render the given Fusion and return the rendered page
-     * @return mixed
-     * @throws \Exception
-     */
     protected renderFusion()
     {
         let output
         this.fusionRuntime.pushContextArray([]);
         try {
-            output = this.fusionRuntime.render("/Test.Tset:Component");
+            output = this.fusionRuntime.render("root");
         } catch (exception) {
             throw exception
         }

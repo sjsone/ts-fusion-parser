@@ -17,7 +17,7 @@ export class Arrays {
             const firstArrayInner = data[i * 2];
             const secondArrayInner = data[i * 2 + 1];
             for (const [key, value] of Object.entries(secondArrayInner)) {
-                if (firstArrayInner[key] !== undefined && Array.isArray(firstArrayInner[key])) {
+                if (firstArrayInner[key] !== undefined && typeof firstArrayInner[key] === "object") {
                     if ((!emptyValuesOverride || value !== []) && Array.isArray(value)) {
                         data.push(firstArrayInner[key])
                         data.push(value)
@@ -47,7 +47,7 @@ export class Arrays {
     public static unsetValueByPath(arr: { [key: string]: any }, path: any) {
         if (typeof path === "string") {
             path = path.split('.')
-        } else if (!Array.isArray(path)) {
+        } else if (!(typeof path === "object")) {
             throw new Error("unsetValueByPath() expects path to be string or array")
             // throw new \InvalidArgumentException('unsetValueByPath() expects path to be string or array, "' . gettype(path) . '" given.', 1305111513);
         }
@@ -55,7 +55,7 @@ export class Arrays {
         if (path.length === 0) {
             delete arr[key]
         } else {
-            if (arr[key] === undefined || !Array.isArray(arr[key])) {
+            if (arr[key] === undefined || !(typeof arr[key] === "object")) {
                 return arr;
             }
             arr[key] = this.unsetValueByPath(arr[key], path);
@@ -67,14 +67,14 @@ export class Arrays {
     public static getValueByPath(array: { [key: string]: any }, path: string | string[]): null | any {
         if (typeof path === "string") {
             path = path.split('.');
-        } else if (!Array.isArray(path)) {
+        } else if (!(typeof path === "object")) {
             throw new Error('getValueByPath() expects path to be string or array, "' + (typeof path) + '" given.')
             // throw new \InvalidArgumentException('getValueByPath() expects path to be string or array, "' . gettype(path) . '" given.', 1304950007);
         }
         const key = path.shift();
         if (key !== undefined && array[key] !== undefined) {
             if (path.length > 0) {
-                return (Array.isArray(array[key])) ? this.getValueByPath(array[key], path) : null;
+                return (typeof array[key] === "object") ? this.getValueByPath(array[key], path) : null;
             } else {
                 return array[key];
             }
@@ -84,7 +84,7 @@ export class Arrays {
     }
 
 
-    public static arrayMergeRecursiveOverruleWithCallback(firstArray: { [key: string]: any }, secondArray: { [key: string]: any }, toArray: (value: any) => any, overrideFirst: null | (() => any) = null): { [key: string]: any } {
+    public static arrayMergeRecursiveOverruleWithCallback(firstArray: { [key: string]: any }, secondArray: { [key: string]: any }, toArray: (value: any) => any, overrideFirst: null | ((key: string, firstValue: any, secondValue: any) => boolean) = null): { [key: string]: any } {
         const data = [firstArray, secondArray];
         let entryCount = 1;
         for (let i = 0; i < entryCount; i++) {
@@ -96,15 +96,15 @@ export class Arrays {
                 if (firstArrayInner[key] === undefined || (!(typeof firstArrayInner[key] === "object") && !(typeof value === "object"))) {
                     firstArrayInner[key] = value;
                 } else {
-                    if (!Array.isArray(value)) {
+                    if (!(typeof value === "object")) {
                         value = toArray(value);
                     }
 
-                    if (!Array.isArray(firstArrayInner[key])) {
+                    if (!(typeof firstArrayInner[key] === "object")) {
                         firstArrayInner[key] = toArray(firstArrayInner[key]);
                     }
 
-                    if (Array.isArray(firstArrayInner[key]) && Array.isArray(value)) {
+                    if (typeof firstArrayInner[key] === "object" && typeof value === "object") {
                         if (overrideFirst !== null && overrideFirst(key, firstArrayInner[key], value)) {
                             firstArrayInner[key] = value;
                         }

@@ -5,7 +5,7 @@ export abstract class AbstractFusionObject
     /**
      * @var Runtime
      */
-    protected runtime;
+    protected runtime: Runtime;
 
     /**
      * The Fusion path currently being rendered
@@ -69,6 +69,7 @@ export abstract class AbstractFusionObject
     protected fusionValue(path: string)
     {
         const fullPath = this.path + '/' + path;
+        console.log("[fusionValue] fullPath", fullPath)
         // TODO: Cache it
         return this.runtime.evaluate(fullPath, this)
     }

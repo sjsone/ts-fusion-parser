@@ -6,8 +6,10 @@ import { ObjectTreeParser } from "./core/objectTreeParser/objectTreeParser"
 import { Parser } from './core/parser'
 import { Runtime } from './core/runtime'
 import { Token } from "./core/token"
+import { CaseImplementation } from './fusionObjects/caseImplementation'
 import { ComponentImplementation } from './fusionObjects/componentImplementation'
 import { FusionObjectManager } from './fusionObjects/fusionObjectManager'
+import { MatcherImplementation } from './fusionObjects/matcherImplementation'
 import { FusionView } from './fusionView'
 
 
@@ -40,6 +42,9 @@ prototype(Test.Tset:Component) {
 }
 `
 FusionObjectManager.set('Neos\\Fusion\\FusionObjects\\ComponentImplementation', ComponentImplementation)
+FusionObjectManager.set('Neos\\Fusion\\FusionObjects\\CaseImplementation', CaseImplementation)
+FusionObjectManager.set('Neos\\Fusion\\FusionObjects\\MatcherImplementation', MatcherImplementation)
+
 
 const fusionFile = NodeFs.readFileSync('./test.fusion').toString()
 

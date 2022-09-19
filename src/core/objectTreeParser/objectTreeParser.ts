@@ -122,7 +122,7 @@ export class ObjectTreeParser {
                 case this.accept(Token.NEWLINE):
                 case this.accept(Token.SLASH_COMMENT):
                 case this.accept(Token.HASH_COMMENT):
-                // case this.accept(Token.MULTILINE_COMMENT):
+                case this.accept(Token.MULTILINE_COMMENT):
                     this.consume();
                     break;
 
@@ -223,6 +223,8 @@ export class ObjectTreeParser {
             case this.accept(Token.STRING_DOUBLE_QUOTED):
                 return this.parseObjectStatement();
         }
+
+        this.lexer.debug()
         throw Error("Error while parsing statement")
 
         // throw this.prepareParserException(new ParserException())

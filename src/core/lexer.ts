@@ -14,7 +14,7 @@ export class Lexer {
         [Token.SLASH_COMMENT]: '^\\/\\/.*',
         [Token.HASH_COMMENT]: '^#.*',
 
-        // [Token.MULTILINE_COMMENT]: `^\/\*[^*]*(?:\*[^/][^*]*)*\*\/`,
+        [Token.MULTILINE_COMMENT]: `^\\/\\*[^*]*(?:\\*[^/][^*]*)*\\*\\/`,
 
         [Token.NEWLINE]: '^[\\n\\r]+',
         [Token.SPACE]: '^[ \\t]+',
@@ -115,7 +115,7 @@ export class Lexer {
     debug() {
 
 
-        // console.log("remainingCode|"+ this.code.substring(this.cursor))
+        console.log("remainingCode|"+ this.code.substring(this.cursor))
         // console.trace()
         NodeProcess.exit()
     }

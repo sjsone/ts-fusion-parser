@@ -3,7 +3,7 @@ export class Token {
 
     public static SLASH_COMMENT = 2;
     public static HASH_COMMENT = 3;
-    // public static MULTILINE_COMMENT = 4;
+    public static MULTILINE_COMMENT = 4;
 
     public static SPACE = 5;
     public static NEWLINE = 6;

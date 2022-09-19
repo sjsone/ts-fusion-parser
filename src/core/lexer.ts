@@ -4,9 +4,8 @@ import NodeProcess from "process"
 export class Lexer {
     // Difference to: Neos\Eel\Package.EelExpressionRecognizer
     // added an atomic group (to prevent catastrophic backtracking) and removed the end anchor 
-    protected static PATTERN_EEL_EXPRESSION = `^\\\${(?<exp>(>{ (>exp) }|[^{}"']+|"[^"\\\\]*(?:\\\\.[^"\\\\]*)*"|'[^'\\\\]*(?:\\\\.[^'\\\\]*)*')*)}`;
-
-
+    // protected static PATTERN_EEL_EXPRESSION = `^\\\${(?<exp>(>{ (>exp) }|[^{}"']+|"[^"\\\\]*(?:\\\\.[^"\\\\]*)*"|'[^'\\\\]*(?:\\\\.[^'\\\\]*)*')*)}`;
+    protected static PATTERN_EEL_EXPRESSION = `^\\\${(.*)}(?=\\s*\\n)`;
 
     
 
@@ -82,7 +81,7 @@ export class Lexer {
     }
 
     public getCachedLookaheadOrTryToGenerateLookaheadForTokenAndGetLookahead(tokenType: number, debug = false): Token | null {
-        const logging = debug && tokenType === Token.STRING_DOUBLE_QUOTED
+        const logging = debug
         if (this.lookahead !== null) {
             return this.lookahead;
         }
@@ -116,8 +115,8 @@ export class Lexer {
     debug() {
 
 
-        console.log("remainingCode|"+ this.code.substring(this.cursor))
-        console.trace()
+        // console.log("remainingCode|"+ this.code.substring(this.cursor))
+        // console.trace()
         NodeProcess.exit()
     }
 }

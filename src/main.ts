@@ -14,9 +14,9 @@ prototype(Test.Tset:Component) {
 }
 `
 
-// const fusionFile = NodeFs.readFileSync('./test.fusion').toString()
+const fusionFile = NodeFs.readFileSync('./data/test.fusion').toString()
 
-const objectTreeParser = ObjectTreeParser.parse(fusion)
+const objectTreeParser = ObjectTreeParser.parse(fusionFile)
 //console.log(JSON.stringify(objectTreeParser.statementList.statements, undefined, 4))
 objectTreeParser.statementList.debugPrint('', false)
 

@@ -2,3 +2,4 @@ src/
 .DS_Store
 test.fusion
 data/
+*.log

@@ -53,7 +53,7 @@ export class Lexer {
 
         [Token.STRING_SINGLE_QUOTED]: `^'[^'\\\\\\\\]*(?:\\\\.[^'\\\\\\\\]*)*'`,
 
-        [Token.FILE_PATTERN]: '`^[a-zA-Z0-9.*:/_-]+`',
+        [Token.FILE_PATTERN]: '^[a-zA-Z0-9.*:/_-]+',
     };
     protected code: string = '';
     protected codeLen: number = 0;

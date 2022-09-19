@@ -272,7 +272,7 @@ export class ObjectTreeParser {
         this.lazyExpect(Token.SPACE);
         const cursorAfterObjectPath = this.lexer.getCursor();
 
-        
+
         let operation = null
         switch(true) {
             case this.accept(Token.ASSIGNMENT): operation = this.parseValueAssignment(); break;
@@ -380,7 +380,7 @@ export class ObjectTreeParser {
     protected parsePathValue(): AbstractPathValue
     {
         // watch out for the order, its regex matching and first one wins.
-        // sorted by likelihood
+        // sorted by likelyhood
         let stringContent
         switch (true) {
             case this.accept(Token.STRING_SINGLE_QUOTED):
@@ -527,7 +527,8 @@ export class ObjectTreeParser {
             this.consume();
             return;
         }
-            
+
+        console.log("parseEndOfStatement")
         this.lexer.debug()
 
         throw Error("parsed EOF")

@@ -18,7 +18,7 @@ export class Arrays {
             const secondArrayInner = data[i * 2 + 1];
             for (const [key, value] of Object.entries(secondArrayInner)) {
                 if (firstArrayInner[key] !== undefined && typeof firstArrayInner[key] === "object") {
-                    if ((!emptyValuesOverride || value !== []) && Array.isArray(value)) {
+                    if ((!emptyValuesOverride || value.length > 0) && Array.isArray(value)) {
                         data.push(firstArrayInner[key])
                         data.push(value)
                         entryCount++;
@@ -33,7 +33,7 @@ export class Arrays {
                     } else {
                         if (emptyValuesOverride || !value) {
                             firstArrayInner[key] = value;
-                        } else if (firstArrayInner[key] === undefined && value === []) {
+                        } else if (firstArrayInner[key] === undefined && value.length === 0) {
                             firstArrayInner[key] = value;
                         }
                     }

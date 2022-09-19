@@ -1,6 +1,8 @@
 import { AstNodeVisitorInterface } from "../astNodeVisitorInterface";
+import { NodePosition } from "./NodePosition";
 
 export abstract class AbstractNode {
+    protected position: NodePosition|undefined = undefined
     public abstract visit(visitor: AstNodeVisitorInterface, ...args: any[]): any
 
     debugPrint(name: string = '', withGroup = true) {
@@ -28,7 +30,8 @@ export abstract class AbstractNode {
         if(value instanceof AbstractNode) {
             value.debugPrint(name)
         } else {
-            console.log(`|-${name}`, value)
+            console.log(`|-${name}`, value, this.position ? this.position : '')
+            
         }
     }
 }

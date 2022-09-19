@@ -24,6 +24,7 @@ import { ValueCopy } from './ast/ValueCopy';
 import { ValueUnset } from './ast/ValueUnset';
 import {Lexer} from '../lexer'
 import { Token } from '../token';
+import { NodePosition } from './ast/NodePosition';
 
 const stripslashes = (str: string) => str.replace('\\', '')
 const stripcslashes = stripslashes // TODO: stripcslashes = stripslashes = uff
@@ -236,6 +237,7 @@ export class ObjectTreeParser {
      */
     protected parseIncludeStatement(): IncludeStatement
     {
+        const position = this.createPosition()
         this.expect(Token.INCLUDE);
         this.lazyExpect(Token.SPACE);
         let filePattern
@@ -257,7 +259,7 @@ export class ObjectTreeParser {
 
         this.parseEndOfStatement();
 
-        return new IncludeStatement(filePattern);
+        return new IncludeStatement(filePattern, this.endPosition(position));
     }
 
     /**
@@ -321,6 +323,7 @@ export class ObjectTreeParser {
         switch (true) {
             case this.accept(Token.PROTOTYPE_START):
                 this.consume();
+                const position = this.createPosition()
                 let prototypeName
                 try {
                     prototypeName = this.expect(Token.FUSION_OBJECT_NAME).getValue();
@@ -332,16 +335,17 @@ export class ObjectTreeParser {
                     //     .build();
                 }
                 this.expect(Token.RPAREN);
-                return new PrototypePathSegment(prototypeName);
+                return new PrototypePathSegment(prototypeName, this.endPosition(position));
 
             case this.accept(Token.OBJECT_PATH_PART):
                 const pathKey = this.consume().getValue();
                 return new PathSegment(pathKey);
 
             case this.accept(Token.META_PATH_START):
+                const nodePosition = this.createPosition()
                 this.consume();
                 const metaPathSegmentKey = this.expect(Token.OBJECT_PATH_PART).getValue();
-                return new MetaPathSegment(metaPathSegmentKey);
+                return new MetaPathSegment(metaPathSegmentKey, this.endPosition(nodePosition));
 
             case this.accept(Token.STRING_DOUBLE_QUOTED):
             case this.accept(Token.STRING_SINGLE_QUOTED):
@@ -531,6 +535,15 @@ export class ObjectTreeParser {
         //     .setCode(1635878683)
         //     .setMessageCreator([MessageCreator.class, 'forParseEndOfStatement'])
         //     .build();
+    }
+
+    protected createPosition() {
+        return new NodePosition(this.lexer.getCursor())
+    }
+
+    protected endPosition(position: NodePosition): NodePosition {
+        position.end = this.lexer.getCursor()
+        return position
     }
 
     // protected prepareParserException(ParserException parserException): ParserException

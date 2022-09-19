@@ -1,12 +1,14 @@
 import { AstNodeVisitorInterface } from "../astNodeVisitorInterface";
 import { AbstractPathSegment } from "./AbstractPathSegment";
+import { NodePosition } from "./NodePosition";
 
 export class PrototypePathSegment extends AbstractPathSegment
 {
     public  identifier: string
-    public constructor(identifier: string) {
+    public constructor(identifier: string, position: NodePosition) {
         super()
         this.identifier = identifier
+        this.position = position
     }
 
     public visit(visitor: AstNodeVisitorInterface)
@@ -15,6 +17,6 @@ export class PrototypePathSegment extends AbstractPathSegment
     }
 
     protected debugPrintInner(): void {
-        console.log(`|-identifier:`, this.identifier)
+        console.log(`|-identifier: "${this.identifier}" <${this.position}>`)
     }
 }

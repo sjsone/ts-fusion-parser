@@ -1,5 +1,7 @@
 # Neos Fusion Parser
 
+Based on the official `Neos.Fusion` [parser](https://github.com/neos/neos-development-collection/tree/master/Neos.Fusion/Classes/Core)
+
 ## Example
 
 ```typescript

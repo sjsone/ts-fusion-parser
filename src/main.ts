@@ -1,5 +1,5 @@
 import NodeFs from 'fs'
-import { ObjectTreeParser } from "./core/objectTreeParser/objectTreeParser"
+import { ObjectTreeParser } from "./lib"
 
 const fusion = `
 prototype(Neos.Fusion:Component).@class = "Neos\\Fusion\\FusionObjects\\ComponentImplementation"

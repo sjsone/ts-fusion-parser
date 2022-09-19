@@ -1,5 +1,9 @@
 src/
-.DS_Store
-test.fusion
 data/
+
+.DS_Store
 *.log
+test.fusion
+
+out/main.js
+out/main.d.ts

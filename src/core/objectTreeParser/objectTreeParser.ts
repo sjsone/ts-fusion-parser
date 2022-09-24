@@ -411,7 +411,9 @@ export class ObjectTreeParser {
 
             case this.accept(Token.FUSION_OBJECT_NAME):
                 const nodePosition = this.createPosition()
-                return new FusionObjectValue(this.consume().getValue(), this.endPosition(nodePosition));
+                const value = this.consume().getValue()
+                nodePosition.start -= value.length
+                return new FusionObjectValue(value, this.endPosition(nodePosition));
 
             case this.accept(Token.DSL_EXPRESSION_START):
                 return this.parseDslExpression();

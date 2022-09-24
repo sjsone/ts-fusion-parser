@@ -25,6 +25,7 @@ import { ValueUnset } from './ast/ValueUnset';
 import {Lexer} from '../lexer'
 import { Token } from '../token';
 import { NodePosition } from './ast/NodePosition';
+import { AbstractNode } from './ast/AbstractNode';
 
 const stripslashes = (str: string) => str.replace('\\', '')
 const stripcslashes = stripslashes // TODO: stripcslashes = stripslashes = uff
@@ -33,6 +34,8 @@ export class ObjectTreeParser {
     protected lexer: Lexer;
 
     protected contextPathAndFilename: string|undefined;
+
+    protected nodesByType: Map<typeof AbstractNode, AbstractNode[]> = new Map()
 
     protected constructor(lexer: Lexer, contextPathAndFilename: string|undefined)
     {
@@ -159,9 +162,10 @@ export class ObjectTreeParser {
      */
     protected parseFusionFile()
     {
-        return new FusionFile(this.parseStatementList(), this.contextPathAndFilename);
         // try {
-            
+            const file = new FusionFile(this.parseStatementList(), this.contextPathAndFilename);
+            file.nodesByType = this.flushNodesByType()
+            return file
         // } catch (e) {
         //     throw e;
         // } catch (ParserUnexpectedCharException e) {
@@ -197,6 +201,7 @@ export class ObjectTreeParser {
             let statement
             try {
                 statement = this.parseStatement()
+                this.addNodeToNodesByType(statement)
             } catch(e) {
                 throw e
             }
@@ -271,6 +276,7 @@ export class ObjectTreeParser {
     protected parseObjectStatement(): ObjectStatement
     {
         const currentPath = this.parseObjectPath();
+        this.addNodeToNodesByType(currentPath)
         this.lazyExpect(Token.SPACE);
         const cursorAfterObjectPath = this.lexer.getCursor();
 
@@ -280,6 +286,10 @@ export class ObjectTreeParser {
             case this.accept(Token.ASSIGNMENT): operation = this.parseValueAssignment(); break;
             case this.accept(Token.UNSET): operation = this.parseValueUnset(); break;
             case this.accept(Token.COPY): operation =  this.parseValueCopy(); break;
+        }
+
+        if(operation !== null) {
+            this.addNodeToNodesByType(operation)
         }
 
         this.lazyExpect(Token.SPACE);
@@ -311,7 +321,9 @@ export class ObjectTreeParser {
     {
         const segments = [];
         do {
-            segments.push(this.parsePathSegment());
+            const segment = this.parsePathSegment()
+            this.addNodeToNodesByType(segment)
+            segments.push(segment);
         } while (this.lazyExpect(Token.DOT));
         return new ObjectPath(...segments);
     }
@@ -325,10 +337,11 @@ export class ObjectTreeParser {
         switch (true) {
             case this.accept(Token.PROTOTYPE_START):
                 this.consume();
-                const position = this.createPosition()
+                let position = this.createPosition()
                 let prototypeName
                 try {
                     prototypeName = this.expect(Token.FUSION_OBJECT_NAME).getValue();
+                    console.log("prototypeName", prototypeName)
                 } catch (error) {
                     throw error
                     // throw this.prepareParserException(new ParserException())
@@ -336,8 +349,9 @@ export class ObjectTreeParser {
                     //     .setMessageCreator([MessageCreator.class, 'forPathSegmentPrototypeName'])
                     //     .build();
                 }
+                position = this.endPosition(position) 
                 this.expect(Token.RPAREN);
-                return new PrototypePathSegment(prototypeName, this.endPosition(position));
+                return new PrototypePathSegment(prototypeName, position);
 
             case this.accept(Token.OBJECT_PATH_PART):
                 const pathKey = this.consume().getValue();
@@ -372,6 +386,7 @@ export class ObjectTreeParser {
         this.expect(Token.ASSIGNMENT);
         this.lazyExpect(Token.SPACE);
         const value = this.parsePathValue();
+        this.addNodeToNodesByType(value)
         return new ValueAssignment(value);
     }
 
@@ -396,7 +411,8 @@ export class ObjectTreeParser {
                 return new StringValue(stripcslashes(stringContent));
 
             case this.accept(Token.FUSION_OBJECT_NAME):
-                return new FusionObjectValue(this.consume().getValue());
+                const nodePosition = this.createPosition()
+                return new FusionObjectValue(this.consume().getValue(), this.endPosition(nodePosition));
 
             case this.accept(Token.DSL_EXPRESSION_START):
                 return this.parseDslExpression();
@@ -548,6 +564,20 @@ export class ObjectTreeParser {
         position.end = this.lexer.getCursor()
         return position
     }
+
+    protected addNodeToNodesByType(node: AbstractNode) {
+        const type = <typeof AbstractNode>node.constructor
+        const list = this.nodesByType.get(type) ?? []
+        list.push(node)
+        this.nodesByType.set(type, list)
+    }
+
+    protected flushNodesByType() {
+        const map  = new Map(this.nodesByType)
+        this.nodesByType.clear()
+        return map
+    }
+
 
     // protected prepareParserException(ParserException parserException): ParserException
     // {

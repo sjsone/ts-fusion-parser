@@ -30,7 +30,7 @@ export class Lexer {
         [Token.DSL_EXPRESSION_CONTENT]: '^`[^`]*`', // /^`[^`]*+`/
         [Token.EEL_EXPRESSION]: Lexer.PATTERN_EEL_EXPRESSION,
         // Object type part
-        [Token.FUSION_OBJECT_NAME]: '^[0-9a-zA-Z.]+:[0-9a-zA-Z.]+',
+        [Token.FUSION_OBJECT_NAME]: '^[0-9a-zA-Z.]+(?::[0-9a-zA-Z.]+)?',
         // Keywords
         [Token.INCLUDE]: '^include\\s*:',
         // Object path segments
@@ -117,6 +117,8 @@ export class Lexer {
 
         console.log("remainingCode|"+ this.code.substring(this.cursor))
         // console.trace()
-        NodeProcess.exit()
+        // console.log("exiting...")
+        // NodeProcess.exit()
+
     }
 }

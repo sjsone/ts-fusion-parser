@@ -9,6 +9,7 @@ export class FusionFile extends AbstractNode {
     public statementList: StatementList    
     public contextPathAndFileName: string|undefined
     public nodesByType: Map<any, AbstractNode[]> = new Map()
+    public errors: Error[] = []
 
     public constructor(statementList: StatementList,  contextPathAndFileName: string|undefined ) {
         super()
@@ -18,5 +19,9 @@ export class FusionFile extends AbstractNode {
 
     public visit(visitor: AstNodeVisitorInterface) {
         return visitor.visitFusionFile(this)
+    }
+
+    public hasErrors() {
+        return this.errors.length > 0
     }
 }

@@ -95,8 +95,7 @@ export class ObjectTreeParser {
     {
         const token = this.lexer.getCachedLookaheadOrTryToGenerateLookaheadForTokenAndGetLookahead(tokenType);
         if (token === null || token.getType() !== tokenType) {
-            const tokenReadable = Token.typeToString(tokenType);
-            throw Error(`Expected token: '{tokenReadable}'.`)
+            throw Error(`Expected token: '${Token.typeToString(tokenType)}'.`)
             // throw new ParserUnexpectedCharException("Expected token: 'tokenReadable'.", 1646988824);
         }
         return this.lexer.consumeLookahead();
@@ -167,8 +166,9 @@ export class ObjectTreeParser {
     protected parseFusionFile()
     {
         // try {
-            const file = new FusionFile(this.parseStatementList(), this.contextPathAndFilename);
+            const file = new FusionFile(this.parseStatementList(null, "file"), this.contextPathAndFilename);
             file.nodesByType = this.flushNodesByType()
+            file.errors = this.ignoredErrors
             return file
         // } catch (e) {
         //     throw e;
@@ -196,7 +196,7 @@ export class ObjectTreeParser {
      *
      * @param ?int stopLookahead When this tokenType is encountered the loop will be stopped
      */
-    protected parseStatementList(stopLookahead: number|null = null): StatementList
+    protected parseStatementList(stopLookahead: number|null = null, debugName: string = ""): StatementList
     {
         const statements = [];
         this.lazyBigGap();
@@ -214,6 +214,7 @@ export class ObjectTreeParser {
                 } else {
                     this.ignoredErrors.push(<Error>e)
                 }
+                break;
             }
             
         }
@@ -238,13 +239,9 @@ export class ObjectTreeParser {
                 return this.parseObjectStatement();
         }
 
-        this.lexer.debug()
+        if(!this.ignoreErrors) console.log("parseStatement")
+        if(!this.ignoreErrors) this.lexer.debug()
         throw Error("Error while parsing statement")
-
-        // throw this.prepareParserException(new ParserException())
-        //     .setCode(1646988828)
-        //     .setMessageCreator([MessageCreator.class, 'forParseStatement'])
-        //     .build();
     }
 
     /**
@@ -262,8 +259,6 @@ export class ObjectTreeParser {
             case this.accept(Token.STRING_SINGLE_QUOTED):
                 const stringWrapped = this.consume().getValue();
                 filePattern = stringWrapped.substring(1, stringWrapped.length-1)
-                
-                
                 break;
             case this.accept(Token.FILE_PATTERN):
                 filePattern = this.consume().getValue();
@@ -285,6 +280,7 @@ export class ObjectTreeParser {
     protected parseObjectStatement(): ObjectStatement
     {
         const currentPath = this.parseObjectPath();
+        
         this.addNodeToNodesByType(currentPath)
         this.lazyExpect(Token.SPACE);
         const cursorAfterObjectPath = this.lexer.getCursor();
@@ -310,11 +306,6 @@ export class ObjectTreeParser {
 
         if (operation === null) {
             throw Error("operation is null")
-            // throw this.prepareParserException(new ParserException())
-            //     .setCode(1646988835)
-            //     .setMessageCreator([MessageCreator.class, 'forParsePathOrOperator'])
-            //     .setCursor(cursorAfterObjectPath)
-            //     .build();
         }
 
         this.parseEndOfStatement();
@@ -418,14 +409,14 @@ export class ObjectTreeParser {
                 stringContent = stringWrapped.substring( 1, stringWrapped.length-1);
                 return new StringValue(stripcslashes(stringContent));
 
+            case this.accept(Token.DSL_EXPRESSION_START):
+                return this.parseDslExpression();
+
             case this.accept(Token.FUSION_OBJECT_NAME):
                 const nodePosition = this.createPosition()
                 const value = this.consume().getValue()
                 nodePosition.start -= value.length
                 return new FusionObjectValue(value, this.endPosition(nodePosition));
-
-            case this.accept(Token.DSL_EXPRESSION_START):
-                return this.parseDslExpression();
 
             case this.accept(Token.EEL_EXPRESSION):
                 const eelWrapped = this.consume().getValue();
@@ -451,8 +442,8 @@ export class ObjectTreeParser {
                 return new NullValue();
         }
 
-        console.log("parsePathValue")
-        this.lexer.debug()
+        if(!this.ignoreErrors) console.log("parsePathValue")
+        if(!this.ignoreErrors) this.lexer.debug()
 
         throw Error("Could not parse value")
         // throw this.prepareParserException(new ParserException())
@@ -470,15 +461,15 @@ export class ObjectTreeParser {
         const dslIdentifier = this.expect(Token.DSL_EXPRESSION_START).getValue();
         const position = this.createPosition()
         position.start -= dslIdentifier.length
-        let dslCode
+        let dslCode = ''
         try {
             dslCode = this.expect(Token.DSL_EXPRESSION_CONTENT).getValue();
         } catch (error) {
-            throw error
-            // throw this.prepareParserException(new ParserException())
-            //     .setCode(1490714685)
-            //     .setMessageCreator([MessageCreator.class, 'forParseDslExpression'])
-            //     .build();
+            if(this.ignoreErrors) {
+                this.ignoredErrors.push(<Error>error)
+            } else {
+                throw error
+            }
         }
         dslCode = dslCode.substring(1, dslCode.length-2);
         return new DslExpressionValue(dslIdentifier, dslCode, this.endPosition(position));
@@ -520,23 +511,22 @@ export class ObjectTreeParser {
      * Block:
      *  = '{' StatementList? '}'
      */
-    protected parseBlock(): Block
+    protected parseBlock(debugName: string = ""): Block
     {
         this.expect(Token.LBRACE);
         const cursorPositionStartOfBlock = this.lexer.getCursor() - 1;
         this.parseEndOfStatement();
 
-        const statementList = this.parseStatementList(Token.RBRACE);
+        const statementList = this.parseStatementList(Token.RBRACE, debugName);
 
         try {
             this.expect(Token.RBRACE);
         } catch (error) {
-            throw error
-            // throw this.prepareParserException(new ParserException())
-            //     .setCode(1646988844)
-            //     .setMessage('No closing brace "}" matched this starting block. Encountered <EOF>.')
-            //     .setCursor(cursorPositionStartOfBlock)
-            //     .build();
+            if(this.ignoreErrors) {
+                this.ignoredErrors.push(<Error>error)
+            } else {
+                throw error
+            }
         }
 
         return new Block(statementList);
@@ -558,9 +548,8 @@ export class ObjectTreeParser {
             return;
         }
 
-        console.log("parseEndOfStatement")
-        this.lexer.debug()
-
+        if(!this.ignoreErrors) console.log("parseEndOfStatement")
+        if(!this.ignoreErrors)  this.lexer.debug()
         throw Error("parsed EOF")
         // throw this.prepareParserException(new ParserException())
         //     .setCode(1635878683)

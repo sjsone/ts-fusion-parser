@@ -6,9 +6,13 @@ export abstract class AbstractNode {
     public abstract visit(visitor: AstNodeVisitorInterface, ...args: any[]): any
 
     debugPrint(name: string = '', withGroup = true) {
-        if(withGroup) console.group(this.constructor.name + (name !== '' ? `[${name}]`: '' ))
+        if(withGroup) console.group(this.constructor.name + (name !== '' ? `[${name}]`: '' ) + ( this.position ? this.debugPositionToString() : ''))
         this.debugPrintInner()
         if(withGroup) console.groupEnd()
+    }
+
+    protected debugPositionToString() {
+        return ' Pos: '+ this.position?.toString()
     }
 
     protected debugPrintInner() {
@@ -27,10 +31,13 @@ export abstract class AbstractNode {
     }
 
     protected debugPrintValue(value: any, name: string) {
+        if(value instanceof NodePosition) {
+            return
+        }
         if(value instanceof AbstractNode) {
             value.debugPrint(name)
         } else {
-            console.log(`|-${name}`, value, this.position ? this.position : '')
+            console.log(`|-${name}`, value)
             
         }
     }

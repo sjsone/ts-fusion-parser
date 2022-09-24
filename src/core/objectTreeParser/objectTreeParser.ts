@@ -459,6 +459,8 @@ export class ObjectTreeParser {
     protected parseDslExpression(): DslExpressionValue
     {
         const dslIdentifier = this.expect(Token.DSL_EXPRESSION_START).getValue();
+        const position = this.createPosition()
+        position.start -= dslIdentifier.length
         let dslCode
         try {
             dslCode = this.expect(Token.DSL_EXPRESSION_CONTENT).getValue();
@@ -470,7 +472,7 @@ export class ObjectTreeParser {
             //     .build();
         }
         dslCode = dslCode.substring(1, dslCode.length-2);
-        return new DslExpressionValue(dslIdentifier, dslCode);
+        return new DslExpressionValue(dslIdentifier, dslCode, this.endPosition(position));
     }
 
     /**

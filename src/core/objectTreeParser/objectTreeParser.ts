@@ -341,7 +341,6 @@ export class ObjectTreeParser {
                 let prototypeName
                 try {
                     prototypeName = this.expect(Token.FUSION_OBJECT_NAME).getValue();
-                    console.log("prototypeName", prototypeName)
                 } catch (error) {
                     throw error
                     // throw this.prepareParserException(new ParserException())

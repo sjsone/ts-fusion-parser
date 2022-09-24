@@ -37,16 +37,20 @@ export class ObjectTreeParser {
 
     protected nodesByType: Map<typeof AbstractNode, AbstractNode[]> = new Map()
 
-    protected constructor(lexer: Lexer, contextPathAndFilename: string|undefined)
+    protected ignoreErrors: boolean
+    protected ignoredErrors: Error[] = []
+
+    protected constructor(lexer: Lexer, contextPathAndFilename: string|undefined, ignoreErrors: boolean = false)
     {
         this.lexer = lexer;
         this.contextPathAndFilename = contextPathAndFilename;
+        this.ignoreErrors = ignoreErrors
     }
 
-    public static parse( sourceCode: string, contextPathAndFilename: string|undefined = undefined)
+    public static parse( sourceCode: string, contextPathAndFilename: string|undefined = undefined, ignoreErrors: boolean = false)
     {
         const lexer = new Lexer(sourceCode);
-        const parser = new ObjectTreeParser(lexer, contextPathAndFilename);
+        const parser = new ObjectTreeParser(lexer, contextPathAndFilename, ignoreErrors);
         return parser.parseFusionFile();
     }
 
@@ -202,11 +206,16 @@ export class ObjectTreeParser {
             try {
                 statement = this.parseStatement()
                 this.addNodeToNodesByType(statement)
+                statements.push(statement)
+                this.lazyBigGap();
             } catch(e) {
-                throw e
+                if(!this.ignoreErrors) {
+                    throw e
+                } else {
+                    this.ignoredErrors.push(<Error>e)
+                }
             }
-            statements.push(statement)
-            this.lazyBigGap();
+            
         }
         return new StatementList(...statements);
     }

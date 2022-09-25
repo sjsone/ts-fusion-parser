@@ -26,6 +26,8 @@ import {Lexer} from '../lexer'
 import { Token } from '../token';
 import { NodePosition } from './ast/NodePosition';
 import { AbstractNode } from './ast/AbstractNode';
+import { exit } from 'process';
+import { EELParser } from '../eel/parser';
 
 const stripslashes = (str: string) => str.replace('\\', '')
 const stripcslashes = stripslashes // TODO: stripcslashes = stripslashes = uff
@@ -268,7 +270,7 @@ export class ObjectTreeParser {
                 // throw new ParserUnexpectedCharException('Expected file pattern in quotes or [a-zA-Z0-9.*:/_-]', 1646988832);
         }
 
-        this.parseEndOfStatement();
+        this.parseEndOfStatement("parseIncludeStatement");
 
         return new IncludeStatement(filePattern, this.endPosition(position));
     }
@@ -307,8 +309,10 @@ export class ObjectTreeParser {
         if (operation === null) {
             throw Error("operation is null")
         }
-
-        this.parseEndOfStatement();
+        if(!(operation instanceof ValueAssignment && operation.pathValue instanceof EelExpressionValue)) {
+            this.parseEndOfStatement("parseObjectStatement");
+        }
+        
         return new ObjectStatement(currentPath, operation, undefined, cursorAfterObjectPath);
     }
 
@@ -418,10 +422,14 @@ export class ObjectTreeParser {
                 nodePosition.start -= value.length
                 return new FusionObjectValue(value, this.endPosition(nodePosition));
 
-            case this.accept(Token.EEL_EXPRESSION):
-                const eelWrapped = this.consume().getValue();
-                const eelContent = eelWrapped.substring( 2, eelWrapped.length-1);
-                return new EelExpressionValue(eelContent);
+            case this.accept(Token.EEL_EXPRESSION_START):
+                this.consume()
+                const remainingCode = "${" + this.lexer.getRemainingCode()
+                const result = EELParser.parseFromFusion(remainingCode)
+                const eelCode = remainingCode.substring(0, result.cursor) + "}"
+                this.lazyBigGap()
+                this.lexer.advanceCursor(result.cursor)
+                return new EelExpressionValue(eelCode, result.eel);
 
             case this.accept(Token.FLOAT):
                 return new FloatValue(parseFloat(this.consume().getValue()));
@@ -515,7 +523,7 @@ export class ObjectTreeParser {
     {
         this.expect(Token.LBRACE);
         const cursorPositionStartOfBlock = this.lexer.getCursor() - 1;
-        this.parseEndOfStatement();
+        this.parseEndOfStatement("parseBlock");
 
         const statementList = this.parseStatementList(Token.RBRACE, debugName);
 
@@ -536,7 +544,7 @@ export class ObjectTreeParser {
      * EndOfStatement
      *  = ( EOF / NEWLINE )
      */
-    protected parseEndOfStatement(): void
+    protected parseEndOfStatement(debugFrom: string = ''): void
     {
         this.lazySmallGap();
 
@@ -550,7 +558,7 @@ export class ObjectTreeParser {
 
         if(!this.ignoreErrors) console.log("parseEndOfStatement")
         if(!this.ignoreErrors)  this.lexer.debug()
-        throw Error("parsed EOF")
+        throw Error("parsed EOF from: " + debugFrom)
         // throw this.prepareParserException(new ParserException())
         //     .setCode(1635878683)
         //     .setMessageCreator([MessageCreator.class, 'forParseEndOfStatement'])

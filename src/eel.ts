@@ -8,6 +8,7 @@ const testMultiLineString = `\${'
 `
 const testSingleLineString = `\${"test{(asdf)}"}`
 const testSingleLineHelperString = `\${FD.Debug.dumpDie("test")}`
+const testSingleLineHelperStringSuffix = `\${FD.Debug.dumpDie("test").test}`
 const testSingleLineHelperMultiString = `\${FD.Debug.dumpDie("test", "tset")}`
 const testSingleLineHelperWithHelper = `\${FD.Debug.dumpDie(test())}`
 const testSingleLineHelperWithObjectName = `\${FD.Debug.dumpDie(this.test)}`
@@ -33,7 +34,11 @@ const testComplexMultiLine = `\${
     }).isRequired
 }`
 
-const parsedEEl = EELParser.parse(testComplexMultiLine)
+const testMultipleTails = `\${
+    PropTypes.dataStructure().PropTypes.dataStructure().PropTypes.dataStructure()
+}`
+
+const parsedEEl = EELParser.parseFromFusion(testMultipleTails)
 
 console.dir(parsedEEl)
 

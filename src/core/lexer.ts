@@ -7,7 +7,7 @@ export class Lexer {
     // protected static PATTERN_EEL_EXPRESSION = `^\\\${(?<exp>(>{ (>exp) }|[^{}"']+|"[^"\\\\]*(?:\\\\.[^"\\\\]*)*"|'[^'\\\\]*(?:\\\\.[^'\\\\]*)*')*)}`;
     protected static PATTERN_EEL_EXPRESSION = `^\\\${(.*)}(?=\\s*\\n)`;
 
-    
+    protected mode = "fusion"
 
 
     public static TOKEN_REGEX: { [key: number]: string } = {
@@ -60,6 +60,8 @@ export class Lexer {
         [Token.STRING_DOUBLE_QUOTED_START]: `^"`,
         [Token.EEL_EXPRESSION_FUNCTION_PATH]: `^([0-9a-zA-Z])+(?:\\.[0-9a-zA-Z]+)*\\(`,
         [Token.EEL_EXPRESSION_OBJECT_PATH]: `^([0-9a-zA-Z])+(?:\\.[0-9a-zA-Z]+)*`,
+        [Token.EEL_EXPRESSION_OBJECT_PATH_PART]: `^[0-9a-zA-Z]+`,
+        
         [Token.LPAREN]: '^\\(',
         [Token.COMMA]: '^,',
     };
@@ -82,6 +84,15 @@ export class Lexer {
         return this.cursor;
     }
 
+    public advanceCursor(amount: number) {
+        this.cursor += amount
+        this.lookahead = null
+    }
+
+    public getRemainingCode(): string {
+        return this.code.substring(this.cursor)
+    }
+
     public consumeLookahead(): Token {
         const token = <Token>this.lookahead;
         this.lookahead = null;
@@ -101,14 +112,14 @@ export class Lexer {
         }
 
         const regexStringForToken = Lexer.TOKEN_REGEX[tokenType];
-        if(logging) console.log("regexStringForToken", regexStringForToken);
+        if(logging) this.log("regexStringForToken", regexStringForToken);
 
         const remainingCode = this.code.substring(this.cursor)
-        if(logging) console.log("remainingCode|"+remainingCode);
+        if(logging) this.log("remainingCode|"+remainingCode);
         const regexForToken = new RegExp(regexStringForToken, 'g')
-        if(logging) console.log("regexForToken", regexForToken);
+        if(logging) this.log("regexForToken", regexForToken);
         const matches = regexForToken.exec(remainingCode)
-        if(logging) console.log("matches", matches);
+        if(logging) this.log("matches", matches);
         if (matches === null) {
             return null;
         }
@@ -122,22 +133,22 @@ export class Lexer {
 
     public consumeUntil(tokenType: number, logging: boolean = false): string {
         const regexStringForToken = Lexer.TOKEN_REGEX[tokenType];
-        if(logging) console.log("regexStringForToken", regexStringForToken);
+        if(logging) this.log("regexStringForToken", regexStringForToken);
         const regexForToken = new RegExp(regexStringForToken, 'g')
-        if(logging) console.log("regexForToken", regexForToken);
+        if(logging) this.log("regexForToken", regexForToken);
 
         let cursor = this.cursor
         let found = ''
         let next = this.code.substring(cursor)
         while(!regexForToken.test(next) && cursor < this.code.length) {
-            if(logging) console.log("found:"+found, "next:"+next);
+            if(logging) this.log("found:"+found, "next:"+next);
             found += next[0]
             next = next.substring(1)
             cursor++
         }
-        if(logging) console.log("this.cursor", this.cursor);
+        if(logging) this.log("this.cursor", this.cursor);
         this.cursor += found.length 
-        if(logging) console.log("this.cursor", this.cursor);
+        if(logging) this.log("this.cursor", this.cursor);
 
         this.lookahead = null
 
@@ -145,12 +156,14 @@ export class Lexer {
     }
 
     debug() {
-
-
-        console.log("remainingCode|"+ this.code.substring(this.cursor))
+        this.log("remainingCode|"+ this.code.substring(this.cursor))
         // console.trace()
-        // console.log("exiting...")
+        // this.log("exiting...")
         // NodeProcess.exit()
 
+    }
+
+    protected log(...args: any[]) {
+        console.log(this.mode, ...args)
     }
 }

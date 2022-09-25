@@ -5,6 +5,9 @@ import { AbstractStatement } from "../objectTreeParser/ast/AbstractStatement";
 import { StatementList } from "../objectTreeParser/ast/StatementList";
 import { ObjectTreeParser } from "../objectTreeParser/objectTreeParser";
 import { Token } from "../token";
+import { FunctionStatementEELNode } from "./ast/FunctionStatementEELNode";
+import { ObjectLiteralEELNode, ObjectLiteralEELNodeEntry } from "./ast/ObjectLiteralEELNode";
+import { StatementEELNode } from "./ast/StatementEELNode copy";
 import { StringLiteralEELNode } from "./ast/StringLiteralEELNode";
 
 export class EELParser {
@@ -22,8 +25,20 @@ export class EELParser {
 
     public static parse(sourceCode: string, contextPathAndFilename: string | undefined = undefined, ignoreErrors: boolean = false) {
         const lexer = new Lexer(sourceCode);
+        lexer["mode"] = "eel"        
         const parser = new EELParser(lexer);
         return parser.parseEEL();
+    }
+
+    public static parseFromFusion(sourceCode: string, contextPathAndFilename: string | undefined = undefined, ignoreErrors: boolean = false) {
+        const lexer = new Lexer(sourceCode);
+        lexer["mode"] = "eel"
+        const parser = new EELParser(lexer);
+
+        return {
+            eel: parser.parseEEL(),
+            cursor: lexer.getCursor()
+        }
     }
 
     public parseEEL() {
@@ -31,7 +46,6 @@ export class EELParser {
         this.stack.push(Token.LBRACE)
         this.lazyBigGap();
         return this.parseStatement()
-        
     }
 
     protected parseStatementList(stopLookahead: number | null = null, debugName: string = "") {
@@ -42,15 +56,12 @@ export class EELParser {
             let statement
             try {
                 statement = this.parseStatement()
-                console.log("statement", statement)
                 statements.push(statement)
                 this.lazyBigGap();
-                this.lexer.debug()
+                // this.lexer.debug()
                 if(!this.lazyExpect(Token.COMMA)) {
-                    console.log("no comma found", this.stack)
                     break
                 }
-                console.log("Found expected comma", )
                 this.lazyBigGap();
                 
             } catch (e) {
@@ -64,7 +75,6 @@ export class EELParser {
             if(this.getLastStackItem() === Token.LBRACE && this.accept(Token.RBRACE)) {
                 this.consume()
                 this.stack.pop()
-                console.log("this stack", this.stack)
             }
         }
 
@@ -94,14 +104,8 @@ export class EELParser {
         return new StringLiteralEELNode(text)
     }
 
-    protected parseFunctionCall(path: string): any {
-        console.group(`[${path}]()`)
-        console.log("parsing function call")
-
-        const test = this.parseStatementList(Token.RPAREN)
-        // console.log("parsed Function Call", test)
-        console.groupEnd()
-        return test
+    protected parseFunctionCall(): any {
+        return this.parseStatementList(Token.RPAREN)
     }
 
     protected parseObjectLiteral() {
@@ -112,37 +116,35 @@ export class EELParser {
             const entry = this.parseObjectEntry()
             entries.push(entry)
             this.lazyBigGap();
-            this.lexer.debug()
+            // this.lexer.debug()
             if(!this.lazyExpect(Token.COMMA)) {
                 break;
             }
             
         }
-        return {
-            type: "object",
-            entries
-        }
+        return new ObjectLiteralEELNode(entries)
     }
 
-    protected parseObjectEntry(): any {
-        let key = null
+    protected parseObjectEntry(): ObjectLiteralEELNodeEntry {
+        let key
         switch (true) {
             case this.accept(Token.STRING_SINGLE_QUOTED_START):
             case this.accept(Token.STRING_DOUBLE_QUOTED_START):
                 key = this.parseString(this.consume())
         }
+
+        if(key === undefined) throw new Error("No key could be found")
+
         this.lazySmallGap()
         this.expect(Token.COLON)
         this.lazySmallGap()
+
         const statement = this.parseStatement()
-
-        console.log("key", key)
-        console.log("statement", statement)
-
-        return {key, statement}
+        return {key, value: statement}
     }
 
     protected parseStatement() {
+        let statement
         // watch out for the order, its regex matching and first one wins.
         switch (true) {
             case this.accept(Token.STRING_SINGLE_QUOTED_START):
@@ -152,16 +154,15 @@ export class EELParser {
                 const functionToken = this.consume()
                 const path = functionToken.getValue().slice(0, -1)
                 this.stack.push(Token.LPAREN)
-
-                // console.log("function path", path)
-                const args = this.parseFunctionCall(path)
+                const args = this.parseFunctionCall()
                 this.lazyExpect(Token.RPAREN)
-                return {path, args}
+                statement = new FunctionStatementEELNode(path, args)
+                break
 
             case this.accept(Token.FUSION_OBJECT_NAME):
                 const objectToken = this.consume()
-                // console.log(objectToken)
-                return objectToken.getValue()
+                statement = new StatementEELNode(objectToken.getValue())
+                break
 
             case this.accept(Token.LBRACE):
                 this.consume()
@@ -169,9 +170,15 @@ export class EELParser {
                 const obj = this.parseObjectLiteral()
                 this.lazyExpect(Token.RBRACE)
                 return obj
-
-
         }
+
+        if(statement !== undefined) {
+            if(this.lazyExpect(Token.DOT) && statement instanceof FunctionStatementEELNode) {
+                statement.tail = this.parseStatement() 
+            }
+            return statement
+        }
+
 
         if (!this.ignoreErrors) console.log("parseStatement")
         if (!this.ignoreErrors) this.lexer.debug()

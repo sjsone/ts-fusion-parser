@@ -1,25 +1,5 @@
 prototype(WebExcess.OpenStreetMap:Map.Component) < prototype(Neos.Fusion:Component) {
 
-
-    descriptionTemplateOptions = null
-
-    fieldNames = 'job'
-
-    asdf = Template {
-        path = "asdfasdf"
-    }
-
-    html = afx`
-        <div>test</div>
-    `
-
-
-    test = ${'
-        <svg class="test">
-
-        </svg>
-    '}
-
     pathsWithoutChain = ${
         PropTypes.dataStructure({
             'Inline': PropTypes.dataStructure({
@@ -59,6 +39,26 @@ prototype(WebExcess.OpenStreetMap:Map.Component) < prototype(Neos.Fusion:Compone
             })
         }).isRequired
     }
+
+
+    descriptionTemplateOptions = null
+
+    fieldNames = 'job'
+
+    asdf = Template {
+        path = "asdfasdf"
+    }
+
+    html = afx`
+        <div>test</div>
+    `
+
+
+    test = ${'
+        <svg class="test">
+
+        </svg>
+    '}
 
     
 }

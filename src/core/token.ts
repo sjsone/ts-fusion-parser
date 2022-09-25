@@ -50,6 +50,7 @@ export class Token {
     public static LPAREN = 695
     public static COMMA = 696
     public static EEL_EXPRESSION_OBJECT_PATH = 697
+    public static EEL_EXPRESSION_OBJECT_PATH_PART = 698
     
 
     protected type: number

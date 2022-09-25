@@ -13,6 +13,8 @@ const testSingleLineHelperMultiString = `\${FD.Debug.dumpDie("test", "tset")}`
 const testSingleLineHelperWithHelper = `\${FD.Debug.dumpDie(test())}`
 const testSingleLineHelperWithObjectName = `\${FD.Debug.dumpDie(this.test)}`
 const testSingleLineHelperWithObjectNameAndHelperAndString = `\${FD.Debug.dumpDie(this.test, test(), "asdf")}`
+const testSingleArray = `\${['available', 'reserved']}`
+
 
 const testComplexMultiLine = `\${
     PropTypes.dataStructure({
@@ -38,7 +40,7 @@ const testMultipleTails = `\${
     PropTypes.dataStructure().PropTypes.dataStructure().PropTypes.dataStructure()
 }`
 
-const parsedEEl = EELParser.parseFromFusion(testMultipleTails)
+const parsedEEl = EELParser.parseFromFusion(testSingleArray)
 
 console.dir(parsedEEl)
 

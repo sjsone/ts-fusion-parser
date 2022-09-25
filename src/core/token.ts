@@ -51,7 +51,9 @@ export class Token {
     public static COMMA = 696
     public static EEL_EXPRESSION_OBJECT_PATH = 697
     public static EEL_EXPRESSION_OBJECT_PATH_PART = 698
-    
+
+    public static LBRACKET = 699;
+    public static RBRACKET = 700;
 
     protected type: number
     protected value: string

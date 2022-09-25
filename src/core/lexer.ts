@@ -47,6 +47,10 @@ export class Lexer {
         [Token.RPAREN]: '^\\)',
         [Token.LBRACE]: '^{',
         [Token.RBRACE]: '^}',
+        [Token.LBRACKET]: '^\\[',
+        [Token.RBRACKET]: '^\\]',
+        
+
         // Strings
 
         [Token.STRING_DOUBLE_QUOTED]: `^"[^"\\\\\\\\]*(?:\\\\.[^"\\\\\\\\]*)*"`,

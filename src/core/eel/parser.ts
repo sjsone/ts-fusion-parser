@@ -5,6 +5,8 @@ import { AbstractStatement } from "../objectTreeParser/ast/AbstractStatement";
 import { StatementList } from "../objectTreeParser/ast/StatementList";
 import { ObjectTreeParser } from "../objectTreeParser/objectTreeParser";
 import { Token } from "../token";
+import { AbstractEELNode } from "./ast/AbstractEELNode";
+import { ArrayLiteralEELNode } from "./ast/ArrayLiteralEELNode";
 import { FunctionStatementEELNode } from "./ast/FunctionStatementEELNode";
 import { ObjectLiteralEELNode, ObjectLiteralEELNodeEntry } from "./ast/ObjectLiteralEELNode";
 import { StatementEELNode } from "./ast/StatementEELNode copy";
@@ -125,6 +127,23 @@ export class EELParser {
         return new ObjectLiteralEELNode(entries)
     }
 
+    protected parseArrayLiteral() {
+        const stopLookahead = Token.RBRACKET
+        const entries: AbstractEELNode[] = []
+        while (!this.accept(Token.EOF) && !this.accept(stopLookahead)) {
+            this.lazyBigGap();
+            const entry = this.parseStatement()
+            entries.push(entry)
+            this.lazyBigGap();
+            // this.lexer.debug()
+            if(!this.lazyExpect(Token.COMMA)) {
+                break;
+            }
+            
+        }
+        return new ArrayLiteralEELNode(entries)
+    }
+
     protected parseObjectEntry(): ObjectLiteralEELNodeEntry {
         let key
         switch (true) {
@@ -170,6 +189,15 @@ export class EELParser {
                 const obj = this.parseObjectLiteral()
                 this.lazyExpect(Token.RBRACE)
                 return obj
+
+            case this.accept(Token.LBRACKET):
+                this.consume()
+                this.stack.push(Token.LBRACKET)
+                const arr = this.parseArrayLiteral()
+                this.lazyExpect(Token.RBRACKET)
+                return arr
+
+            
         }
 
         if(statement !== undefined) {

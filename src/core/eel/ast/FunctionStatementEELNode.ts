@@ -1,7 +1,7 @@
 import { AbstractEELNode } from "./AbstractEELNode";
 import { ArrayLiteralEELNode } from "./ArrayLiteralEELNode";
 import { ObjectLiteralEELNode } from "./ObjectLiteralEELNode";
-import { StatementEELNode } from "./StatementEELNode copy";
+import { StatementEELNode } from "./StatementEELNode";
 import { StringLiteralEELNode } from "./StringLiteralEELNode";
 
 

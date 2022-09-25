@@ -65,6 +65,7 @@ export class Lexer {
         [Token.EEL_EXPRESSION_FUNCTION_PATH]: `^([0-9a-zA-Z])+(?:\\.[0-9a-zA-Z]+)*\\(`,
         [Token.EEL_EXPRESSION_OBJECT_PATH]: `^([0-9a-zA-Z])+(?:\\.[0-9a-zA-Z]+)*`,
         [Token.EEL_EXPRESSION_OBJECT_PATH_PART]: `^[0-9a-zA-Z]+`,
+        [Token.EEL_EXPRESSION_CALLBACK]: `^\\(([a-zA-Z]+(?:\\s*,\\s*[a-zA-Z]+)*)\\)\\s*=>`,
         
         [Token.LPAREN]: '^\\(',
         [Token.COMMA]: '^,',

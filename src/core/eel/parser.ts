@@ -9,7 +9,7 @@ import { AbstractEELNode } from "./ast/AbstractEELNode";
 import { ArrayLiteralEELNode } from "./ast/ArrayLiteralEELNode";
 import { FunctionStatementEELNode } from "./ast/FunctionStatementEELNode";
 import { ObjectLiteralEELNode, ObjectLiteralEELNodeEntry } from "./ast/ObjectLiteralEELNode";
-import { StatementEELNode } from "./ast/StatementEELNode copy";
+import { StatementEELNode } from "./ast/StatementEELNode";
 import { StringLiteralEELNode } from "./ast/StringLiteralEELNode";
 
 export class EELParser {
@@ -182,6 +182,14 @@ export class EELParser {
                 const objectToken = this.consume()
                 statement = new StatementEELNode(objectToken.getValue())
                 break
+
+            case this.accept(Token.EEL_EXPRESSION_CALLBACK): 
+                const callbackSignature = this.consume().getValue().replace("=>", "").trim()
+                console.log("callbackSignature", callbackSignature)
+                this.lazySmallGap()
+                const body: any = this.parseStatement()
+                console.log("body", body)
+                return body
 
             case this.accept(Token.LBRACE):
                 this.consume()

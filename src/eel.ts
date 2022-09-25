@@ -40,7 +40,11 @@ const testMultipleTails = `\${
     PropTypes.dataStructure().PropTypes.dataStructure().PropTypes.dataStructure()
 }`
 
-const parsedEEl = EELParser.parseFromFusion(testSingleArray)
+const simpleCallback = `\${
+    Array.filter(this.anchorItems, (item, index) => item.availableProperties != null)
+}`
+
+const parsedEEl = EELParser.parse(simpleCallback)
 
 console.dir(parsedEEl)
 

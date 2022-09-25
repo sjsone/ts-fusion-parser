@@ -27,7 +27,7 @@ export class EELParser {
 
     public static parse(sourceCode: string, contextPathAndFilename: string | undefined = undefined, ignoreErrors: boolean = false) {
         const lexer = new Lexer(sourceCode);
-        lexer["mode"] = "eel"        
+        lexer["mode"] = "eel"
         const parser = new EELParser(lexer);
         return parser.parseEEL();
     }
@@ -36,9 +36,27 @@ export class EELParser {
         const lexer = new Lexer(sourceCode);
         lexer["mode"] = "eel"
         const parser = new EELParser(lexer);
+        
+        let eel
+        try { 
+            eel = parser.parseEEL()
+        } catch (e) {
+            while (!parser.accept(Token.EOF) && lexer.getCursor() <= lexer.getCode().length) {
+                parser.lazyBigGap();
+
+                if(parser.accept(Token.RBRACE) ) {
+                    while(!parser.accept(Token.EEL_EXPRESSION_OBJECT_PATH_PART) && lexer.getCursor() <= lexer.getCode().length) {
+                        lexer.advanceCursor(1)
+                    }
+                    lexer.advanceCursor(-parser.consume().getValue().length) 
+                    break;
+                }
+                lexer.advanceCursor(1)
+            }
+        }
 
         return {
-            eel: parser.parseEEL(),
+            eel,
             cursor: lexer.getCursor()
         }
     }
@@ -61,11 +79,11 @@ export class EELParser {
                 statements.push(statement)
                 this.lazyBigGap();
                 // this.lexer.debug()
-                if(!this.lazyExpect(Token.COMMA)) {
+                if (!this.lazyExpect(Token.COMMA)) {
                     break
                 }
                 this.lazyBigGap();
-                
+
             } catch (e) {
                 if (!this.ignoreErrors) {
                     throw e
@@ -74,7 +92,7 @@ export class EELParser {
                 }
                 break;
             }
-            if(this.getLastStackItem() === Token.LBRACE && this.accept(Token.RBRACE)) {
+            if (this.getLastStackItem() === Token.LBRACE && this.accept(Token.RBRACE)) {
                 this.consume()
                 this.stack.pop()
             }
@@ -119,10 +137,10 @@ export class EELParser {
             entries.push(entry)
             this.lazyBigGap();
             // this.lexer.debug()
-            if(!this.lazyExpect(Token.COMMA)) {
+            if (!this.lazyExpect(Token.COMMA)) {
                 break;
             }
-            
+
         }
         return new ObjectLiteralEELNode(entries)
     }
@@ -136,10 +154,10 @@ export class EELParser {
             entries.push(entry)
             this.lazyBigGap();
             // this.lexer.debug()
-            if(!this.lazyExpect(Token.COMMA)) {
+            if (!this.lazyExpect(Token.COMMA)) {
                 break;
             }
-            
+
         }
         return new ArrayLiteralEELNode(entries)
     }
@@ -152,14 +170,14 @@ export class EELParser {
                 key = this.parseString(this.consume())
         }
 
-        if(key === undefined) throw new Error("No key could be found")
+        if (key === undefined) throw new Error("No key could be found")
 
         this.lazySmallGap()
         this.expect(Token.COLON)
         this.lazySmallGap()
 
         const statement = this.parseStatement()
-        return {key, value: statement}
+        return { key, value: statement }
     }
 
     protected parseStatement() {
@@ -183,7 +201,7 @@ export class EELParser {
                 statement = new StatementEELNode(objectToken.getValue())
                 break
 
-            case this.accept(Token.EEL_EXPRESSION_CALLBACK): 
+            case this.accept(Token.EEL_EXPRESSION_CALLBACK):
                 const callbackSignature = this.consume().getValue().replace("=>", "").trim()
                 console.log("callbackSignature", callbackSignature)
                 this.lazySmallGap()
@@ -205,12 +223,12 @@ export class EELParser {
                 this.lazyExpect(Token.RBRACKET)
                 return arr
 
-            
+
         }
 
-        if(statement !== undefined) {
-            if(this.lazyExpect(Token.DOT) && statement instanceof FunctionStatementEELNode) {
-                statement.tail = this.parseStatement() 
+        if (statement !== undefined) {
+            if (this.lazyExpect(Token.DOT) && statement instanceof FunctionStatementEELNode) {
+                statement.tail = this.parseStatement()
             }
             return statement
         }
@@ -263,7 +281,7 @@ export class EELParser {
      */
     protected lazyExpect(tokenType: number, debug = false): boolean {
         const token = this.lexer.getCachedLookaheadOrTryToGenerateLookaheadForTokenAndGetLookahead(tokenType, debug);
-        if(debug) console.log("token", token)
+        if (debug) console.log("token", token)
         if (token === null || token.getType() !== tokenType) {
             return false;
         }

@@ -44,8 +44,12 @@ const simpleCallback = `\${
     Array.filter(this.anchorItems, (item, index) => item.availableProperties != null)
 }`
 
-const parsedEEl = EELParser.parse(simpleCallback)
+const skipOnError = `\${
+    (q(node).property('projects') && Array.length(q(node).property('projects'))) ? Array.slice(q(node).property('projects'), 0, 4) : null
+}
 
-console.dir(parsedEEl)
+test = asdf
+`
 
-
+const parsedEEl = EELParser.parseFromFusion(testMultipleTails)
+console.log(parsedEEl.eel)

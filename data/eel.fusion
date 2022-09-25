@@ -20,7 +20,27 @@ prototype(WebExcess.OpenStreetMap:Map.Component) < prototype(Neos.Fusion:Compone
         </svg>
     '}
 
-    paths = ${
+    pathsWithoutChain = ${
+        PropTypes.dataStructure({
+            'Inline': PropTypes.dataStructure({
+                'CSS': PropTypes.string,
+                'JS': PropTypes.string,
+                'MJS': PropTypes.string,
+                'HTML': PropTypes.string
+            }),
+            'File': PropTypes.dataStructure({
+                'CSS': PropTypes.string,
+                'JS': PropTypes.string,
+                'MJS': PropTypes.string,
+                'PRELOADASSET': PropTypes.string,
+                'PRELOADCSS': PropTypes.string,
+                'PRELOADSCRIPT': PropTypes.string,
+                'MODULEPRELOAD': PropTypes.string
+            })
+        })
+    }
+
+    pathsWithChain = ${
         PropTypes.dataStructure({
             'Inline': PropTypes.dataStructure({
                 'CSS': PropTypes.string,
@@ -39,4 +59,6 @@ prototype(WebExcess.OpenStreetMap:Map.Component) < prototype(Neos.Fusion:Compone
             })
         }).isRequired
     }
+
+    
 }

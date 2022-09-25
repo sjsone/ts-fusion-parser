@@ -12,7 +12,7 @@
         "prepublishOnly": "rm -rf out && tsc",
         "watch-ts": "tsc --watch",
         "watch-src": "nodemon out/main.js",
-        "publish-prepatch": "npm version prepatch && git push --tags && git push --all && npm publish"
+        "publish-prepatch": "npm version patch && git push --tags && git push --all && npm publish"
     },
     "main": "out/lib.js",
     "author": "Simon Schmidt",

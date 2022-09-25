@@ -43,6 +43,15 @@ export class Token {
     public static LBRACE = 30;
     public static RBRACE = 31;
 
+    public static EEL_EXPRESSION_START = 691
+    public static STRING_DOUBLE_QUOTED_START = 692;
+    public static STRING_SINGLE_QUOTED_START = 693;
+    public static EEL_EXPRESSION_FUNCTION_PATH = 694
+    public static LPAREN = 695
+    public static COMMA = 696
+    public static EEL_EXPRESSION_OBJECT_PATH = 697
+    
+
     protected type: number
     protected value: string
     protected name: string

@@ -10,7 +10,7 @@ export class Lexer {
     
 
 
-    protected static TOKEN_REGEX: { [key: number]: string } = {
+    public static TOKEN_REGEX: { [key: number]: string } = {
         [Token.SLASH_COMMENT]: '^\\/\\/.*',
         [Token.HASH_COMMENT]: '^#.*',
 
@@ -54,6 +54,14 @@ export class Lexer {
         [Token.STRING_SINGLE_QUOTED]: `^'[^'\\\\\\\\]*(?:\\\\.[^'\\\\\\\\]*)*'`,
 
         [Token.FILE_PATTERN]: '^[a-zA-Z0-9.*:/_-]+',
+
+        [Token.EEL_EXPRESSION_START]: `^\\\${`,
+        [Token.STRING_SINGLE_QUOTED_START]: `^'`,
+        [Token.STRING_DOUBLE_QUOTED_START]: `^"`,
+        [Token.EEL_EXPRESSION_FUNCTION_PATH]: `^([0-9a-zA-Z])+(?:\\.[0-9a-zA-Z]+)*\\(`,
+        [Token.EEL_EXPRESSION_OBJECT_PATH]: `^([0-9a-zA-Z])+(?:\\.[0-9a-zA-Z]+)*`,
+        [Token.LPAREN]: '^\\(',
+        [Token.COMMA]: '^,',
     };
     protected code: string = '';
     protected codeLen: number = 0;
@@ -110,6 +118,30 @@ export class Lexer {
         this.lookahead = new Token(tokenType, matches[0]);
 
         return this.lookahead
+    }
+
+    public consumeUntil(tokenType: number, logging: boolean = false): string {
+        const regexStringForToken = Lexer.TOKEN_REGEX[tokenType];
+        if(logging) console.log("regexStringForToken", regexStringForToken);
+        const regexForToken = new RegExp(regexStringForToken, 'g')
+        if(logging) console.log("regexForToken", regexForToken);
+
+        let cursor = this.cursor
+        let found = ''
+        let next = this.code.substring(cursor)
+        while(!regexForToken.test(next) && cursor < this.code.length) {
+            if(logging) console.log("found:"+found, "next:"+next);
+            found += next[0]
+            next = next.substring(1)
+            cursor++
+        }
+        if(logging) console.log("this.cursor", this.cursor);
+        this.cursor += found.length 
+        if(logging) console.log("this.cursor", this.cursor);
+
+        this.lookahead = null
+
+        return found;
     }
 
     debug() {

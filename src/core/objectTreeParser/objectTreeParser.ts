@@ -26,8 +26,6 @@ import {Lexer} from '../lexer'
 import { Token } from '../token';
 import { NodePosition } from './ast/NodePosition';
 import { AbstractNode } from './ast/AbstractNode';
-import { exit } from 'process';
-import { EELParser } from '../eel/parser';
 
 const stripslashes = (str: string) => str.replace('\\', '')
 const stripcslashes = stripslashes // TODO: stripcslashes = stripslashes = uff
@@ -424,12 +422,27 @@ export class ObjectTreeParser {
 
             case this.accept(Token.EEL_EXPRESSION_START):
                 this.consume()
-                const remainingCode = "${" + this.lexer.getRemainingCode()
-                const result = EELParser.parseFromFusion(remainingCode)
-                const eelCode = remainingCode.substring(0, result.cursor) + "}"
-                this.lazyBigGap()
-                this.lexer.advanceCursor(result.cursor)
-                return new EelExpressionValue(eelCode, result.eel);
+                const singleEELRegex = /^(.*)\}\s*$/
+                const remainingCode = this.lexer.getRemainingCode()
+                let eel = ''
+                if(singleEELRegex.test(remainingCode)) {
+                    const res = singleEELRegex.exec(remainingCode)
+                    eel = (<RegExpExecArray>res)[1]
+                } else {
+                    let lines = remainingCode.split("\n")
+                    for(const line of lines) {
+                        const res = singleEELRegex.exec(line)
+                        if(res === null) {
+                            eel += line+"\n"
+                        } else {
+                            eel += res[1]
+                            break
+                        }
+                    }
+                }
+
+                this.lexer.advanceCursor(eel.length+1)
+                return new EelExpressionValue(eel);
 
             case this.accept(Token.FLOAT):
                 return new FloatValue(parseFloat(this.consume().getValue()));

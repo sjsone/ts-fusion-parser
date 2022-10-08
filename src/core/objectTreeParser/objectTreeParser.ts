@@ -279,6 +279,7 @@ export class ObjectTreeParser {
      */
     protected parseObjectStatement(): ObjectStatement
     {
+        const position = this.createPosition()
         const currentPath = this.parseObjectPath();
         
         this.addNodeToNodesByType(currentPath)
@@ -301,7 +302,8 @@ export class ObjectTreeParser {
 
         if (this.accept(Token.LBRACE)) {
             const block = this.parseBlock();
-            return new ObjectStatement(currentPath, operation, block, cursorAfterObjectPath);
+            
+            return new ObjectStatement(currentPath, operation, block, cursorAfterObjectPath, this.endPosition(position));
         }
 
         if (operation === null) {
@@ -311,7 +313,7 @@ export class ObjectTreeParser {
             this.parseEndOfStatement("parseObjectStatement");
         }
         
-        return new ObjectStatement(currentPath, operation, undefined, cursorAfterObjectPath);
+        return new ObjectStatement(currentPath, operation, undefined, cursorAfterObjectPath, this.endPosition(position));
     }
 
     /**
@@ -321,13 +323,16 @@ export class ObjectTreeParser {
      */
     protected parseObjectPath(): ObjectPath
     {
+        const position = this.createPosition()
         const segments = [];
         do {
             const segment = this.parsePathSegment()
             this.addNodeToNodesByType(segment)
             segments.push(segment);
         } while (this.lazyExpect(Token.DOT));
-        return new ObjectPath(...segments);
+        const objectPath = new ObjectPath(...segments);
+        objectPath.setPosition(this.endPosition(position))
+        return objectPath
     }
 
     /**
@@ -336,10 +341,11 @@ export class ObjectTreeParser {
      */
     protected parsePathSegment(): AbstractPathSegment
     {
+        let position = this.createPosition()
         switch (true) {
             case this.accept(Token.PROTOTYPE_START):
                 this.consume();
-                let position = this.createPosition()
+                position = this.createPosition()
                 let prototypeName
                 try {
                     prototypeName = this.expect(Token.FUSION_OBJECT_NAME).getValue();
@@ -356,7 +362,8 @@ export class ObjectTreeParser {
 
             case this.accept(Token.OBJECT_PATH_PART):
                 const pathKey = this.consume().getValue();
-                return new PathSegment(pathKey);
+                position.start -= pathKey.length
+                return new PathSegment(pathKey, this.endPosition(position) );
 
             case this.accept(Token.META_PATH_START):
                 const nodePosition = this.createPosition()
@@ -368,7 +375,8 @@ export class ObjectTreeParser {
             case this.accept(Token.STRING_SINGLE_QUOTED):
                 const stringWrapped = this.consume().getValue();
                 const quotedPathKey = stringWrapped.substring( 1, stringWrapped.length-1);
-                return new PathSegment(quotedPathKey);
+                position.start -= quotedPathKey.length
+                return new PathSegment(quotedPathKey, this.endPosition(position));
         }
 
         throw Error("Could not parse segment")

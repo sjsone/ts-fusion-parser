@@ -70,6 +70,7 @@ export class Parser {
         // TODO: Cache me
         // const dslObject = this.dslFactory.create(identifier);
         // const transpiledFusion = dslObject.transpile(code);
+        return ""
         const transpiledFusion = '${"'+code+'"}'
         const fusionFile = ObjectTreeParser.parse('value = '+transpiledFusion);
         const mergedArrayTree = this.getMergedArrayTreeVisitor(new MergedArrayTree({})).visitFusionFile(fusionFile);

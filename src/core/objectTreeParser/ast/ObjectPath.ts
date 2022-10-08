@@ -1,6 +1,7 @@
 import { AstNodeVisitorInterface } from "../astNodeVisitorInterface";
 import { AbstractNode } from "./AbstractNode";
 import { AbstractPathSegment } from "./AbstractPathSegment";
+import { NodePosition } from "./NodePosition";
 
 
 export class ObjectPath extends AbstractNode
@@ -16,6 +17,10 @@ export class ObjectPath extends AbstractNode
     public visit(visitor: AstNodeVisitorInterface, currentPathPrefix: string[])
     {
         return visitor.visitObjectPath(this, currentPathPrefix)
+    }
+
+    public setPosition(position: NodePosition) {
+        this.position = position
     }
 
     protected debugPrintInner(): void {

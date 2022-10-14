@@ -11,7 +11,7 @@
         "test": "echo \"Error: no test specified\" && exit 1",
         "prepublishOnly": "rm -rf out && tsc",
         "watch-ts": "tsc --watch",
-        "watch-src": "nodemon out/main.js",
+        "watch-src": "nodemon out/afx.js",
         "version-patch": "npm version patch && git push --tags && git push --all"
     },
     "main": "out/lib.js",

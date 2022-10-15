@@ -430,6 +430,7 @@ export class ObjectTreeParser {
 
             case this.accept(Token.EEL_EXPRESSION_START):
                 this.consume()
+                const position = this.createPosition()
                 const singleEELRegex = /^(.*)\}\s*$/
                 const remainingCode = this.lexer.getRemainingCode()
                 let eel = ''
@@ -448,9 +449,9 @@ export class ObjectTreeParser {
                         }
                     }
                 }
-
+                position.end = this.lexer.getCursor() + eel.length
                 this.lexer.advanceCursor(eel.length+1)
-                return new EelExpressionValue(eel);
+                return new EelExpressionValue(eel, position);
 
             case this.accept(Token.FLOAT):
                 return new FloatValue(parseFloat(this.consume().getValue()));

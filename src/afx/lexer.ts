@@ -43,6 +43,7 @@ export class Lexer {
         const token = new tokenType()
         const match = token.regex.exec(text)
         if(match === null) {
+            console.log("HTML: " + this.getRemainingText().substring(0, 150) + "...")
             throw new Error(`Trying to consume [${tokenType.name}]`)
         }
         const value = match[1]

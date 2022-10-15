@@ -24,4 +24,7 @@ export class WordToken extends Token { public regex = /^(\w+)/ }
 export class CharacterToken extends Token { public regex = /^([^<])/ }
 export class EscapedCharacterToken extends Token { public regex = /^(&\w+;)/ }
 
+export class ScriptEndToken extends Token { public regex = /^(<\/script>)/ }
+
+
 export class WhitespaceToken extends Token { public regex = /^(\s*)/ }

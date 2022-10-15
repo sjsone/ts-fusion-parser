@@ -30,7 +30,7 @@ const html = `
 </html>
 `
 
-const htmlFile = NodeFs.readFileSync("src/testSmall.html").toString()
+const htmlFile = NodeFs.readFileSync("src/test.html").toString()
 
 const text = htmlFile
 const lexer = new Lexer(text)

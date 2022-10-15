@@ -6,7 +6,7 @@ import { TagNameNode } from "./nodes/TagNameNode";
 import { TagNode } from "./nodes/TagNode";
 import { TextNode } from "./nodes/TextNode";
 import { ParserHandoverResult, ParserInterface } from "./parserInterface";
-import { AttributeNameToken, AttributeStringValueToken, AttributeValueAssignToken, CharacterToken, CommentToken, EscapedCharacterToken, TagBeginToken, TagCloseToken, TagEndToken, TagSelfCloseToken, TokenConstructor, WhitespaceToken, WordToken } from "./tokens";
+import { AttributeNameToken, AttributeStringValueToken, AttributeValueAssignToken, CharacterToken, CommentToken, EscapedCharacterToken, ScriptEndToken, TagBeginToken, TagCloseToken, TagEndToken, TagSelfCloseToken, Token, TokenConstructor, WhitespaceToken, WordToken } from "./tokens";
 
 export class Parser implements ParserInterface {
     protected lexer: Lexer
@@ -16,25 +16,27 @@ export class Parser implements ParserInterface {
     }
 
     parse() {
-        return this.parseTextsOrTags(false, true)
+        return this.parseTextsOrTags(undefined, false, true)
     }
 
-    parseText(debug: boolean = false) {
-        if (debug) console.group("Parsing Text")
+    parseText(textEndToken: TokenConstructor|undefined = undefined, debug: boolean = false) {
+        if (debug ||textEndToken) console.group("Parsing Text")
         const position: NodePosition = { begin: -1, end: -1 }
         let text = ""
-        while (!this.lexer.isEOF() && (this.lexer.lookAhead(CharacterToken) || this.lexer.lookAhead(EscapedCharacterToken))) {
+
+        while (!this.lexer.isEOF() && (textEndToken !== undefined ? !this.lexer.lookAhead(textEndToken) : (this.lexer.lookAhead(CharacterToken) || this.lexer.lookAhead(EscapedCharacterToken)) )) {
+            if(textEndToken) console.log("text: ", text, this.lexer.getRemainingText().substring(0,100))
             const charToken = this.lexer.consumeLookAhead()
             text += charToken.value
             if (position.begin === -1) position.begin = charToken.position.begin
             position.end = charToken.position.end
         }
-        if (debug) console.log("Found >>::" + text)
-        if (debug) console.groupEnd()
+        if (debug ||textEndToken) console.log("Found >>::" + text)
+        if (debug ||textEndToken) console.groupEnd()
         return new TextNode(position, text)
     }
 
-    parseTextsOrTags(debugText: boolean = false, debugTag: boolean = false) {
+    parseTextsOrTags(textEndToken: TokenConstructor|undefined = undefined, debugText: boolean = false, debugTag: boolean = false) {
         const elements = []
         // if(debugText || debugTag) console.group("Parsing texts or tags")
         while (!this.lexer.isEOF()) {
@@ -42,7 +44,7 @@ export class Parser implements ParserInterface {
             // if(debugTag) this.logRemaining(10)
             switch (true) {
                 case this.lexer.lookAhead(CharacterToken):
-                    elements.push(this.parseText(debugText))
+                    elements.push(this.parseText(textEndToken, debugText))
                     break
                 case this.lexer.lookAhead(TagBeginToken):
                     elements.push(this.parseTag(debugTag))
@@ -85,12 +87,17 @@ export class Parser implements ParserInterface {
         const endToken = this.lexer.consumeLookAhead()
         this.parseLazyWhitespace()
 
-        if (endToken instanceof TagSelfCloseToken) {
+        if (endToken instanceof TagSelfCloseToken || nameNode.toString() === "meta") {
             position.end = endToken.position.end
             if (debug) console.groupEnd()
             return new TagNode(position, nameNode.toString(), nameNode, attributes, TagNameNode.From(endToken), true)
         }
-        this.parseTextsOrTags(false, true)
+
+        if(nameNode.toString() === "script") {
+            this.parseText(ScriptEndToken)
+        } else {
+            this.parseTextsOrTags(undefined, false, true)
+        }
         this.parseLazyWhitespace()
 
         const closingTagToken = this.lexer.consume(TagEndToken)

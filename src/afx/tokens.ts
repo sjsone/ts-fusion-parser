@@ -28,3 +28,4 @@ export class ScriptEndToken extends Token { public regex = /^(<\/script>)/ }
 
 
 export class WhitespaceToken extends Token { public regex = /^(\s*)/ }
+export class AnyCharacterToken extends Token { public regex = /^([\s\S])/ }

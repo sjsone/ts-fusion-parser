@@ -6,6 +6,7 @@ export class Lexer {
     protected text: string
     protected cursor: number = -1
     protected lookAheadTokenType: TokenConstructor|undefined
+    public tagStack: string[] = []
 
     constructor(text: string) {
         this.text = text
@@ -13,7 +14,10 @@ export class Lexer {
     }
 
     public getRemainingText() {
-        if(this.isEOF()) throw new Error("Hit EOL but was not expecting it")
+        if(this.isEOF()) {
+            console.log("tagStack", this.tagStack)
+            throw new Error("Hit EOL but was not expecting it")
+        }
         return this.text.substring(this.cursor)
     }
 

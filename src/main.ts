@@ -6,7 +6,7 @@ prototype(Neos.Fusion:Component).@class = "Neos\\Fusion\\FusionObjects\\Componen
 
 prototype(Test.Tset:Component) { 
     test = afx\`
-        <div>test</div>
+        <div test={props.asdf}>test{props.end}</div>
     \`
 
     renderer = \${this.test}
@@ -17,7 +17,7 @@ const fusionPath = "./data/eel.fusion"
 
 const fusionFile = NodeFs.readFileSync(fusionPath).toString()
 
-const objectTreeParser = ObjectTreeParser.parse(fusionFile, undefined, false)
+const objectTreeParser = ObjectTreeParser.parse(fusion, undefined, false)
 //console.log(JSON.stringify(objectTreeParser.statementList.statements, undefined, 4))
 objectTreeParser.statementList.debugPrint('', false)
 

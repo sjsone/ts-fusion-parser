@@ -19,6 +19,12 @@ const singleClosingWithAttributes = `
     More Text 
 `
 
+const afx = `
+    <div data-list={props.list} >
+        test {props.text}
+    </div>
+`
+
 const html = `
 <html>
 <body>

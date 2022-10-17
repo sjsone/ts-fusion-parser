@@ -6,10 +6,11 @@ import { TagNameNode } from "./nodes/TagNameNode";
 import { TagNode } from "./nodes/TagNode";
 import { TextNode } from "./nodes/TextNode";
 import { ParserHandoverResult, ParserInterface } from "./parserInterface";
-import { AnyCharacterToken, AttributeNameToken, AttributeStringValueToken, AttributeValueAssignToken, CharacterToken, CommentToken, EscapedCharacterToken, ScriptEndToken, TagBeginToken, TagCloseToken, TagEndToken, TagSelfCloseToken, Token, TokenConstructor, WhitespaceToken, WordToken } from "./tokens";
+import { AnyCharacterToken, AttributeEelBeginToken, AttributeNameToken, AttributeStringValueToken, AttributeValueAssignToken, CharacterToken, CommentToken, EscapedCharacterToken, ScriptEndToken, TagBeginToken, TagCloseToken, TagEndToken, TagSelfCloseToken, Token, TokenConstructor, WhitespaceToken, WordToken } from "./tokens";
 
 export class Parser implements ParserInterface {
     protected lexer: Lexer
+    public nodesByType: Map<typeof AbstractNode, AbstractNode[]> = new Map()
 
     constructor(lexer: Lexer) {
         this.lexer = lexer
@@ -20,7 +21,7 @@ export class Parser implements ParserInterface {
     }
     
     parse() {
-        return this.parseTextsOrTags(undefined, false, true)
+        return this.parseTextsOrTags(undefined, false, false)
     }
 
     parseText(debug: boolean = false) {
@@ -36,7 +37,9 @@ export class Parser implements ParserInterface {
         }
         if (debug) console.log("Found >>::" + text)
         if (debug) console.groupEnd()
-        return new TextNode(position, text)
+        const textNode = new TextNode(position, text)
+        this.addNodeToNodesByType(textNode)
+        return textNode
     }
 
     parseJavascript(debug: boolean = false) {
@@ -51,15 +54,17 @@ export class Parser implements ParserInterface {
         }
         if (debug) console.log("Found >>::" + text)
         if (debug) console.groupEnd()
-        return new TextNode(position, text)
+        const textNode = new TextNode(position, text)
+        this.addNodeToNodesByType(textNode)
+        return textNode
     }
 
     parseTextsOrTags(textEndToken: TokenConstructor|undefined = undefined, debugText: boolean = false, debugTag: boolean = false) {
         const elements = []
-        // if(debugText || debugTag) console.group("Parsing texts or tags")
+        // if (debugText || debugTag) console.group("Parsing texts or tags")
         while (!this.lexer.isEOF()) {
             this.parseLazyWhitespace()
-            // if(debugTag) this.logRemaining(10)
+            // if (debugTag) this.logRemaining(10)
             switch (true) {
                 case this.lexer.lookAhead(CharacterToken):
                     elements.push(this.parseText(debugText))
@@ -71,18 +76,19 @@ export class Parser implements ParserInterface {
                     this.parseComment()
                     break;
                 default:
-                    // if(debugText || debugTag) console.groupEnd()
+                    // if (debugText || debugTag) console.groupEnd()
                     return elements
             }
+            this.parseLazyWhitespace()
         }
-        // if(debugText || debugTag) console.groupEnd()
+        // if (debugText || debugTag) console.groupEnd()
         return elements
     }
 
-    parseComment() {
-        console.group("Parsing Comment")
+    parseComment(debug: boolean = false) {
+        if (debug) console.group("Parsing Comment")
         this.lexer.consume(CommentToken)
-        console.groupEnd()
+        if (debug) console.groupEnd()
     }
 
     parseTag(debug: boolean = false) {
@@ -98,6 +104,7 @@ export class Parser implements ParserInterface {
         while (!this.lexer.lookAhead(TagCloseToken) && !this.lexer.lookAhead(TagSelfCloseToken)) {
             this.parseLazyWhitespace()
             const attribute = this.parseTagAttribute()
+            this.addNodeToNodesByType(attribute)
             attributes.push(attribute)
             if (debug) console.log("Attribute", attribute.name, attribute.value)
             this.parseLazyWhitespace()
@@ -110,16 +117,14 @@ export class Parser implements ParserInterface {
             position.end = endToken.position.end
             if (debug) console.groupEnd()
             this.lexer.tagStack.pop()
-            return new TagNode(position, nameNode.toString(), nameNode, attributes, TagNameNode.From(endToken), true)
+            const tagNode = new TagNode(position, nameNode.toString(), nameNode, attributes, [], TagNameNode.From(endToken), true)
+            this.addNodeToNodesByType(tagNode)
+            return tagNode
         }
 
         const isScript = nameNode.toString() === "script"
 
-        if(isScript) {
-            this.parseJavascript()
-        } else {
-            this.parseTextsOrTags(undefined, false, true)
-        }
+        const content: Array<TagNode|TextNode> = isScript ? [this.parseJavascript()] : this.parseTextsOrTags(undefined, false, false)
         this.parseLazyWhitespace()
 
         const closingTagToken = this.lexer.consume(TagEndToken)
@@ -128,7 +133,7 @@ export class Parser implements ParserInterface {
         if (debug) console.log("Parsing tag finished: "+nameNode.toString())
         if (debug) console.groupEnd()
         this.lexer.tagStack.pop()
-        return new TagNode(position, nameNode.toString(), nameNode, attributes, TagNameNode.From(closingTagToken))
+        return new TagNode(position, nameNode.toString(), nameNode, attributes, content, TagNameNode.From(closingTagToken))
     }
 
     parseTagAttribute() {
@@ -142,6 +147,8 @@ export class Parser implements ParserInterface {
                 case this.lexer.lookAhead(AttributeStringValueToken):
                     value = this.lexer.consumeLookAhead()
                     break;
+                // case this.lexer.lookAhead(AttributeEelBeginToken):
+                    
             }
         }
         // console.log(value)
@@ -176,5 +183,18 @@ export class Parser implements ParserInterface {
 
     logRemaining(cap: number|undefined = undefined) {
         console.log(">>::"+this.lexer.getRemainingText().substring(0, cap))
+    }
+
+    protected addNodeToNodesByType(node: AbstractNode) {
+        const type = <typeof AbstractNode>node.constructor
+        const list = this.nodesByType.get(type) ?? []
+        list.push(node)
+        this.nodesByType.set(type, list)
+    }
+
+    protected flushNodesByType() {
+        const map  = new Map(this.nodesByType)
+        this.nodesByType.clear()
+        return map
     }
 }

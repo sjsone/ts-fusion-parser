@@ -79,7 +79,6 @@ export class Parser implements ParserInterface {
                     // if (debugText || debugTag) console.groupEnd()
                     return elements
             }
-            this.parseLazyWhitespace()
         }
         // if (debugText || debugTag) console.groupEnd()
         return elements

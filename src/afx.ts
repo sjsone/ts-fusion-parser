@@ -37,11 +37,22 @@ const html = `
 `
 
 const htmlFile = NodeFs.readFileSync("src/test.html").toString()
-
 const text = htmlFile
+
 const lexer = new Lexer(text)
 const parser = new Parser(lexer)
 
-for(const node of parser.parse()) {
-    console.log(node)
+const hrStart = process.hrtime()
+const nodes = parser.parse()
+const hrEnd = process.hrtime(hrStart)
+
+let nodeCount = 0
+for (const entry of parser.nodesByType.entries()) {
+    nodeCount += entry[1].length
 }
+
+console.info('Execution time (hr): %ds %dms', hrEnd[0], hrEnd[1] / 1000000)
+const executionTimeInMS = (hrEnd[0] * 1000) + (hrEnd[1] / 1000000)
+
+console.log("nodes per MS", nodeCount / executionTimeInMS)
+console.log("Character per MS", text.length / executionTimeInMS)

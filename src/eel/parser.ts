@@ -14,7 +14,7 @@ import { ObjectPathNode } from "./nodes/ObjectPathNode";
 import { OperationNode } from "./nodes/OperationNode";
 import { TernaryOperationNode } from "./nodes/TernaryOperationNode";
 
-import { ParserHandoverResult, ParserInterface } from "./parserInterface";
+import { ParserHandoverResult, ParserInterface } from "../afx/parserInterface";
 import { ColonToken, CommaToken, DotToken, ExclamationMarkToken, FloatToken, IntegerToken, IsEqualToken, IsNotEqualToken, LBraceToken, LBracketToken, LogicalAndToken, LogicalOrToken, LParenToken, ObjectFunctionPathPartToken, ObjectPathPartToken, PlusToken, QuestionMarkToken, RBraceToken, RBracketToken, RParenToken, StringDoubleQuotedToken, StringSingleQuotedToken, Token, WhitespaceToken } from "./tokens";
 
 const PositionStub = { begin: -1, end: -1 }

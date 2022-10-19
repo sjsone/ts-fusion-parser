@@ -18,6 +18,7 @@ export class AttributeNameToken extends Token { public regex = /^([a-zA-Z.:-]+)/
 export class AttributeValueAssignToken extends Token { public regex = /^(=)/ }
 export class AttributeStringValueToken extends Token { public regex = /^("[^"]*")/ }
 export class AttributeEelBeginToken extends Token { public regex = /^({)/ }
+export class AttributeEelEndToken extends Token { public regex = /^(})/ }
 
 export class CommentToken extends Token { public regex = /^(<![^>]*>)/ }
 

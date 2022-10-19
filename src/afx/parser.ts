@@ -6,8 +6,9 @@ import { TagNameNode } from "./nodes/TagNameNode";
 import { TagNode } from "./nodes/TagNode";
 import { TextNode } from "./nodes/TextNode";
 import { ParserHandoverResult, ParserInterface } from "./parserInterface";
-import { AnyCharacterToken, AttributeEelBeginToken, AttributeNameToken, AttributeStringValueToken, AttributeValueAssignToken, CharacterToken, CommentToken, EscapedCharacterToken, ScriptEndToken, TagBeginToken, TagCloseToken, TagEndToken, TagSelfCloseToken, Token, TokenConstructor, WhitespaceToken, WordToken } from "./tokens";
-
+import { AnyCharacterToken, AttributeEelBeginToken, AttributeEelEndToken, AttributeNameToken, AttributeStringValueToken, AttributeValueAssignToken, CharacterToken, CommentToken, EscapedCharacterToken, ScriptEndToken, TagBeginToken, TagCloseToken, TagEndToken, TagSelfCloseToken, Token, TokenConstructor, WhitespaceToken, WordToken } from "./tokens";
+import { Parser as EelParser} from '../eel/parser'
+import { Lexer as EelLexer} from '../eel/lexer'
 export class Parser implements ParserInterface {
     protected lexer: Lexer
     public nodesByType: Map<typeof AbstractNode, AbstractNode[]> = new Map()
@@ -145,8 +146,14 @@ export class Parser implements ParserInterface {
                 case this.lexer.lookAhead(WordToken):
                 case this.lexer.lookAhead(AttributeStringValueToken):
                     value = this.lexer.consumeLookAhead()
-                    break;
-                // case this.lexer.lookAhead(AttributeEelBeginToken):
+                    break
+                case this.lexer.lookAhead(AttributeEelBeginToken):
+                    this.lexer.consumeLookAhead()
+                    const eelParser = new EelParser(new EelLexer(""))
+                    const result = this.handover<AbstractNode>(eelParser)
+                    this.lexer.consume(AttributeEelEndToken)
+                    value = result
+                    break
                     
             }
         }
@@ -162,7 +169,8 @@ export class Parser implements ParserInterface {
     }
 
     public handover<T extends AbstractNode>(parser: ParserInterface): T|Array<T> {
-        const result = parser.receiveHandover<T>(this.lexer.getRemainingText())
+        const text = this.lexer.getRemainingText()
+        const result = parser.receiveHandover<T>(text)
         this.lexer["cursor"] += result.cursor
         return result.nodeOrNodes
     }

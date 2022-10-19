@@ -51,8 +51,10 @@ for (const entry of parser.nodesByType.entries()) {
     nodeCount += entry[1].length
 }
 
-console.info('Execution time (hr): %ds %dms', hrEnd[0], hrEnd[1] / 1000000)
+console.info('Execution time: %ds %dms', hrEnd[0], hrEnd[1] / 1000000)
 const executionTimeInMS = (hrEnd[0] * 1000) + (hrEnd[1] / 1000000)
 
+console.log("node count", nodeCount)
+console.log("character count", text.length)
 console.log("nodes per MS", nodeCount / executionTimeInMS)
 console.log("Character per MS", text.length / executionTimeInMS)

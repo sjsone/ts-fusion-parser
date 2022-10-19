@@ -50,7 +50,7 @@ prototype(WebExcess.OpenStreetMap:Map.Component) < prototype(Neos.Fusion:Compone
     }
 
     html = afx`
-        <div>test</div>
+        <div test={props.test}>test</div>
     `
 
 

@@ -27,6 +27,7 @@ export class Lexer {
     }
 
     public lookAhead(tokenType: TokenConstructor ) {
+        if(this.isEOF()) return false
         const text = this.getRemainingText()
         const token = new tokenType()
         if(token.regex.test(text)) {

@@ -15,7 +15,7 @@ export class Lexer {
 
     public getRemainingText() {
         if(this.isEOF()) {
-            console.log("tagStack", this.tagStack)
+            // console.log("tagStack", this.tagStack)
             throw new Error("Hit EOL but was not expecting it")
         }
         return this.text.substring(this.cursor)

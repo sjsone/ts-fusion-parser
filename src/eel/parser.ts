@@ -283,7 +283,6 @@ export class Parser implements ParserInterface {
                 return this.parseString()
             case this.lexer.lookAhead(ObjectPathPartToken):
             default:
-                console.log("here")
                 return this.parseObjectPath()
         }
     }

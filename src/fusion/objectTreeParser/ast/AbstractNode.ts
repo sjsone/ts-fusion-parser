@@ -38,7 +38,6 @@ export abstract class AbstractNode {
             value.debugPrint(name)
         } else {
             console.log(`|-${name}`, value)
-            
         }
     }
 }

@@ -1,4 +1,6 @@
 import NodeFs from 'fs'
+import { ObjectFunctionPathNode } from './eel/nodes/ObjectFunctionPathNode'
+import { ObjectPathNode } from './eel/nodes/ObjectPathNode'
 import { ObjectTreeParser } from "./lib"
 
 const fusion = `
@@ -6,20 +8,37 @@ prototype(Neos.Fusion:Component).@class = "Neos\\Fusion\\FusionObjects\\Componen
 
 prototype(Test.Tset:Component) { 
     test = afx\`
-        <div>test</div>
+        <div test={props.asdf}> test asdf {props.end} 
+            asdf {props.asdf}
+        </div>
+    \`
+
+    value = afx\`
+        {"{"}
+        <Neos.Fusion:Loop items={props.properties}>
+            {itemKey}: {item}
+        </Neos.Fusion:Loop>
+        {"}"}
     \`
 
     renderer = \${this.test}
     @if.test = \${props.test}
 }
 `
-const fusionPath = "./data/eel.fusion"
 
+
+const fusionPath = "./data/eel.fusion"
 const fusionFile = NodeFs.readFileSync(fusionPath).toString()
 
-const objectTreeParser = ObjectTreeParser.parse(fusionFile, undefined, false)
-//console.log(JSON.stringify(objectTreeParser.statementList.statements, undefined, 4))
-objectTreeParser.statementList.debugPrint('', false)
+const fusionToParse = fusionFile
+const timeStart = process.hrtime();
+const objectTree = ObjectTreeParser.parse(fusionToParse, undefined, false)
+const timeEnd = process.hrtime(timeStart);
+console.info('Execution time: %ds %dms', timeEnd[0], timeEnd[1] / 1000000)
+console.log(objectTree.nodesByType.keys())
 
-// const fusionAst = (new Parser()).parse(fusion);
-// console.log("fusionAst", JSON.stringify(fusionAst.__prototypes, undefined, 4))
+for(const objectPathNode of <ObjectPathNode[]><unknown>(objectTree.nodesByType.get(ObjectPathNode)!)) {
+    const value = objectPathNode["value"]
+    const substring = fusionToParse.substring(objectPathNode["position"].begin, objectPathNode["position"].end)
+    if(value !== substring) console.log(value, substring)
+}

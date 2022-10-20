@@ -15,8 +15,9 @@ import { OperationNode } from "./nodes/OperationNode";
 import { TernaryOperationNode } from "./nodes/TernaryOperationNode";
 
 import { ParserHandoverResult, ParserInterface } from "../afx/parserInterface";
-import { ColonToken, CommaToken, DotToken, ExclamationMarkToken, FloatToken, IntegerToken, IsEqualToken, IsNotEqualToken, LBraceToken, LBracketToken, LogicalAndToken, LogicalOrToken, LParenToken, ObjectFunctionPathPartToken, ObjectPathPartToken, PlusToken, QuestionMarkToken, RBraceToken, RBracketToken, RParenToken, StringDoubleQuotedToken, StringSingleQuotedToken, Token, WhitespaceToken } from "./tokens";
+import { ColonToken, CommaToken, DivisionToken, DotToken, ExclamationMarkToken, FloatToken, IntegerToken, IsEqualToken, IsNotEqualToken, LBraceToken, LBracketToken, LessThanOrEqualToken, LessThanToken, LogicalAndToken, LogicalOrToken, LParenToken, MinusToken, ModuloToken, MoreThanOrEqualToken, MoreThanToken, MultiplicationToken, ObjectFunctionPathPartToken, ObjectPathPartToken, PlusToken, QuestionMarkToken, RBraceToken, RBracketToken, RParenToken, SpreadToken, StringDoubleQuotedToken, StringSingleQuotedToken, Token, WhitespaceToken } from "./tokens";
 import { NodePosition } from "./nodes/NodePosition";
+import { SpreadOperationNode } from "./nodes/SpreadOperationNode";
 export class Parser implements ParserInterface {
     protected lexer: Lexer
     public nodesByType: Map<typeof AbstractNode, AbstractNode[]> = new Map()
@@ -56,6 +57,10 @@ export class Parser implements ParserInterface {
         let object: AbstractNode | null = null
         const position = this.beginPosition()
         switch (true) {
+            case this.lexer.lookAhead(SpreadToken): 
+                this.lexer.consumeLookAhead()
+                object = new SpreadOperationNode(this.parseExpression(), this.endPosition(position), parent)
+                break;
             case this.lexer.lookAhead(ExclamationMarkToken):
                 this.lexer.consumeLookAhead()
                 object = new NotOperationNode(this.parseExpression(), this.endPosition(position), parent)
@@ -116,6 +121,14 @@ export class Parser implements ParserInterface {
             case this.lexer.lookAhead(IsEqualToken):
             case this.lexer.lookAhead(IsNotEqualToken):
             case this.lexer.lookAhead(PlusToken):
+            case this.lexer.lookAhead(MinusToken):
+            case this.lexer.lookAhead(MultiplicationToken):
+            case this.lexer.lookAhead(DivisionToken):
+            case this.lexer.lookAhead(ModuloToken):
+            case this.lexer.lookAhead(LessThanOrEqualToken):
+            case this.lexer.lookAhead(MoreThanOrEqualToken):
+            case this.lexer.lookAhead(LessThanToken):
+            case this.lexer.lookAhead(MoreThanToken):
                 operationToken = this.lexer.consumeLookAhead()
                 break;
             case this.lexer.lookAhead(QuestionMarkToken):
@@ -228,7 +241,7 @@ export class Parser implements ParserInterface {
         if (!this.lexer.lookAhead(RBraceToken)) {
             do {
                 this.parseLazyWhitespace()
-                const key = this.parseString()
+                const key = this.parseObjectLiteralEntryKey()
                 this.parseLazyWhitespace()
                 this.lexer.consume(ColonToken)
                 this.parseLazyWhitespace()
@@ -241,6 +254,18 @@ export class Parser implements ParserInterface {
         this.parseLazyWhitespace()
         this.lexer.consume(RBraceToken)
         return this.addNodeToNodesByType(new LiteralObjectNode(entries, this.endPosition(position), parent))
+    }
+
+    protected parseObjectLiteralEntryKey() {
+        switch (true) {
+            case this.lexer.lookAhead(StringDoubleQuotedToken):
+            case this.lexer.lookAhead(StringSingleQuotedToken):
+                return this.parseString()
+            case this.lexer.lookAhead(ObjectPathPartToken):
+            default:
+                console.log("here")
+                return this.parseObjectPath()
+        }
     }
 
     protected parseArrayLiteral(parent: AbstractNode | undefined = undefined) {

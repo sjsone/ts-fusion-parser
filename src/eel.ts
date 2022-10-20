@@ -41,14 +41,16 @@ const tests: { [key: string]: string } = {
     Addition: `q(node).property('title') + ' ' + q(node).property('title2')`,
     NumberInArgs: `q(site).find('#' + Configuration.setting('BauwerkCapital.Website.nodeStructure.magazine')).get(0)`,
     FloatInArgs: `Test.asdf(1.4)`,
-
+    ObjectLiteralStringKeys: `Test({"label": "thing"})`,
+    ObjectLiteralNoStringKeys: `Test({label: "thing"})`,
     Ternary: `request.arguments.categories ? request.arguments.categories : []`,
     LogicalOr: `props.canBe || props.maybe`,
     LogicalAnd: `!(props.canBe && !props.maybe)`,
     OffsetAccess: `String.split("Hello world!", ' ')[1]`,
     OffsetAccessCalc: `items[index + 1]`,
     OffsetWithOffset: `owo[1][2]`,
-    OffsetAccessComplex: `items[index + 1 + Test.Helper[1]][2]`
+    OffsetAccessComplex: `items[index + 1 + Test.Helper[1]][2]`,
+    SpreadForAfx: `...props.attributes`
 }
 
 
@@ -71,8 +73,8 @@ const runAllTests = () => {
 
 }
 // runAllTests()
-const lexer = new Lexer(tests.MultipleTails)
+const lexer = new Lexer(tests.ObjectLiteralNoStringKeys)
 const parser = new Parser(lexer)
 const result = parser.parse()   
-console.log(result.path[1])
+console.log(result.path[0].args[0].entries)
 // console.log(">"+tests.MultipleTails.substring(30, 36)+"<")

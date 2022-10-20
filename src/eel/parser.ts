@@ -15,11 +15,12 @@ import { OperationNode } from "./nodes/OperationNode";
 import { TernaryOperationNode } from "./nodes/TernaryOperationNode";
 
 import { ParserHandoverResult, ParserInterface } from "../afx/parserInterface";
-import { ColonToken, CommaToken, DivisionToken, DotToken, ExclamationMarkToken, FalseValueToken, FloatToken, IntegerToken, IsEqualToken, IsNotEqualToken, LBraceToken, LBracketToken, LessThanOrEqualToken, LessThanToken, LogicalAndToken, LogicalOrToken, LParenToken, MinusToken, ModuloToken, MoreThanOrEqualToken, MoreThanToken, MultiplicationToken, NullValueToken, ObjectFunctionPathPartToken, ObjectPathPartToken, PlusToken, QuestionMarkToken, RBraceToken, RBracketToken, RParenToken, SpreadToken, StringDoubleQuotedToken, StringSingleQuotedToken, Token, TrueValueToken, WhitespaceToken } from "./tokens";
+import { CallbackSignatureToken, ColonToken, CommaToken, DivisionToken, DotToken, ExclamationMarkToken, FalseValueToken, FloatToken, IntegerToken, IsEqualToken, IsNotEqualToken, LBraceToken, LBracketToken, LessThanOrEqualToken, LessThanToken, LogicalAndToken, LogicalOrToken, LParenToken, MinusToken, ModuloToken, MoreThanOrEqualToken, MoreThanToken, MultiplicationToken, NullValueToken, ObjectFunctionPathPartToken, ObjectPathPartToken, PlusToken, QuestionMarkToken, RBraceToken, RBracketToken, RParenToken, SpreadToken, StringDoubleQuotedToken, StringSingleQuotedToken, Token, TrueValueToken, WhitespaceToken } from "./tokens";
 import { NodePosition } from "./nodes/NodePosition";
 import { SpreadOperationNode } from "./nodes/SpreadOperationNode";
 import { LiteralBooleanNode } from "./nodes/LiteralBooleanNode";
 import { LiteralNullNode } from "./nodes/LiteralNullNode";
+import { CallbackNode } from "./nodes/CallbackNode";
 export class Parser implements ParserInterface {
     protected lexer: Lexer
     public nodesByType: Map<typeof AbstractNode, AbstractNode[]> = new Map()
@@ -82,10 +83,18 @@ export class Parser implements ParserInterface {
                 object = new LiteralNullNode(this.lexer.consumeLookAhead().value, this.endPosition(position), parent)
                 break
 
+            case this.lexer.lookAhead(CallbackSignatureToken):
+                const signature = this.lexer.consumeLookAhead()
+                this.parseLazyWhitespace()
+                const callbackBody = this.parseExpression()
+                this.parseLazyWhitespace()
+                object = new CallbackNode(signature.value, callbackBody, this.endPosition(position), parent)
+                break
+
             case this.lexer.lookAhead(LParenToken):
                 this.lexer.consumeLookAhead()
                 this.parseLazyWhitespace()
-                object = new BlockExpressionNode(this.parseExpression(), this.endPosition(position))
+                object = new BlockExpressionNode(this.parseExpression(), this.endPosition(position), parent)
                 this.parseLazyWhitespace()
                 this.lexer.consume(RParenToken)
                 break;

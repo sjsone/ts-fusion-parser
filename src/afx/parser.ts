@@ -183,6 +183,7 @@ export class Parser implements ParserInterface {
         const position = name.position
         let value: any
         if (this.lexer.lazyConsume(AttributeValueAssignToken)) {
+
             switch (true) {
                 case this.lexer.lookAhead(WordToken):
                 case this.lexer.lookAhead(AttributeStringValueToken):
@@ -190,8 +191,10 @@ export class Parser implements ParserInterface {
                     break
                 case this.lexer.lookAhead(AttributeEelBeginToken):
                     const eelBegin = this.lexer.consumeLookAhead()
+
                     const eelParser = new EelParser(new EelLexer(""))
                     const result = this.handover<AbstractNode>(eelParser)
+                    // console.log("result", result)
                     const eelEnd = this.lexer.consume(AttributeEelEndToken)
 
                     value = {
@@ -201,7 +204,6 @@ export class Parser implements ParserInterface {
                         }
                     }
                     break
-
             }
         }
 

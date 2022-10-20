@@ -62,23 +62,25 @@ export class Parser implements ParserInterface {
             case this.lexer.lookAhead(SpreadToken): 
                 this.lexer.consumeLookAhead()
                 object = new SpreadOperationNode(this.parseExpression(), this.endPosition(position), parent)
-                break;
+                break
             case this.lexer.lookAhead(ExclamationMarkToken):
                 this.lexer.consumeLookAhead()
                 object = new NotOperationNode(this.parseExpression(), this.endPosition(position), parent)
-                break;
+                break
 
             case this.lexer.lookAhead(FloatToken):
             case this.lexer.lookAhead(IntegerToken):
                 object = new LiteralNumberNode(this.lexer.consumeLookAhead().value, this.endPosition(position), parent)
-                break;
+                break
             
             case this.lexer.lookAhead(TrueValueToken):
             case this.lexer.lookAhead(FalseValueToken):
-                return new LiteralBooleanNode(this.lexer.consumeLookAhead().value, this.endPosition(position), parent)
+                object = new LiteralBooleanNode(this.lexer.consumeLookAhead().value, this.endPosition(position), parent)
+                break
             
             case this.lexer.lookAhead(NullValueToken):
-                return new LiteralNullNode(this.lexer.consumeLookAhead().value, this.endPosition(position), parent)
+                object = new LiteralNullNode(this.lexer.consumeLookAhead().value, this.endPosition(position), parent)
+                break
 
             case this.lexer.lookAhead(LParenToken):
                 this.lexer.consumeLookAhead()

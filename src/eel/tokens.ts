@@ -38,7 +38,7 @@ export class SpreadToken extends Token { public regex = /^(\.\.\.)/ }
 export class IsEqualToken extends Token { public regex = /^(==)/ }
 export class IsNotEqualToken extends Token { public regex = /^(!=)/ }
 export class LessThanOrEqualToken extends Token { public regex = /^(<=)/ }
-export class MoreThanOrEqualToken extends Token { public regex = /^(=>)/ }
+export class MoreThanOrEqualToken extends Token { public regex = /^(>=)/ }
 export class LessThanToken extends Token { public regex = /^(<)/ }
 export class MoreThanToken extends Token { public regex = /^(>)/ }
 export class PlusToken extends Token { public regex = /^(\+)/ }

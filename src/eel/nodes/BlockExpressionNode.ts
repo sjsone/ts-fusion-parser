@@ -6,7 +6,9 @@ export class BlockExpressionNode extends AbstractNode {
     public constructor(node: AbstractNode, position: NodePosition) {
         super(position)
         this.node = node
+        this.node["parent"] = this
         this.position = position
+
     }
 }
 

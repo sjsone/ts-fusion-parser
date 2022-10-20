@@ -14,17 +14,20 @@ import { NodePosition } from "./NodePosition";
 export class DslExpressionValue extends AbstractPathValue {
     public identifier: string
     public code: string
-    public htmlNodes: Array<TextNode | TagNode>
+    public htmlNodes: Array<TextNode | TagNode> = []
 
     public constructor(identifier: string, code: string, position: NodePosition) {
         super()
         this.identifier = identifier
         this.code = code
         this.position = position
+    }
 
+    public parse() {
         const lexer = new Lexer(this.code)
-        const parser = new Parser(lexer)
+        const parser = new Parser(lexer, this.position!.start + this.identifier.length + 1) // +1 because of [`] in afx`...`
         this.htmlNodes = parser.parse()
+        return parser.nodesByType
     }
 
     public visit(visitor: AstNodeVisitorInterface, ...args: any[]) {

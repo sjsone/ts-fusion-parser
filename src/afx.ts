@@ -2,6 +2,7 @@ import { Lexer } from "./afx/lexer"
 import { Parser } from "./afx/parser"
 
 import * as NodeFs from "fs"
+import { ObjectPathNode } from "./eel/nodes/ObjectPathNode"
 
 const simpleText = `
     asfd &lt;
@@ -19,12 +20,6 @@ const singleClosingWithAttributes = `
     More Text 
 `
 
-const afx = `
-    <div data-list={props.list} >
-        test {props.text}
-    </div>
-`
-
 const html = `
 <html>
 <body>
@@ -36,25 +31,17 @@ const html = `
 </html>
 `
 
-const htmlFile = NodeFs.readFileSync("src/test.html").toString()
-const text = htmlFile
+const afx = `
+    <div>
+        <div data-list={props.list} >
+            test {props.text}    {asdf.lkjh.asdf}
+        </div>
+    </div>
+`
 
-const lexer = new Lexer(text)
-const parser = new Parser(lexer)
+const parser = new Parser(new Lexer(afx))
+let nodes: any = parser.parse()
 
-const hrStart = process.hrtime()
-const nodes = parser.parse()
-const hrEnd = process.hrtime(hrStart)
+nodes = parser.nodesByType.get(<any>ObjectPathNode) 
 
-let nodeCount = 0
-for (const entry of parser.nodesByType.entries()) {
-    nodeCount += entry[1].length
-}
-
-console.info('Execution time: %ds %dms', hrEnd[0], hrEnd[1] / 1000000)
-const executionTimeInMS = (hrEnd[0] * 1000) + (hrEnd[1] / 1000000)
-
-console.log("node count", nodeCount)
-console.log("character count", text.length)
-console.log("nodes per MS", nodeCount / executionTimeInMS)
-console.log("Character per MS", text.length / executionTimeInMS)
+const node = nodes[7]

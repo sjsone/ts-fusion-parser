@@ -14,7 +14,7 @@ export class TagEndToken extends Token { public regex = /^(<\/[a-zA-Z0-9.:]+>)/ 
 export class TagCloseToken extends Token { public regex = /^(>)/ }
 export class TagSelfCloseToken extends Token { public regex = /^(\/>)/ }
 
-export class AttributeNameToken extends Token { public regex = /^([a-zA-Z.:-]+)/ }
+export class AttributeNameToken extends Token { public regex = /^([a-zA-Z0-9@.:-]+)/ }
 export class AttributeValueAssignToken extends Token { public regex = /^(=)/ }
 export class AttributeStringValueToken extends Token { public regex = /^("[^"]*")/ }
 export class AttributeEelBeginToken extends Token { public regex = /^({)/ }

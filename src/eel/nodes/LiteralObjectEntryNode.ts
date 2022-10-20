@@ -9,7 +9,9 @@ export class LiteralObjectEntryNode extends AbstractNode {
     public constructor(key: LiteralStringNode, value: AbstractNode, position: NodePosition) {
         super(position)
         this.key = key
+        this.key["parent"] = this
         this.value = value
+        this.value["parent"] = this
         this.position = position
     }
 }

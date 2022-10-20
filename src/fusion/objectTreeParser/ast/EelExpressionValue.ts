@@ -1,13 +1,14 @@
+import { AbstractNode } from "../../../afx/nodes/AbstractNode";
 import { AstNodeVisitorInterface } from "../astNodeVisitorInterface";
 import { AbstractPathValue } from "./AbstractPathValue";
 
 export class EelExpressionValue extends AbstractPathValue
 {
-    public value: string
+    public value = ""
+    public nodes: AbstractNode[] = []
 
-    public constructor(value: string) {
+    public constructor() {
         super()
-        this.value = value 
     }
 
     public visit(visitor: AstNodeVisitorInterface)

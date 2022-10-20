@@ -12,6 +12,8 @@
         "prepublishOnly": "rm -rf out && tsc",
         "watch-ts": "tsc --watch",
         "watch-src": "nodemon out/main.js",
+        "watch-afx": "nodemon out/afx.js",
+        "watch-eel": "nodemon out/eel.js",
         "version-patch": "npm version patch && git push --tags && git push --all"
     },
     "main": "out/lib.js",

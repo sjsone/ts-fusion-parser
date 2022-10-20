@@ -10,6 +10,10 @@ export class Lexer {
         this.cursor = 0
     }
 
+    public getCursor() {
+        return this.cursor
+    }
+
     public getRemainingText() {
         if (this.isEOF()) {
             // console.log("tagStack", this.tagStack)

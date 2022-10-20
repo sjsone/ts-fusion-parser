@@ -5,8 +5,8 @@ import { TagBeginToken, TagEndToken } from "../tokens";
 export class TagNameNode extends AbstractNode {
     protected name: string
 
-    constructor(position: NodePosition, name: string) {
-        super(position)
+    constructor(position: NodePosition, name: string, parent: AbstractNode | undefined = undefined) {
+        super(position, parent)
         this.name = name
     }
 
@@ -14,7 +14,7 @@ export class TagNameNode extends AbstractNode {
         return this.name.substring(1)
     }
 
-    static From(token: TagBeginToken|TagEndToken) {
-        return new this(token.position, token.value)
+    static From(token: TagBeginToken|TagEndToken, parent: AbstractNode | undefined = undefined) {
+        return new this(token.position, token.value, parent)
     }
 }

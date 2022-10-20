@@ -16,14 +16,35 @@ import { TernaryOperationNode } from "./nodes/TernaryOperationNode";
 
 import { ParserHandoverResult, ParserInterface } from "../afx/parserInterface";
 import { ColonToken, CommaToken, DotToken, ExclamationMarkToken, FloatToken, IntegerToken, IsEqualToken, IsNotEqualToken, LBraceToken, LBracketToken, LogicalAndToken, LogicalOrToken, LParenToken, ObjectFunctionPathPartToken, ObjectPathPartToken, PlusToken, QuestionMarkToken, RBraceToken, RBracketToken, RParenToken, StringDoubleQuotedToken, StringSingleQuotedToken, Token, WhitespaceToken } from "./tokens";
-
-const PositionStub = { begin: -1, end: -1 }
+import { NodePosition } from "./nodes/NodePosition";
 export class Parser implements ParserInterface {
     protected lexer: Lexer
     public nodesByType: Map<typeof AbstractNode, AbstractNode[]> = new Map()
 
-    constructor(lexer: Lexer) {
+    public positionOffset: number
+
+    constructor(lexer: Lexer, positionOffset: number = 0) {
         this.lexer = lexer
+        this.positionOffset = positionOffset
+    }
+
+    setPositionOffset(positionOffset: number) {
+        this.positionOffset = positionOffset
+    }
+
+    protected applyOffset(position: NodePosition) {
+        if (position.begin !== -1) position.begin += this.positionOffset
+        if (position.end !== -1) position.end += this.positionOffset
+        return position
+    }
+
+    protected beginPosition(): NodePosition {
+        return { begin: this.lexer.getCursor(), end: -1 }
+    }
+
+    protected endPosition(position: NodePosition) {
+        position.end = this.lexer.getCursor()
+        return this.applyOffset(position)
     }
 
     parse() {
@@ -31,43 +52,44 @@ export class Parser implements ParserInterface {
         return this.parseExpression()
     }
 
-    protected parseExpression(): any {
+    protected parseExpression(parent: AbstractNode | undefined = undefined): any {
         let object: AbstractNode | null = null
+        const position = this.beginPosition()
         switch (true) {
             case this.lexer.lookAhead(ExclamationMarkToken):
                 this.lexer.consumeLookAhead()
-                object = new NotOperationNode(this.parseExpression(), PositionStub)
+                object = new NotOperationNode(this.parseExpression(), this.endPosition(position), parent)
                 break;
 
             case this.lexer.lookAhead(FloatToken):
             case this.lexer.lookAhead(IntegerToken):
-                object = new LiteralNumberNode(this.lexer.consumeLookAhead().value, PositionStub)
+                object = new LiteralNumberNode(this.lexer.consumeLookAhead().value, this.endPosition(position), parent)
                 break;
 
             case this.lexer.lookAhead(LParenToken):
                 this.lexer.consumeLookAhead()
                 this.parseLazyWhitespace()
-                object = new BlockExpressionNode(this.parseExpression(), PositionStub)
+                object = new BlockExpressionNode(this.parseExpression(), this.endPosition(position))
                 this.parseLazyWhitespace()
                 this.lexer.consume(RParenToken)
                 break;
 
             case this.lexer.lookAhead(StringDoubleQuotedToken):
             case this.lexer.lookAhead(StringSingleQuotedToken):
-                object = this.parseString()
+                object = this.parseString(parent)
                 break;
 
             case this.lexer.lookAhead(ObjectFunctionPathPartToken):
             case this.lexer.lookAhead(ObjectPathPartToken):
-                object = this.parseObjectExpression()
+                object = this.parseObjectExpression(parent)
                 break;
 
             case this.lexer.lookAhead(LBraceToken):
-                object = this.parseObjectLiteral()
+                object = this.parseObjectLiteral(parent)
                 break;
 
             case this.lexer.lookAhead(LBracketToken):
-                object = this.parseArrayLiteral()
+                object = this.parseArrayLiteral(parent)
                 break;
         }
 
@@ -76,14 +98,18 @@ export class Parser implements ParserInterface {
             throw Error("parseExpression")
         }
 
+        this.addNodeToNodesByType(object)
+
         const operation = this.parseOperationIfPossible(object)
-        return operation ?? object
+        if (operation) return this.addNodeToNodesByType(operation)
+        return object
     }
 
     protected parseOperationIfPossible(object: AbstractNode) {
         this.parseLazyWhitespace()
 
         let operationToken = null
+        const position = this.beginPosition()
         switch (true) {
             case this.lexer.lookAhead(LogicalAndToken):
             case this.lexer.lookAhead(LogicalOrToken):
@@ -102,7 +128,7 @@ export class Parser implements ParserInterface {
                 object,
                 operationToken.value,
                 this.parseExpression(),
-                PositionStub
+                this.endPosition(position)
             )
         }
 
@@ -110,6 +136,7 @@ export class Parser implements ParserInterface {
     }
 
     protected parseTernaryOperation(object: AbstractNode) {
+        const position = this.beginPosition()
         this.lexer.consumeLookAhead()
         this.parseLazyWhitespace()
         const thenPart = this.parseExpression()
@@ -117,26 +144,30 @@ export class Parser implements ParserInterface {
         this.lexer.consume(ColonToken)
         this.parseLazyWhitespace()
         const elsePart = this.parseExpression()
-        return new TernaryOperationNode(object, thenPart, elsePart, PositionStub)
+        return new TernaryOperationNode(object, thenPart, elsePart, this.endPosition(position))
     }
 
-    protected parseString() {
+    protected parseString(parent: AbstractNode | undefined = undefined) {
+        const position = this.beginPosition()
         switch (true) {
             case this.lexer.lookAhead(StringDoubleQuotedToken):
             case this.lexer.lookAhead(StringSingleQuotedToken):
-                return new LiteralStringNode(this.lexer.consumeLookAhead().value, PositionStub)
+                const stringNode = new LiteralStringNode(this.lexer.consumeLookAhead().value, this.endPosition(position), parent)
+                return this.addNodeToNodesByType(stringNode)
         }
         this.lexer.debug()
         throw Error("parseString")
     }
 
-    protected parseObjectExpression() {
+    protected parseObjectExpression(parent: AbstractNode | undefined = undefined) {
+        const position = this.beginPosition()
         const rootPart = this.parseObjectExpressionPart()
+        this.addNodeToNodesByType(rootPart)
         const parts = [rootPart]
         while (this.lexer.lazyConsume(DotToken)) {
-            parts.push(this.parseObjectExpressionPart())
+            parts.push(this.addNodeToNodesByType(this.parseObjectExpressionPart()))
         }
-        return new ObjectNode(parts, PositionStub)
+        return this.addNodeToNodesByType(new ObjectNode(parts, this.endPosition(position), parent))
     }
 
     protected parseObjectExpressionPart(): any {
@@ -151,6 +182,7 @@ export class Parser implements ParserInterface {
     }
 
     protected parseObjectFunctionExpressionPart() {
+        const position = this.beginPosition()
         const base = this.lexer.consumeLookAhead()
         const args = []
         this.parseLazyWhitespace()
@@ -158,30 +190,37 @@ export class Parser implements ParserInterface {
         if (!this.lexer.lookAhead(RParenToken)) {
             do {
                 this.parseLazyWhitespace()
-                args.push(this.parseExpression())
+                args.push(this.addNodeToNodesByType(this.parseExpression()))
             } while (this.lexer.lazyConsume(CommaToken))
         }
         this.parseLazyWhitespace()
         this.lexer.consume(RParenToken)
-        return new ObjectFunctionPathNode(base.value.slice(0, -1), args, PositionStub, this.parseObjectOffsetExpression())
+
+        const node = new ObjectFunctionPathNode(base.value.slice(0, -1), args, this.endPosition(position), this.parseObjectOffsetExpression())
+        return this.addNodeToNodesByType(node)
     }
 
     protected parseObjectPath() {
-        return new ObjectPathNode(this.lexer.consumeLookAhead().value, PositionStub, undefined, this.parseObjectOffsetExpression());
+        const position = this.beginPosition()
+        const node = new ObjectPathNode(this.lexer.consumeLookAhead().value, this.endPosition(position), undefined, this.parseObjectOffsetExpression());
+        return this.addNodeToNodesByType(node)
     }
 
     protected parseObjectOffsetExpression(): ObjectOffsetAccessPathNode | undefined {
         this.parseLazyWhitespace()
         if (!this.lexer.lookAhead(LBracketToken)) return undefined
+        const position = this.beginPosition()
         this.lexer.consumeLookAhead()
         this.parseLazyWhitespace()
         const expression = this.parseExpression()
         this.parseLazyWhitespace()
         this.lexer.consume(RBracketToken)
-        return new ObjectOffsetAccessPathNode(expression, PositionStub, this.parseObjectOffsetExpression())
+        const node = new ObjectOffsetAccessPathNode(expression, this.endPosition(position), this.parseObjectOffsetExpression())
+        return this.addNodeToNodesByType(node)
     }
 
-    protected parseObjectLiteral() {
+    protected parseObjectLiteral(parent: AbstractNode | undefined = undefined) {
+        const position = this.beginPosition()
         this.lexer.consumeLookAhead()
         const entries = []
         this.parseLazyWhitespace()
@@ -194,30 +233,31 @@ export class Parser implements ParserInterface {
                 this.lexer.consume(ColonToken)
                 this.parseLazyWhitespace()
                 const value: any = this.parseExpression()
-                entries.push(new LiteralObjectEntryNode(key, value, PositionStub))
+                entries.push(this.addNodeToNodesByType(new LiteralObjectEntryNode(key, value, this.endPosition(position))))
             }
             while (this.lexer.lazyConsume(CommaToken))
         }
 
         this.parseLazyWhitespace()
         this.lexer.consume(RBraceToken)
-        return new LiteralObjectNode(entries, PositionStub)
+        return this.addNodeToNodesByType(new LiteralObjectNode(entries, this.endPosition(position), parent))
     }
 
-    protected parseArrayLiteral() {
+    protected parseArrayLiteral(parent: AbstractNode | undefined = undefined) {
+        const position = this.beginPosition()
         this.lexer.consumeLookAhead()
         const entries = []
         this.parseLazyWhitespace()
         if (!this.lexer.lookAhead(RBracketToken)) {
             do {
                 this.parseLazyWhitespace()
-                entries.push(this.parseExpression())
+                entries.push(this.addNodeToNodesByType(this.parseExpression()))
                 this.parseLazyWhitespace()
             } while (this.lexer.lazyConsume(CommaToken))
             this.parseLazyWhitespace()
         }
         this.lexer.consume(RBracketToken)
-        return new LiteralArrayNode(entries, PositionStub)
+        return this.addNodeToNodesByType(new LiteralArrayNode(entries, this.endPosition(position), parent))
     }
 
     protected parseLazyWhitespace() {
@@ -225,21 +265,25 @@ export class Parser implements ParserInterface {
     }
 
     public handover<T extends AbstractNode>(parser: ParserInterface): T | Array<T> {
-        const result = parser.receiveHandover<T>(this.lexer.getRemainingText())
+        const result = parser.receiveHandover<T>(this.lexer.getRemainingText(), this.lexer.getCursor() + this.positionOffset)
         this.lexer["cursor"] += result.cursor
         return result.nodeOrNodes
     }
 
-    public receiveHandover<T extends AbstractNode>(text: string): ParserHandoverResult<T> {
+    public receiveHandover<T extends AbstractNode>(text: string, offset: number): ParserHandoverResult<T> {
         const currentLexer = this.lexer
+        const currentPositionOffset = this.positionOffset
         this.lexer = new Lexer(text)
+        this.positionOffset = offset
         const nodeOrNodes = this.parse()
         const result = {
             nodeOrNodes: <any>nodeOrNodes,
-            cursor: this.lexer["cursor"]
+            cursor: this.lexer["cursor"],
+            nodesByType: <any>this.nodesByType
         }
 
         this.lexer = currentLexer
+        this.positionOffset = currentPositionOffset
         return result
     }
 
@@ -247,11 +291,13 @@ export class Parser implements ParserInterface {
         console.log(">>::" + this.lexer.getRemainingText().substring(0, cap))
     }
 
-    protected addNodeToNodesByType(node: AbstractNode) {
+    protected addNodeToNodesByType<T extends AbstractNode>(node: T): T {
         const type = <typeof AbstractNode>node.constructor
         const list = this.nodesByType.get(type) ?? []
-        list.push(node)
+        // FIXME: Checking before pushing should not be necessary
+        if(!list.includes(node)) list.push(node)
         this.nodesByType.set(type, list)
+        return node
     }
 
     protected flushNodesByType() {

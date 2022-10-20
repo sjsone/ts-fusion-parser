@@ -55,8 +55,8 @@ export class StringSingleQuotedToken extends Token { public regex = /^('[^'\\\\]
 
 
 
-export class TrueValueToken extends Token { public regex = /^((?=(true|TRUE))\1)/ }
-export class FalseValueToken extends Token { public regex = /^((?=(false|FALSE))\1)/ }
-export class NullValueToken extends Token { public regex = /^((?=(null|NULL))\1)/ }
+export class TrueValueToken extends Token { public regex = /^(true|TRUE)/ }
+export class FalseValueToken extends Token { public regex = /^(false|FALSE)/ }
+export class NullValueToken extends Token { public regex = /^(null|NULL)/ }
 export class IntegerToken extends Token { public regex = /^(-?[0-9]+)/ }
 export class FloatToken extends Token { public regex = /^(-?[0-9]+\.[0-9]+)/ }

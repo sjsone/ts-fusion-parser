@@ -15,9 +15,11 @@ import { OperationNode } from "./nodes/OperationNode";
 import { TernaryOperationNode } from "./nodes/TernaryOperationNode";
 
 import { ParserHandoverResult, ParserInterface } from "../afx/parserInterface";
-import { ColonToken, CommaToken, DivisionToken, DotToken, ExclamationMarkToken, FloatToken, IntegerToken, IsEqualToken, IsNotEqualToken, LBraceToken, LBracketToken, LessThanOrEqualToken, LessThanToken, LogicalAndToken, LogicalOrToken, LParenToken, MinusToken, ModuloToken, MoreThanOrEqualToken, MoreThanToken, MultiplicationToken, ObjectFunctionPathPartToken, ObjectPathPartToken, PlusToken, QuestionMarkToken, RBraceToken, RBracketToken, RParenToken, SpreadToken, StringDoubleQuotedToken, StringSingleQuotedToken, Token, WhitespaceToken } from "./tokens";
+import { ColonToken, CommaToken, DivisionToken, DotToken, ExclamationMarkToken, FalseValueToken, FloatToken, IntegerToken, IsEqualToken, IsNotEqualToken, LBraceToken, LBracketToken, LessThanOrEqualToken, LessThanToken, LogicalAndToken, LogicalOrToken, LParenToken, MinusToken, ModuloToken, MoreThanOrEqualToken, MoreThanToken, MultiplicationToken, NullValueToken, ObjectFunctionPathPartToken, ObjectPathPartToken, PlusToken, QuestionMarkToken, RBraceToken, RBracketToken, RParenToken, SpreadToken, StringDoubleQuotedToken, StringSingleQuotedToken, Token, TrueValueToken, WhitespaceToken } from "./tokens";
 import { NodePosition } from "./nodes/NodePosition";
 import { SpreadOperationNode } from "./nodes/SpreadOperationNode";
+import { LiteralBooleanNode } from "./nodes/LiteralBooleanNode";
+import { LiteralNullNode } from "./nodes/LiteralNullNode";
 export class Parser implements ParserInterface {
     protected lexer: Lexer
     public nodesByType: Map<typeof AbstractNode, AbstractNode[]> = new Map()
@@ -70,6 +72,13 @@ export class Parser implements ParserInterface {
             case this.lexer.lookAhead(IntegerToken):
                 object = new LiteralNumberNode(this.lexer.consumeLookAhead().value, this.endPosition(position), parent)
                 break;
+            
+            case this.lexer.lookAhead(TrueValueToken):
+            case this.lexer.lookAhead(FalseValueToken):
+                return new LiteralBooleanNode(this.lexer.consumeLookAhead().value, this.endPosition(position), parent)
+            
+            case this.lexer.lookAhead(NullValueToken):
+                return new LiteralNullNode(this.lexer.consumeLookAhead().value, this.endPosition(position), parent)
 
             case this.lexer.lookAhead(LParenToken):
                 this.lexer.consumeLookAhead()

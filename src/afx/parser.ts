@@ -9,6 +9,7 @@ import { ParserHandoverResult, ParserInterface } from "./parserInterface";
 import { AnyCharacterToken, AttributeEelBeginToken, AttributeEelEndToken, AttributeNameToken, AttributeStringValueToken, AttributeValueAssignToken, CharacterToken, CommentToken, EscapedCharacterToken, ScriptEndToken, TagBeginToken, TagCloseToken, TagEndToken, TagSelfCloseToken, Token, TokenConstructor, WhitespaceToken, WordToken } from "./tokens";
 import { Parser as EelParser } from '../eel/parser'
 import { Lexer as EelLexer } from '../eel/lexer'
+import { TagSpreadEelAttributeNode } from "./nodes/TagSpreadEelAttributeNode";
 export class Parser implements ParserInterface {
     protected lexer: Lexer
     public nodesByType: Map<typeof AbstractNode, AbstractNode[]> = new Map()
@@ -130,10 +131,12 @@ export class Parser implements ParserInterface {
         const position = { ...token.position }
         this.parseLazyWhitespace()
 
-        const attributes: TagAttributeNode[] = []
+        const attributes: Array<TagSpreadEelAttributeNode|TagAttributeNode> = []
         while (!this.lexer.lookAhead(TagCloseToken) && !this.lexer.lookAhead(TagSelfCloseToken)) {
             this.parseLazyWhitespace()
-            const attribute = this.parseTagAttribute()
+
+            const isSpreadEelAttribute = this.lexer.lookAhead(AttributeEelBeginToken)
+            const attribute = isSpreadEelAttribute ? this.parseSpreadEelAttribute() : this.parseTagAttribute()
             this.addNodeToNodesByType(attribute)
             attributes.push(attribute)
             this.parseLazyWhitespace()
@@ -160,6 +163,18 @@ export class Parser implements ParserInterface {
         position.end = closingTagToken.position.end
         this.lexer.tagStack.pop()
         return new TagNode(this.applyOffset(position), nameNode.toString(), nameNode, attributes, content, TagNameNode.From(closingTagToken), false, parent)
+    }
+
+    parseSpreadEelAttribute() {
+        const eelBegin = this.lexer.consumeLookAhead()
+        const eelParser = new EelParser(new EelLexer(""))
+        const result = this.handover<AbstractNode>(eelParser)
+        const eelEnd = this.lexer.consume(AttributeEelEndToken)
+        const position = {
+            begin: eelBegin.position.begin,
+            end: eelEnd.position.end
+        }
+        return new TagSpreadEelAttributeNode(position, Array.isArray(result) ? result : [result])
     }
 
     parseTagAttribute() {

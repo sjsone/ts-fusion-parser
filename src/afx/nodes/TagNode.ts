@@ -3,6 +3,7 @@ import { AbstractNode } from "./AbstractNode";
 import { TagAttributeNode } from "./TagAttributeNode";
 import { TagNameNode } from "./TagNameNode";
 import { TextNode } from "./TextNode";
+import { TagSpreadEelAttributeNode } from "./TagSpreadEelAttributeNode";
 
 export class TagNode extends AbstractNode {
     protected name: string
@@ -10,11 +11,11 @@ export class TagNode extends AbstractNode {
 
     protected end: TagNameNode | undefined
 
-    protected attributes: TagAttributeNode[]
+    protected attributes: Array<TagSpreadEelAttributeNode | TagAttributeNode>
     protected content: Array<TagNode | TextNode>
     protected selfClosing: boolean
 
-    constructor(position: NodePosition, name: string, begin: TagNameNode, attributes: TagAttributeNode[], content: Array<TagNode | TextNode>, end: TagNameNode | undefined = undefined, selfClosing: boolean = false, parent: AbstractNode | undefined = undefined) {
+    constructor(position: NodePosition, name: string, begin: TagNameNode, attributes: Array<TagSpreadEelAttributeNode | TagAttributeNode>, content: Array<TagNode | TextNode>, end: TagNameNode | undefined = undefined, selfClosing: boolean = false, parent: AbstractNode | undefined = undefined) {
         super(position, parent)
         this.name = name
         this.begin = begin

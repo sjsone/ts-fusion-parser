@@ -50,7 +50,8 @@ const tests: { [key: string]: string } = {
     OffsetAccessCalc: `items[index + 1]`,
     OffsetWithOffset: `owo[1][2]`,
     OffsetAccessComplex: `items[index + 1 + Test.Helper[1]][2]`,
-    SpreadForAfx: `...props.attributes`
+    SpreadForAfx: `...props.attributes`,
+    GreaterThanWithTernary: `1 && q(node).children('[instanceof Neos.Neos:Document]').filter('[_hiddenInIndex=false]').count() > 0 ? 'has-subpages' : null`
 }
 
 
@@ -73,8 +74,8 @@ const runAllTests = () => {
 
 }
 // runAllTests()
-const lexer = new Lexer(tests.ObjectLiteralNoStringKeys)
+const lexer = new Lexer(tests.GreaterThanWithTernary)
 const parser = new Parser(lexer)
 const result = parser.parse()   
-console.log(result.path[0].args[0].entries)
+console.log(result)
 // console.log(">"+tests.MultipleTails.substring(30, 36)+"<")

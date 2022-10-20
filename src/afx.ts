@@ -38,10 +38,18 @@ const afx = `
         </div>
     </div>
 `
-
-const parser = new Parser(new Lexer(afx))
+const notWorking = `
+<Neos.Fusion:Tag
+            tagName='a'
+            attributes.href={props.link}
+            attributes.target={props.target}
+            omitClosingTag={TRUE}
+            omitClosingTag={null}
+            @if.hasLinkAndNotInBackend={props.hasLinkAndNotInBackend ? true : false}
+        />
+`
+const parser = new Parser(new Lexer(notWorking))
 let nodes: any = parser.parse()
 
 nodes = parser.nodesByType.get(<any>ObjectPathNode) 
-
-const node = nodes[7]
+console.log("nodes", nodes)

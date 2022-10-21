@@ -10,6 +10,7 @@ import { AnyCharacterToken, AttributeEelBeginToken, AttributeEelEndToken, Attrib
 import { Parser as EelParser } from '../eel/parser'
 import { Lexer as EelLexer } from '../eel/lexer'
 import { TagSpreadEelAttributeNode } from "./nodes/TagSpreadEelAttributeNode";
+import { InlineEelNode } from "./nodes/InlineEelNode";
 export class Parser implements ParserInterface {
     protected lexer: Lexer
     public nodesByType: Map<typeof AbstractNode, AbstractNode[]> = new Map()
@@ -37,52 +38,32 @@ export class Parser implements ParserInterface {
     parseText(parent: AbstractNode | undefined = undefined) {
         const position: NodePosition = { begin: -1, end: -1 }
         let text = ""
-
+        const inlineEel: any = []
         while (!this.lexer.isEOF() && (this.lexer.lookAhead(CharacterToken) || this.lexer.lookAhead(EscapedCharacterToken))) {
             const charToken = this.lexer.consumeLookAhead()
-            text += charToken.value
+            if((new AttributeEelBeginToken).regex.test(charToken.value)) {
+                const eelBegin = charToken
+                const eelParser = new EelParser(new EelLexer(""))
+                const result = this.handover<AbstractNode>(eelParser)
+                const eelEnd = this.lexer.consume(AttributeEelEndToken)
+                const position = {
+                    begin: eelBegin.position.begin,
+                    end: eelEnd.position.end
+                }
+
+                inlineEel.push(new InlineEelNode(position, Array.isArray(result) ? result : [result]))
+            } else {
+                text += charToken.value
+            }
+
             if (position.begin === -1) position.begin = charToken.position.begin
             position.end = charToken.position.end
         }
 
-        const inlineEel = this.parseInlineEelFromText(text, position, parent)
+        
         const textNode = new TextNode(this.applyOffset(position), text, inlineEel, parent)
         this.addNodeToNodesByType(textNode)
         return textNode
-    }
-
-    parseInlineEelFromText(text: string, position: NodePosition, parent: AbstractNode | undefined = undefined) {
-        const inlineEel: AbstractNode[] = []
-        const beginToken = new AttributeEelBeginToken()
-        const eelParser = new EelParser(new EelLexer(""))
-
-        let cursor = 0
-        let match: RegExpExecArray | null = null
-        while (cursor < text.length) {
-            const rest = text.substring(cursor)
-            match = beginToken.regex.exec(rest)
-            if (match === null) {
-                cursor++
-                continue
-            }
-
-            cursor += match[1].length
-            const eelText = text.substring(cursor)
-
-            const result = eelParser.receiveHandover<AbstractNode>(eelText, cursor + position.begin + this.positionOffset)
-            this.addNodesFromHandoverResult(result, parent)
-            cursor += result.cursor
-
-            if (Array.isArray(result.nodeOrNodes)) {
-                inlineEel.push(...result.nodeOrNodes)
-            } else {
-                inlineEel.push(result.nodeOrNodes)
-            }
-        }
-        for (const eelNode of inlineEel) {
-            eelNode["parent"] = parent
-        }
-        return inlineEel
     }
 
     parseJavascript(parent: AbstractNode | undefined = undefined) {

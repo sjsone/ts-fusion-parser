@@ -53,7 +53,8 @@ const tests: { [key: string]: string } = {
     SpreadForAfx: `...props.attributes`,
     GreaterThanWithTernary: `1 && q(node).children('[instanceof Neos.Neos:Document]').filter('[_hiddenInIndex=false]').count() > 0 ? 'has-subpages' : null`,
     CallbackSimple: `Array.filter(value, (x, index) => x != null)`,
-    CallbackComplex: `Array.reduce(value, (items, url) => !!url ? Array.push(items, url) : items, [])`
+    CallbackComplex: `Array.reduce(value, (items, url) => !!url ? Array.push(items, url) : items, [])`,
+    TernaryWithStringAndBoolean: `props.hasLinkAndNotInBackend ? '</a>' : false`
 }
 
 
@@ -76,8 +77,8 @@ const runAllTests = () => {
 
 }
 // runAllTests()
-const lexer = new Lexer(tests.CallbackComplex)
+const lexer = new Lexer(tests.TernaryWithStringAndBoolean)
 const parser = new Parser(lexer)
 const result = parser.parse()   
-console.log(result.path[1].args[1])
+console.log(result)
 // console.log(">"+tests.MultipleTails.substring(30, 36)+"<")

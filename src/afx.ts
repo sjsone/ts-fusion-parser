@@ -38,18 +38,14 @@ const afx = `
         </div>
     </div>
 `
+
 const notWorking = `
-<Neos.Fusion:Tag
-            tagName='a'
-            attributes.href={props.link}
-            attributes.target={props.target}
-            omitClosingTag={TRUE}
-            omitClosingTag={null}
-            @if.hasLinkAndNotInBackend={props.hasLinkAndNotInBackend ? true : false}
-        />
+<div>
+{props.hasLinkAndNotInBackend ? '</a>' : false}
+</div>
 `
 const parser = new Parser(new Lexer(notWorking))
 let nodes: any = parser.parse()
 
-nodes = parser.nodesByType.get(<any>ObjectPathNode) 
-console.log("nodes", nodes)
+// nodes = parser.nodesByType.get(<any>ObjectPathNode) 
+console.log("nodes", nodes[0].content[0].inlineEel)

@@ -3,6 +3,8 @@ import { Parser } from "./afx/parser"
 
 import * as NodeFs from "fs"
 import { ObjectPathNode } from "./eel/nodes/ObjectPathNode"
+import { InlineEelNode } from "./afx/nodes/InlineEelNode"
+import { ObjectNode } from "./eel/nodes/ObjectNode"
 
 const simpleText = `
     asfd &lt;
@@ -40,12 +42,19 @@ const afx = `
 `
 
 const notWorking = `
-<div>
+<Neos.Fusion:Tag
+    tagName='a'
+    attributes.href={props.link}
+    attributes.target={props.target}
+    omitClosingTag={TRUE}
+    @if.hasLinkAndNotInBackend={props.hasLinkAndNotInBackend ? true : false}
+/>
 {props.hasLinkAndNotInBackend ? '</a>' : false}
-</div>
 `
 const parser = new Parser(new Lexer(notWorking))
 let nodes: any = parser.parse()
 
-// nodes = parser.nodesByType.get(<any>ObjectPathNode) 
-console.log("nodes", nodes[0].content[0].inlineEel)
+
+
+nodes = parser.nodesByType.get(<any>ObjectNode) 
+console.log("nodes", nodes)

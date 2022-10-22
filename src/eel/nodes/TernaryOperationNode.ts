@@ -9,8 +9,11 @@ export class TernaryOperationNode extends AbstractNode {
     public constructor(condition: AbstractNode, thenPart: AbstractNode, elsePart: AbstractNode, position: NodePosition) {
         super(position)
         this.thenPart = thenPart
+        this.thenPart["parent"] = this
         this.elsePart = elsePart
+        this.elsePart["parent"] = this
         this.condition = condition
+        this.condition["parent"] = this
         this.position = position
     }
 }

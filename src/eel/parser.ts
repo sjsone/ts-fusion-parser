@@ -205,10 +205,11 @@ export class Parser implements ParserInterface {
 
     protected parseObjectExpressionPart(): any {
         switch (true) {
-            case this.lexer.lookAhead(ObjectFunctionPathPartToken):
-                return this.parseObjectFunctionExpressionPart()
             case this.lexer.lookAhead(ObjectPathPartToken):
                 return this.parseObjectPath()
+            case this.lexer.lookAhead(ObjectFunctionPathPartToken):
+                return this.parseObjectFunctionExpressionPart()
+            
         }
         this.lexer.debug()
         throw new Error("parseObjectExpressionPart")

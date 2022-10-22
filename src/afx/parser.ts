@@ -45,13 +45,15 @@ export class Parser implements ParserInterface {
                 const eelBegin = charToken
                 const eelParser = new EelParser(new EelLexer(""))
                 const result = this.handover<AbstractNode>(eelParser)
+                
                 const eelEnd = this.lexer.consume(AttributeEelEndToken)
                 const position = {
                     begin: eelBegin.position.begin,
                     end: eelEnd.position.end
                 }
-
-                inlineEel.push(new InlineEelNode(position, Array.isArray(result) ? result : [result]))
+                const inlineEelNode = new InlineEelNode(position, result)
+                this.addNodeToNodesByType(inlineEelNode)
+                inlineEel.push(inlineEelNode)
             } else {
                 text += charToken.value
             }
@@ -198,13 +200,13 @@ export class Parser implements ParserInterface {
         this.lexer.lazyConsume(WhitespaceToken)
     }
 
-    public handover<T extends AbstractNode>(parser: ParserInterface, parent: AbstractNode | undefined = undefined): T | Array<T> {
+    public handover<T extends AbstractNode>(parser: ParserInterface, parent: AbstractNode | undefined = undefined): Array<T> {
         const text = this.lexer.getRemainingText()
         const result = parser.receiveHandover<T>(text, this.lexer["cursor"] + this.positionOffset)
         this.addNodesFromHandoverResult(result, parent)
 
         this.lexer["cursor"] += result.cursor
-        return result.nodeOrNodes
+        return Array.isArray(result.nodeOrNodes) ? result.nodeOrNodes : [result.nodeOrNodes]
     }
 
     protected addNodesFromHandoverResult<T extends AbstractNode>(result: ParserHandoverResult<T>, parent: AbstractNode | undefined = undefined) {

@@ -1,28 +1,21 @@
 import NodeFs from 'fs'
 import { ObjectFunctionPathNode } from './eel/nodes/ObjectFunctionPathNode'
+import { ObjectNode } from './eel/nodes/ObjectNode'
 import { ObjectPathNode } from './eel/nodes/ObjectPathNode'
 import { ObjectTreeParser } from "./lib"
 
 const fusion = `
-prototype(Neos.Fusion:Component).@class = "Neos\\Fusion\\FusionObjects\\ComponentImplementation"
-
 prototype(Test.Tset:Component) { 
-    test = afx\`
-        <div test={props.asdf}> test asdf {props.end} 
-            asdf {props.asdf}
-        </div>
+    renderer = afx\`
+ 		<Neos.Fusion:Tag
+            tagName='a'
+            attributes.href={props.link}
+            attributes.target={props.target}
+            omitClosingTag={TRUE}
+            @if.hasLinkAndNotInBackend={props.hasLinkAndNotInBackend ? true : false}
+        />
+        {props.hasLinkAndNotInBackend ? '</a>' : false}
     \`
-
-    value = afx\`
-        {"{"}
-        <Neos.Fusion:Loop items={props.properties}>
-            {itemKey}: {item}
-        </Neos.Fusion:Loop>
-        {"}"}
-    \`
-
-    renderer = \${this.test}
-    @if.test = \${props.test}
 }
 `
 
@@ -30,15 +23,16 @@ prototype(Test.Tset:Component) {
 const fusionPath = "./data/eel.fusion"
 const fusionFile = NodeFs.readFileSync(fusionPath).toString()
 
-const fusionToParse = fusionFile
+const fusionToParse = fusion
 const timeStart = process.hrtime();
 const objectTree = ObjectTreeParser.parse(fusionToParse, undefined, false)
 const timeEnd = process.hrtime(timeStart);
 console.info('Execution time: %ds %dms', timeEnd[0], timeEnd[1] / 1000000)
-console.log(objectTree.nodesByType.keys())
+// console.log(objectTree.nodesByType.get(ObjectNode))
 
-for(const objectPathNode of <ObjectPathNode[]><unknown>(objectTree.nodesByType.get(ObjectPathNode)!)) {
-    const value = objectPathNode["value"]
+for(const objectPathNode of <ObjectNode[]><unknown>(objectTree.nodesByType.get(ObjectNode)!)) {
+    // const value = objectPathNode["value"]
     const substring = fusionToParse.substring(objectPathNode["position"].begin, objectPathNode["position"].end)
-    if(value !== substring) console.log(value, substring)
+    // if(value !== substring) console.log(value, substring)
+    console.log("substring", substring)
 }

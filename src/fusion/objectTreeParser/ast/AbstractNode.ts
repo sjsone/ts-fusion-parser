@@ -3,7 +3,9 @@ import { NodePosition } from "./NodePosition";
 
 export abstract class AbstractNode {
     protected position: NodePosition|undefined = undefined
+    protected parent: AbstractNode|undefined = undefined
     public abstract visit(visitor: AstNodeVisitorInterface, ...args: any[]): any
+
 
     debugPrint(name: string = '', withGroup = true) {
         if(withGroup) console.group(this.constructor.name + (name !== '' ? `[${name}]`: '' ) + ( this.position ? this.debugPositionToString() : ''))

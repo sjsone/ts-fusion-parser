@@ -210,11 +210,17 @@ export class Parser implements ParserInterface {
     }
 
     protected addNodesFromHandoverResult<T extends AbstractNode>(result: ParserHandoverResult<T>, parent: AbstractNode | undefined = undefined) {
+        if(Array.isArray(result.nodeOrNodes)) {
+            for(const node of result.nodeOrNodes) {
+                node["parent"] = parent
+            }
+        } else {
+            result.nodeOrNodes["parent"] = parent
+        }
         for (const [type, nodes] of result.nodesByType.entries()) {
             const list = this.nodesByType.get(type) ?? []
             for (const node of nodes) {
                 list.push(node)
-                node["parent"] = parent
             }
             this.nodesByType.set(type, list)
         }

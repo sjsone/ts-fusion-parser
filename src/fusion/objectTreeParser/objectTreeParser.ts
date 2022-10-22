@@ -491,7 +491,6 @@ export class ObjectTreeParser {
             const list = this.nodesByType.get(<any>type) ?? []
             for (const node of nodes) {
                 list.push(<any>node)
-                node["parent"] = <any>dslExpression
             }
             this.nodesByType.set(<any>type, list)
         }

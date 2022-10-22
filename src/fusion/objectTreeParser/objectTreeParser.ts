@@ -420,11 +420,13 @@ export class ObjectTreeParser {
                 const eelLexer = new EelLexer(this.lexer.getRemainingCode())
                 const eelParser = new EelParser(eelLexer, this.lexer.getCursor())
                 const eelNodes = eelParser.parse() 
+
+                eelNodes["parent"] = <any>eelExpressionValue
+                
                 for (const [type, nodes] of eelParser.nodesByType.entries()) {
                     const list = this.nodesByType.get(<any>type) ?? []
                     for (const node of nodes) {
                         list.push(<any>node)
-                        node["parent"] = <any>eelExpressionValue
                     }
                     this.nodesByType.set(<any>type, list)
                 }

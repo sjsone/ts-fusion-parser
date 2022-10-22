@@ -18,5 +18,6 @@
     },
     "main": "out/lib.js",
     "author": "Simon Schmidt",
-    "license": "ISC"
+    "license": "AGPL-3.0-or-later",
+    "repository": "git@gitlab.com:sjsone/ts-fusion-parser.git"
 }

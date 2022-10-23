@@ -42,14 +42,9 @@ const afx = `
 `
 
 const notWorking = `
-<Neos.Fusion:Tag
-    tagName='a'
-    attributes.href={props.link}
-    attributes.target={props.target}
-    omitClosingTag={TRUE}
-    @if.hasLinkAndNotInBackend={props.hasLinkAndNotInBackend ? true : false}
-/>
-{props.hasLinkAndNotInBackend ? '</a>' : false}
+<div>
+    {String.nl2br(H.Escape.text(apprenticeScholarship.applicant.hobbies))}
+</div>
 `
 const parser = new Parser(new Lexer(notWorking))
 let nodes: any = parser.parse()

@@ -54,7 +54,8 @@ const tests: { [key: string]: string } = {
     GreaterThanWithTernary: `1 && q(node).children('[instanceof Neos.Neos:Document]').filter('[_hiddenInIndex=false]').count() > 0 ? 'has-subpages' : null`,
     CallbackSimple: `Array.filter(value, (x, index) => x != null)`,
     CallbackComplex: `Array.reduce(value, (items, url) => !!url ? Array.push(items, url) : items, [])`,
-    TernaryWithStringAndBoolean: `props.hasLinkAndNotInBackend ? '</a>' : false`
+    TernaryWithStringAndBoolean: `props.hasLinkAndNotInBackend ? '</a>' : false`,
+    EelHelperWithNumberInMethod: `String.nl2br(props.message)`
 }
 
 
@@ -77,7 +78,7 @@ const runAllTests = () => {
 
 }
 // runAllTests()
-const lexer = new Lexer(tests.TernaryWithStringAndBoolean)
+const lexer = new Lexer(tests.EelHelperWithNumberInMethod)
 const parser = new Parser(lexer)
 const result = parser.parse()   
 console.log(result)

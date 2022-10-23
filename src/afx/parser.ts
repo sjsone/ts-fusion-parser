@@ -145,7 +145,9 @@ export class Parser implements ParserInterface {
 
         position.end = closingTagToken.position.end
         this.lexer.tagStack.pop()
-        return new TagNode(this.applyOffset(position), nameNode.toString(), nameNode, attributes, content, TagNameNode.From(closingTagToken), false, parent)
+        const tagNode = new TagNode(this.applyOffset(position), nameNode.toString(), nameNode, attributes, content, TagNameNode.From(closingTagToken), false, parent)
+        this.addNodeToNodesByType(tagNode)
+        return tagNode
     }
 
     parseSpreadEelAttribute() {

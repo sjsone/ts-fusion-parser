@@ -144,6 +144,7 @@ export class Parser implements ParserInterface {
         const closingTagToken = this.lexer.consume(TagEndToken)
 
         position.end = closingTagToken.position.end
+        closingTagToken.position = this.applyOffset(closingTagToken.position)
         this.lexer.tagStack.pop()
         const tagNode = new TagNode(this.applyOffset(position), nameNode.toString(), nameNode, attributes, content, TagNameNode.From(closingTagToken), false, parent)
         this.addNodeToNodesByType(tagNode)

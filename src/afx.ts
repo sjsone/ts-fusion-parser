@@ -5,6 +5,7 @@ import * as NodeFs from "fs"
 import { ObjectPathNode } from "./eel/nodes/ObjectPathNode"
 import { InlineEelNode } from "./afx/nodes/InlineEelNode"
 import { ObjectNode } from "./eel/nodes/ObjectNode"
+import { TagNode } from "./afx/nodes/TagNode"
 
 const simpleText = `
     asfd &lt;
@@ -45,11 +46,12 @@ const notWorking = `
 <div>
     {String.nl2br(H.Escape.text(apprenticeScholarship.applicant.hobbies))}
 </div>
+<asdf
 `
 const parser = new Parser(new Lexer(notWorking))
-let nodes: any = parser.parse()
+let nodes: any = parser.parse(true)
 
 
 
-nodes = parser.nodesByType.get(<any>ObjectNode) 
-console.log("nodes", nodes)
+nodes = parser.nodesByType.get(<any>TagNode) 
+console.log("nodes", nodes.map((node: TagNode) => notWorking.substring(node["position"].begin, node["position"].end)))

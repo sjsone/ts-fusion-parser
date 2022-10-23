@@ -26,7 +26,7 @@ export class DslExpressionValue extends AbstractPathValue {
     public parse() {
         const lexer = new Lexer(this.code)
         const parser = new Parser(lexer, this.position!.start + this.identifier.length + 1) // +1 because of [`] in afx`...`
-        this.htmlNodes = parser.parse()
+        this.htmlNodes = parser.parse(true)
         for(const htmlNode of this.htmlNodes) {
             htmlNode["parent"] = <any>this
         }

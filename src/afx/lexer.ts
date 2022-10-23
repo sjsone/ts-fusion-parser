@@ -1,3 +1,4 @@
+import { EOLError } from "./errors/eolError";
 import { Token, TokenConstructor } from "./tokens";
 
 
@@ -16,7 +17,7 @@ export class Lexer {
     public getRemainingText() {
         if(this.isEOF()) {
             // console.log("tagStack", this.tagStack)
-            throw new Error("Hit EOL but was not expecting it")
+            throw new EOLError("Hit EOL but was not expecting it")
         }
         return this.text.substring(this.cursor)
     }

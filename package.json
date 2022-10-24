@@ -1,6 +1,6 @@
 {
     "name": "ts-fusion-parser",
-    "version": "0.0.38",
+    "version": "0.0.39",
     "description": "Parser for Neos Fusion Files",
     "dependencies": {},
     "devDependencies": {

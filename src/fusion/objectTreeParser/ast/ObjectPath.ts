@@ -4,18 +4,19 @@ import { AbstractPathSegment } from "./AbstractPathSegment";
 import { NodePosition } from "./NodePosition";
 
 
-export class ObjectPath extends AbstractNode
-{
+export class ObjectPath extends AbstractNode {
     public segments: AbstractPathSegment[];
 
-    public constructor(...segments: AbstractPathSegment[])
-    {
+    public constructor(...segments: AbstractPathSegment[]) {
         super()
+
         this.segments = segments;
+        for (const segment of this.segments) {
+            segment["parent"] = this
+        }
     }
 
-    public visit(visitor: AstNodeVisitorInterface, currentPathPrefix: string[])
-    {
+    public visit(visitor: AstNodeVisitorInterface, currentPathPrefix: string[]) {
         return visitor.visitObjectPath(this, currentPathPrefix)
     }
 
@@ -24,7 +25,7 @@ export class ObjectPath extends AbstractNode
     }
 
     protected debugPrintInner(): void {
-        for(const segment of this.segments) {
+        for (const segment of this.segments) {
             segment.debugPrint()
         }
     }

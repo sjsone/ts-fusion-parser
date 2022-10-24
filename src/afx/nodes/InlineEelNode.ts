@@ -7,5 +7,8 @@ export class InlineEelNode extends AbstractNode {
     constructor(position: NodePosition, eel: AbstractNode[], parent: AbstractNode | undefined = undefined) {
         super(position, parent)
         this.eel = eel
+        for (const eelNode of this.eel) {
+            eelNode["parent"] = this
+        }
     }
 }

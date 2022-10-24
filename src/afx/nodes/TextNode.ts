@@ -10,5 +10,8 @@ export class TextNode extends AbstractNode {
         super(position, parent)
         this.text = text
         this.inlineEel = inlineEel
+        for (const inlineEel of this.inlineEel) {
+            inlineEel["parent"] = this
+        }
     }
 }

@@ -9,5 +9,6 @@ export class TagAttributeNode extends AbstractNode {
         super(position)
         this.name = name
         this.value = value
+        if(this.value instanceof AbstractNode) this.value["parent"] = this
     }
 }

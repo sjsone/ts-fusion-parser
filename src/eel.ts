@@ -56,7 +56,8 @@ const tests: { [key: string]: string } = {
     CallbackComplex: `Array.reduce(value, (items, url) => !!url ? Array.push(items, url) : items, [])`,
     TernaryWithStringAndBoolean: `props.hasLinkAndNotInBackend ? '</a>' : false`,
     EelHelperWithNumberInMethod: `String.nl2br(props.message)`,
-    ObjectOffsetAccess: `this.test["asdf"]`
+    ObjectOffsetAccess: `this.test["asdf"]`,
+    ObjectPathWithUnderscore: `this.test_count`
 }
 
 
@@ -79,8 +80,8 @@ const runAllTests = () => {
 
 }
 // runAllTests()
-const lexer = new Lexer(tests.ObjectOffsetAccess)
+const lexer = new Lexer(tests.ObjectPathWithUnderscore)
 const parser = new Parser(lexer)
 const result = parser.parse()   
-console.log(result.path[1].offset)
+console.log(result)
 // console.log(">"+tests.MultipleTails.substring(30, 36)+"<")

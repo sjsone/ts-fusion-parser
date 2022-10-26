@@ -24,8 +24,8 @@ export class RBracketToken extends Token { public regex = /^(\])/ }
 export class DotToken extends Token { public regex = /^(\.)/ }
 export class ColonToken extends Token { public regex = /^(:)/ }
 
-export class ObjectPathPartToken extends Token { public regex = /^([a-zA-Z0-9]+)/ }
-export class ObjectFunctionPathPartToken extends Token { public regex = /^([a-zA-Z0-9]+\()/ }
+export class ObjectPathPartToken extends Token { public regex = /^([a-zA-Z0-9_]+)/ }
+export class ObjectFunctionPathPartToken extends Token { public regex = /^([a-zA-Z0-9_]+\()/ }
 export class AssignmentToken extends Token { public regex = /^(=)/ }
 export class CommaToken extends Token { public regex = /^(,)/ }
 

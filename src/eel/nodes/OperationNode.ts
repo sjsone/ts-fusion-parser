@@ -11,7 +11,7 @@ export class OperationNode extends AbstractNode {
         this.leftHand = leftHand
         this.leftHand["parent"] = this
         this.rightHand = rightHand
-        this.leftHand["parent"] = this
+        this.rightHand["parent"] = this
         this.operation = operation
         this.position = position
     }

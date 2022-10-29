@@ -8,5 +8,6 @@ export class ObjectOffsetAccessPathNode extends ObjectPathNode {
     public constructor(expression: AbstractNode, position: NodePosition, offset: AbstractNode | undefined = undefined) {
         super('', position, undefined, offset)
         this.expression = expression
+        this.expression["parent"] = this
     }
 }

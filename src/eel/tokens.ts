@@ -12,7 +12,7 @@ export type TokenConstructor = new (...args: any) => Token
 export class WhitespaceToken extends Token { public regex = /^(\s*)/ }
 export class AnyCharacterToken extends Token { public regex = /^([\s\S])/ }
 
-export class CallbackSignatureToken extends Token { public regex = /^((?:\(\s*[a-zA-Z0-9_]*(?:\s*,\s*[a-zA-Z0-9_]+)*\s*\)|[a-zA-Z0-9_]+)\s*=>)/ }
+export class CallbackSignatureToken extends Token { public regex = /^((?:\(\s*[a-zA-Z0-9_-]*(?:\s*,\s*[a-zA-Z0-9_-]+)*\s*\)|[a-zA-Z0-9_-]+)\s*=>)/ }
 
 export class LParenToken extends Token { public regex = /^(\()/ }
 export class RParenToken extends Token { public regex = /^(\))/ }
@@ -24,8 +24,8 @@ export class RBracketToken extends Token { public regex = /^(\])/ }
 export class DotToken extends Token { public regex = /^(\.)/ }
 export class ColonToken extends Token { public regex = /^(:)/ }
 
-export class ObjectPathPartToken extends Token { public regex = /^([a-zA-Z0-9_]+)/ }
-export class ObjectFunctionPathPartToken extends Token { public regex = /^([a-zA-Z0-9_]+\()/ }
+export class ObjectPathPartToken extends Token { public regex = /^([a-zA-Z0-9_-]+)/ }
+export class ObjectFunctionPathPartToken extends Token { public regex = /^([a-zA-Z0-9_-]+\()/ }
 export class AssignmentToken extends Token { public regex = /^(=)/ }
 export class CommaToken extends Token { public regex = /^(,)/ }
 

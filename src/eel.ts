@@ -57,7 +57,9 @@ const tests: { [key: string]: string } = {
     TernaryWithStringAndBoolean: `props.hasLinkAndNotInBackend ? '</a>' : false`,
     EelHelperWithNumberInMethod: `String.nl2br(props.message)`,
     ObjectOffsetAccess: `this.test["asdf"]`,
-    ObjectPathWithUnderscore: `this.test_count`
+    ObjectPathWithUnderscore: `this.test_count`,
+    ObjectPathWithMinus: `this.test-count`,
+    
 }
 
 
@@ -80,7 +82,7 @@ const runAllTests = () => {
 
 }
 // runAllTests()
-const lexer = new Lexer(tests.ObjectPathWithUnderscore)
+const lexer = new Lexer(tests.ObjectPathWithMinus)
 const parser = new Parser(lexer)
 const result = parser.parse()   
 console.log(result)

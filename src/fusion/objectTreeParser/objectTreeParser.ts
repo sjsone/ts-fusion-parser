@@ -379,11 +379,12 @@ export class ObjectTreeParser {
      *  = ASSIGNMENT PathValue
      */
     protected parseValueAssignment(): ValueAssignment {
+        const position = this.createPosition()
         this.expect(Token.ASSIGNMENT);
         this.lazyExpect(Token.SPACE);
         const value = this.parsePathValue();
         this.addNodeToNodesByType(value)
-        return new ValueAssignment(value);
+        return new ValueAssignment(value, this.endPosition(position));
     }
 
     /**
@@ -393,17 +394,18 @@ export class ObjectTreeParser {
     protected parsePathValue(): AbstractPathValue {
         // watch out for the order, its regex matching and first one wins.
         // sorted by likelyhood
+        const position = this.createPosition()
         let stringContent
         switch (true) {
             case this.accept(Token.STRING_SINGLE_QUOTED):
                 const charWrapped = this.consume().getValue();
                 stringContent = charWrapped.substring(1, charWrapped.length - 1);
-                return new StringValue(stripslashes(stringContent));
+                return new StringValue(stripslashes(stringContent), this.endPosition(position));
 
             case this.accept(Token.STRING_DOUBLE_QUOTED):
                 const stringWrapped = this.consume().getValue();
                 stringContent = stringWrapped.substring(1, stringWrapped.length - 1);
-                return new StringValue(stripcslashes(stringContent));
+                return new StringValue(stripcslashes(stringContent), this.endPosition(position));
 
             case this.accept(Token.DSL_EXPRESSION_START):
                 return this.parseDslExpression();

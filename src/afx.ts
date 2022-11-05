@@ -43,6 +43,7 @@ const afx = `
 `
 
 const notWorking = `
+<Ne
 <div>
     {String.nl2br(H.Escape.text(apprenticeScholarship.applicant.hobbies))}
 </div>

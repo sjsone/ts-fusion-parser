@@ -44,11 +44,11 @@ export class Parser implements ParserInterface {
         const inlineEel: any = []
         while (!this.lexer.isEOF() && (this.lexer.lookAhead(CharacterToken) || this.lexer.lookAhead(EscapedCharacterToken))) {
             const charToken = this.lexer.consumeLookAhead()
-            if((new AttributeEelBeginToken).regex.test(charToken.value)) {
+            if ((new AttributeEelBeginToken).regex.test(charToken.value)) {
                 const eelBegin = charToken
                 const eelParser = new EelParser(new EelLexer(""))
                 const result = this.handover<AbstractNode>(eelParser)
-                
+
                 const eelEnd = this.lexer.consume(AttributeEelEndToken)
                 const position = {
                     begin: eelBegin.position.begin,
@@ -65,7 +65,7 @@ export class Parser implements ParserInterface {
             position.end = charToken.position.end
         }
 
-        
+
         const textNode = new TextNode(this.applyOffset(position), text, inlineEel, parent)
         this.addNodeToNodesByType(textNode)
         return textNode
@@ -117,35 +117,33 @@ export class Parser implements ParserInterface {
         const position = { ...token.position }
         this.parseLazyWhitespace()
 
-        const attributes: Array<TagSpreadEelAttributeNode|TagAttributeNode> = []
+        const attributes: Array<TagSpreadEelAttributeNode | TagAttributeNode> = []
 
         try {
             while (!this.lexer.lookAhead(TagCloseToken) && !this.lexer.lookAhead(TagSelfCloseToken)) {
                 this.parseLazyWhitespace()
-    
+
                 const isSpreadEelAttribute = this.lexer.lookAhead(AttributeEelBeginToken)
                 const attribute = isSpreadEelAttribute ? this.parseSpreadEelAttribute() : this.parseTagAttribute()
                 this.addNodeToNodesByType(attribute)
                 attributes.push(attribute)
                 this.parseLazyWhitespace()
             }
-        } catch(error) {
-            if(!this.gracefullyReturnOnError) throw error
-            if(error instanceof EOLError) {
-                const endToken = new TagSelfCloseToken()
-                endToken["value"] = ">"
-                endToken.position = {
-                    begin: position.begin+1,
-                    end: position.end
-                }
-                position.end = endToken.position.end
-                this.lexer.tagStack.pop()
-                const tagNode = new TagNode(this.applyOffset(position), nameNode.toString(), nameNode, attributes, [], TagNameNode.From(endToken), true, parent)
-                this.addNodeToNodesByType(tagNode)
-                return tagNode
+        } catch (error) {
+            if (!this.gracefullyReturnOnError) throw error
+            const endToken = new TagSelfCloseToken()
+            endToken["value"] = ">"
+            endToken.position = {
+                begin: position.begin + 1,
+                end: position.end
             }
+            position.end = endToken.position.end
+            this.lexer.tagStack.pop()
+            const tagNode = new TagNode(this.applyOffset(position), nameNode.toString(), nameNode, attributes, [], TagNameNode.From(endToken), true, parent)
+            this.addNodeToNodesByType(tagNode)
+            return tagNode
         }
-        
+
 
         const endToken = this.lexer.consumeLookAhead()
         this.parseLazyWhitespace()
@@ -235,8 +233,8 @@ export class Parser implements ParserInterface {
     }
 
     protected addNodesFromHandoverResult<T extends AbstractNode>(result: ParserHandoverResult<T>, parent: AbstractNode | undefined = undefined) {
-        if(Array.isArray(result.nodeOrNodes)) {
-            for(const node of result.nodeOrNodes) {
+        if (Array.isArray(result.nodeOrNodes)) {
+            for (const node of result.nodeOrNodes) {
                 node["parent"] = parent
             }
         } else {

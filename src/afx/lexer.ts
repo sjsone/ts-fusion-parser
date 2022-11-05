@@ -39,7 +39,7 @@ export class Lexer {
     }
 
     public consumeLookAhead() {
-        if(this.lookAheadTokenType === undefined) throw new Error("Tryed to consume lookAhead but is was undefined")
+        if(this.lookAheadTokenType === undefined) throw new Error("Tried to consume lookAhead but is was undefined")
         return this.consume(this.lookAheadTokenType)
     }
 

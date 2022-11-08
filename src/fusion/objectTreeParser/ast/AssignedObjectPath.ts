@@ -11,10 +11,11 @@ export class AssignedObjectPath extends AbstractNode {
     public constructor(objectPath: ObjectPath, isRelative: boolean) {
         super()
         this.objectPath = objectPath
-        this.isRelative = isRelative 
+        this.objectPath["parent"] = this
+        this.isRelative = isRelative
     }
 
-    public visit( visitor: AstNodeVisitorInterface, ...args: any[]) {
+    public visit(visitor: AstNodeVisitorInterface, ...args: any[]) {
         return visitor.visitAssignedObjectPath(this);
     }
 }

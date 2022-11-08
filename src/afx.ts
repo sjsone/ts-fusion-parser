@@ -43,11 +43,11 @@ const afx = `
 `
 
 const notWorking = `
-<Ne
+
 <div>
-    {String.nl2br(H.Escape.text(apprenticeScholarship.applicant.hobbies))}
+{props.text}
 </div>
-<asdf
+<div>
 `
 const parser = new Parser(new Lexer(notWorking))
 let nodes: any = parser.parse(true)

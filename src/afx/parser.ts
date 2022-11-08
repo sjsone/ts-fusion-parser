@@ -161,6 +161,21 @@ export class Parser implements ParserInterface {
         const content: Array<TagNode | TextNode> = isScript ? [this.parseJavascript()] : this.parseTextsOrTags()
         this.parseLazyWhitespace()
 
+        if (this.lexer.isEOF()) {
+            const endToken = new TagSelfCloseToken()
+            endToken["value"] = ">"
+            endToken.position = {
+                begin: position.end + 1,
+                end: position.end + 2 
+            }
+            position.end = endToken.position.end
+            this.lexer.tagStack.pop()
+            const endNode = TagNameNode.From(endToken)
+            const tagNode = new TagNode(this.applyOffset(position), nameNode.toString(), nameNode, attributes, [], endNode, true, parent)
+            this.addNodeToNodesByType(tagNode)
+            return tagNode
+        }
+
         const closingTagToken = this.lexer.consume(TagEndToken)
 
         position.end = closingTagToken.position.end

@@ -26,8 +26,8 @@ import { Lexer } from '../lexer'
 import { Token } from '../token';
 import { NodePosition } from './ast/NodePosition';
 import { AbstractNode } from './ast/AbstractNode';
-import { Parser as EelParser} from '../../eel/parser';
-import { Lexer as EelLexer} from '../../eel/lexer';
+import { Parser as EelParser } from '../../eel/parser';
+import { Lexer as EelLexer } from '../../eel/lexer';
 
 
 const stripslashes = (str: string) => str.replace('\\', '')
@@ -295,9 +295,16 @@ export class ObjectTreeParser {
 
             return new ObjectStatement(currentPath, operation, block, cursorAfterObjectPath, this.endPosition(position));
         }
-
         if (operation === null) {
-            throw Error("operation is null")
+            if (this.ignoreErrors) {
+                const newPosition = {
+                    start: this.lexer.getCursor(),
+                    end: this.lexer.getCursor()
+                }
+                operation = new ValueAssignment(new NullValue(), newPosition)
+            } else {
+                throw Error("operation is null")
+            }
         }
         if (!(operation instanceof ValueAssignment && operation.pathValue instanceof EelExpressionValue)) {
             this.parseEndOfStatement("parseObjectStatement");

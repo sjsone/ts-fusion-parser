@@ -485,7 +485,7 @@ export class ObjectTreeParser {
                 throw error
             }
         }
-        dslCode = dslCode.substring(1, dslCode.length - 2);
+        dslCode = dslCode.substring(1, dslCode.length - 1);
         const dslExpression = new DslExpressionValue(dslIdentifier, dslCode, this.endPosition(position));
         const nodesByType = dslExpression.parse()
 

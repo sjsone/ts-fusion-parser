@@ -55,6 +55,8 @@ export class Token {
     public static RBRACKET = 700;
     public static EEL_EXPRESSION_CALLBACK = 701
 
+    private static ConstantsMap: { [key: number]: string } | undefined = undefined
+
     protected type: number
     protected value: string
     protected name: string
@@ -65,13 +67,11 @@ export class Token {
         this.name = Token.typeToString(type)
     }
 
-    public getType(): number
-    {
+    public getType(): number {
         return this.type;
     }
 
-    public getValue(): string
-    {
+    public getValue(): string {
         return this.value;
     }
 
@@ -83,10 +83,9 @@ export class Token {
      * @return string The string representation
      * @throws \LogicException
      */
-    public static typeToString(type: number): string
-    {
+    public static typeToString(type: number): string {
         const stringRepresentation = Token.getConstants()[type]
-        
+
         if (stringRepresentation === undefined) {
             throw Error(`Token of type '{type}' does not exist`)
             // throw new \LogicException("Token of type 'type' does not exist", 1637307344);
@@ -94,15 +93,17 @@ export class Token {
         return stringRepresentation;
     }
 
-    protected static getConstants()
-    {
-        const propertyNames = Object.getOwnPropertyNames(this).filter(name => !['length', 'prototype', 'name',].includes(name))
-        const descriptors = Object.getOwnPropertyDescriptors(this)
+    private static getConstants() {
+        if (this.ConstantsMap === undefined) {
+            const propertyNames = Object.getOwnPropertyNames(this).filter(name => !['length', 'prototype', 'name',].includes(name))
+            const descriptors = Object.getOwnPropertyDescriptors(this)
 
-        const constants: {[key: number]: string} = {}
-        for(const propertyName of propertyNames) {
-            constants[descriptors[propertyName].value] = propertyName
+            this.ConstantsMap = {}
+            for (const propertyName of propertyNames) {
+                this.ConstantsMap[descriptors[propertyName].value] = propertyName
+            }
         }
-        return constants
+
+        return this.ConstantsMap
     }
 }

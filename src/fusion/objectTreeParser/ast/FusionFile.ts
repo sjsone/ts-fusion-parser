@@ -1,10 +1,11 @@
 
-import { AbstractNode } from "./AbstractNode"
+import { VisitableAbstractNode } from "./VisitableAbstractNode";
 import { StatementList } from "./StatementList"
+import { AbstractNode } from "./AbstractNode";
 
 type AstNodeVisitorInterface = any
 
-export class FusionFile extends AbstractNode {
+export class FusionFile extends VisitableAbstractNode {
     public statementList: StatementList
     public contextPathAndFileName: string | undefined
     public nodesByType: Map<any, AbstractNode[]> = new Map()

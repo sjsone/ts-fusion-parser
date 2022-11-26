@@ -1,11 +1,11 @@
 
 
-import { AbstractNode } from './AbstractNode';
+import { VisitableAbstractNode } from "./VisitableAbstractNode";
 import { AbstractStatement } from './AbstractStatement'
 
 type AstNodeVisitorInterface = any
 
-export class StatementList extends AbstractNode {
+export class StatementList extends VisitableAbstractNode {
     public statements: AbstractStatement[] = [];
 
     public constructor(...statements: AbstractStatement[]) {

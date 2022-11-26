@@ -1,9 +1,9 @@
 import { AstNodeVisitorInterface } from "../astNodeVisitorInterface"
-import { AbstractNode } from "./AbstractNode"
+import { VisitableAbstractNode } from "./VisitableAbstractNode";
 import { ObjectPath } from "./ObjectPath"
 
 
-export class AssignedObjectPath extends AbstractNode {
+export class AssignedObjectPath extends VisitableAbstractNode {
     public objectPath: ObjectPath
 
     public isRelative: boolean

@@ -1,12 +1,4 @@
-import { AbstractNode } from "./AbstractNode";
+import { VisitableAbstractNode } from "./VisitableAbstractNode";
 
-
-
-
-
-
-
-
-export abstract class AbstractOperation extends AbstractNode
-{
+export abstract class AbstractOperation extends VisitableAbstractNode {
 }

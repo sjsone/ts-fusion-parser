@@ -1,8 +1,8 @@
 import { AstNodeVisitorInterface } from "../astNodeVisitorInterface";
-import { AbstractNode } from "./AbstractNode";
+import { VisitableAbstractNode } from "./VisitableAbstractNode";
 import { StatementList } from "./StatementList";
 
-export class Block extends AbstractNode {
+export class Block extends VisitableAbstractNode {
     public statementList: StatementList
 
     public constructor(statementList: StatementList) {

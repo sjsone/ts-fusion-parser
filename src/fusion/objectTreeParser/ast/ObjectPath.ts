@@ -1,10 +1,10 @@
 import { AstNodeVisitorInterface } from "../astNodeVisitorInterface";
-import { AbstractNode } from "./AbstractNode";
+import { VisitableAbstractNode } from "./VisitableAbstractNode";
 import { AbstractPathSegment } from "./AbstractPathSegment";
 import { NodePosition } from "./NodePosition";
 
 
-export class ObjectPath extends AbstractNode {
+export class ObjectPath extends VisitableAbstractNode {
     public segments: AbstractPathSegment[];
 
     public constructor(...segments: AbstractPathSegment[]) {

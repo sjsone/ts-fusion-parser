@@ -1,1 +1,1 @@
-export { AbstractNode } from '../../afx/nodes/AbstractNode'
+export { AbstractNode } from '../../../common/AbstractNode'

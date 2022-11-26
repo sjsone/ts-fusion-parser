@@ -1,11 +1,11 @@
-import { AbstractNode } from "./AbstractNode";
-import { NodePosition } from "./NodePosition";
+import { AbstractNode } from "../../../common/AbstractNode";
+import { NodePositionInterface } from "../../../common/NodePositionInterface";
 
 export class TagAttributeNode extends AbstractNode {
     public name: string
     public value: any
 
-    constructor(position: NodePosition, name: string, value: any) {
+    constructor(position: NodePositionInterface, name: string, value: any) {
         super(position)
         this.name = name
         this.value = value

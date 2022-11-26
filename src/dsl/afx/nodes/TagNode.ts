@@ -1,5 +1,5 @@
-import { NodePosition } from "./NodePosition";
-import { AbstractNode } from "./AbstractNode";
+import { NodePositionInterface } from "../../../common/NodePositionInterface";
+import { AbstractNode } from "../../../common/AbstractNode";
 import { TagAttributeNode } from "./TagAttributeNode";
 import { TagNameNode } from "./TagNameNode";
 import { TextNode } from "./TextNode";
@@ -15,7 +15,7 @@ export class TagNode extends AbstractNode {
     protected content: Array<TagNode | TextNode>
     protected selfClosing: boolean
 
-    constructor(position: NodePosition, name: string, begin: TagNameNode, attributes: Array<TagSpreadEelAttributeNode | TagAttributeNode>, content: Array<TagNode | TextNode>, end: TagNameNode | undefined = undefined, selfClosing: boolean = false, parent: AbstractNode | undefined = undefined) {
+    constructor(position: NodePositionInterface, name: string, begin: TagNameNode, attributes: Array<TagSpreadEelAttributeNode | TagAttributeNode>, content: Array<TagNode | TextNode>, end: TagNameNode | undefined = undefined, selfClosing: boolean = false, parent: AbstractNode | undefined = undefined) {
         super(position, parent)
         this.name = name
         this.begin = begin

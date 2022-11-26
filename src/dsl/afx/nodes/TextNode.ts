@@ -1,12 +1,12 @@
-import { NodePosition } from "./NodePosition";
-import { AbstractNode } from "./AbstractNode";
+import { NodePositionInterface } from "../../../common/NodePositionInterface";
+import { AbstractNode } from "../../../common/AbstractNode";
 import { InlineEelNode } from "./InlineEelNode";
 
 export class TextNode extends AbstractNode {
     protected text: string
     protected inlineEel: InlineEelNode[]
 
-    constructor(position: NodePosition, text: string, inlineEel: InlineEelNode[] = [], parent: AbstractNode | undefined = undefined) {
+    constructor(position: NodePositionInterface, text: string, inlineEel: InlineEelNode[] = [], parent: AbstractNode | undefined = undefined) {
         super(position, parent)
         this.text = text
         this.inlineEel = inlineEel

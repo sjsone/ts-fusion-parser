@@ -1,4 +1,4 @@
-import { AbstractNode } from "../../../dsl/afx/nodes/AbstractNode";
+import { AbstractNode } from "../../../common/AbstractNode";
 import { AstNodeVisitorInterface } from "../astNodeVisitorInterface";
 import { AbstractPathValue } from "./AbstractPathValue";
 import { NodePosition } from "./NodePosition";

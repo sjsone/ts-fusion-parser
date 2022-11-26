@@ -1,6 +1,6 @@
 import { Lexer } from "./lexer";
-import { AbstractNode } from "./nodes/AbstractNode";
-import { NodePosition } from "./nodes/NodePosition";
+import { AbstractNode } from "../../common/AbstractNode";
+import { NodePositionInterface } from "../../common/NodePositionInterface";
 import { TagAttributeNode } from "./nodes/TagAttributeNode";
 import { TagNameNode } from "./nodes/TagNameNode";
 import { TagNode } from "./nodes/TagNode";
@@ -23,7 +23,7 @@ export class Parser implements ParserInterface {
         this.positionOffset = positionOffset
     }
 
-    protected applyOffset(position: NodePosition) {
+    protected applyOffset(position: NodePositionInterface) {
         if (position.begin !== -1) position.begin += this.positionOffset
         if (position.end !== -1) position.end += this.positionOffset
         return position
@@ -39,7 +39,7 @@ export class Parser implements ParserInterface {
     }
 
     parseText(parent: AbstractNode | undefined = undefined) {
-        const position: NodePosition = { begin: -1, end: -1 }
+        const position: NodePositionInterface = { begin: -1, end: -1 }
         let text = ""
         const inlineEel: any = []
         while (!this.lexer.isEOF() && (this.lexer.lookAhead(CharacterToken) || this.lexer.lookAhead(EscapedCharacterToken))) {
@@ -73,7 +73,7 @@ export class Parser implements ParserInterface {
 
     parseJavascript(parent: AbstractNode | undefined = undefined) {
         let text = ""
-        const position: NodePosition = { begin: -1, end: -1 }
+        const position: NodePositionInterface = { begin: -1, end: -1 }
         while (!this.lexer.isEOF() && !this.lexer.lookAhead(ScriptEndToken) && this.lexer.lookAhead(AnyCharacterToken)) {
             const charToken = this.lexer.consumeLookAhead()
             text += charToken.value

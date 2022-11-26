@@ -1,7 +1,7 @@
 import { AstNodeVisitorInterface } from "../astNodeVisitorInterface";
 import { VisitableAbstractNode } from "./VisitableAbstractNode";
 import { AbstractPathSegment } from "./AbstractPathSegment";
-import { NodePosition } from "./NodePosition";
+import { NodePosition } from "../../../common/NodePosition";
 
 
 export class ObjectPath extends VisitableAbstractNode {

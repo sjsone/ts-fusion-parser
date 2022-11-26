@@ -9,7 +9,7 @@ import { TextNode } from "../../../dsl/afx/nodes/TextNode";
 import { Parser } from "../../../dsl/afx/parser";
 import { AstNodeVisitorInterface } from "../astNodeVisitorInterface";
 import { AbstractPathValue } from "./AbstractPathValue";
-import { NodePosition } from "./NodePosition";
+import { NodePosition } from "../../../common/NodePosition";
 
 export class DslExpressionValue extends AbstractPathValue {
     public identifier: string
@@ -25,7 +25,7 @@ export class DslExpressionValue extends AbstractPathValue {
 
     public parse() {
         const lexer = new Lexer(this.code)
-        const parser = new Parser(lexer, this.position!.start + this.identifier.length + 1) // +1 because of [`] in afx`...`
+        const parser = new Parser(lexer, this.position!.begin + this.identifier.length + 1) // +1 because of [`] in afx`...`
         this.htmlNodes = parser.parse(true)
         for(const htmlNode of this.htmlNodes) {
             htmlNode["parent"] = <any>this

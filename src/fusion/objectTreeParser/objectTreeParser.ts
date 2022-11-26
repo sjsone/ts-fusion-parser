@@ -24,7 +24,7 @@ import { ValueCopy } from './ast/ValueCopy';
 import { ValueUnset } from './ast/ValueUnset';
 import { Lexer } from '../lexer'
 import { Token } from '../token';
-import { NodePosition } from './ast/NodePosition';
+import { NodePosition } from '../../common/NodePosition';
 import { AbstractNode } from './ast/AbstractNode';
 import { Parser as EelParser } from '../../dsl/eel/parser';
 import { Lexer as EelLexer } from '../../dsl/eel/lexer';
@@ -298,7 +298,7 @@ export class ObjectTreeParser {
         if (operation === null) {
             if (this.ignoreErrors) {
                 const newPosition = {
-                    start: this.lexer.getCursor(),
+                    begin: this.lexer.getCursor(),
                     end: this.lexer.getCursor()
                 }
                 operation = new ValueAssignment(new NullValue(), newPosition)
@@ -357,7 +357,7 @@ export class ObjectTreeParser {
 
             case this.accept(Token.OBJECT_PATH_PART):
                 const pathKey = this.consume().getValue();
-                position.start -= pathKey.length
+                position.begin -= pathKey.length
                 return new PathSegment(pathKey, this.endPosition(position));
 
             case this.accept(Token.META_PATH_START):
@@ -370,7 +370,7 @@ export class ObjectTreeParser {
             case this.accept(Token.STRING_SINGLE_QUOTED):
                 const stringWrapped = this.consume().getValue();
                 const quotedPathKey = stringWrapped.substring(1, stringWrapped.length - 1);
-                position.start -= quotedPathKey.length
+                position.begin -= quotedPathKey.length
                 return new PathSegment(quotedPathKey, this.endPosition(position));
         }
 
@@ -420,7 +420,7 @@ export class ObjectTreeParser {
             case this.accept(Token.FUSION_OBJECT_NAME):
                 const nodePosition = this.createPosition()
                 const value = this.consume().getValue()
-                nodePosition.start -= value.length
+                nodePosition.begin -= value.length
                 return new FusionObjectValue(value, this.endPosition(nodePosition));
 
             case this.accept(Token.EEL_EXPRESSION_START):
@@ -481,7 +481,7 @@ export class ObjectTreeParser {
     protected parseDslExpression(): DslExpressionValue {
         const dslIdentifier = this.expect(Token.DSL_EXPRESSION_START).getValue();
         const position = this.createPosition()
-        position.start -= dslIdentifier.length
+        position.begin -= dslIdentifier.length
         let dslCode = ''
         try {
             dslCode = this.expect(Token.DSL_EXPRESSION_CONTENT).getValue();

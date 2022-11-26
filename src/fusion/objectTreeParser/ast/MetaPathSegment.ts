@@ -6,7 +6,7 @@
 
 import { AstNodeVisitorInterface } from "../astNodeVisitorInterface";
 import { AbstractPathSegment } from "./AbstractPathSegment";
-import { NodePosition } from "./NodePosition";
+import { NodePosition } from "../../../common/NodePosition";
 
 export class MetaPathSegment extends AbstractPathSegment
 {

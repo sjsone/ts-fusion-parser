@@ -1,7 +1,7 @@
 import { AstNodeVisitorInterface } from "../astNodeVisitorInterface";
 import { AbstractOperation } from "./AbstractOperation";
 import { AbstractPathValue } from "./AbstractPathValue";
-import { NodePosition } from "./NodePosition";
+import { NodePosition } from "../../../common/NodePosition";
 
 export class ValueAssignment extends AbstractOperation {
     public pathValue: AbstractPathValue

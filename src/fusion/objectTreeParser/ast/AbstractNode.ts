@@ -1,4 +1,4 @@
-import { NodePosition } from "./NodePosition";
+import { NodePosition } from "../../../common/NodePosition";
 
 export abstract class AbstractNode {
     protected position: NodePosition|undefined = undefined

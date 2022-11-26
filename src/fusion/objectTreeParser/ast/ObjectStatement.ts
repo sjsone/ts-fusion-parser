@@ -5,7 +5,7 @@ import { ObjectPath } from "./ObjectPath";
 import { ValueCopy } from "./ValueCopy";
 import { ValueAssignment } from "./ValueAssignment";
 import { ValueUnset } from "./ValueUnset";
-import { NodePosition } from "./NodePosition";
+import { NodePosition } from "../../../common/NodePosition";
 
 export class ObjectStatement extends AbstractStatement {
     public path: ObjectPath

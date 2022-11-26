@@ -21,7 +21,7 @@ import * as FusionObjectValue from "./fusion/objectTreeParser/ast/FusionObjectVa
 import * as IncludeStatement from "./fusion/objectTreeParser/ast/IncludeStatement"
 import * as IntValue from "./fusion/objectTreeParser/ast/IntValue"
 import * as MetaPathSegment from "./fusion/objectTreeParser/ast/MetaPathSegment"
-import * as NodePosition from "./fusion/objectTreeParser/ast/NodePosition"
+import * as NodePosition from "./common/NodePosition"
 import * as NullValue from "./fusion/objectTreeParser/ast/NullValue"
 import * as ObjectPath from "./fusion/objectTreeParser/ast/ObjectPath"
 import * as ObjectStatement from "./fusion/objectTreeParser/ast/ObjectStatement"

@@ -1,11 +1,11 @@
-import { AbstractNode } from "./AbstractNode";
+import { AbstractNode } from "../../../common/AbstractNode";
 import { LiteralObjectEntryNode } from "./LiteralObjectEntryNode";
-import { NodePosition } from "./NodePosition";
+import { NodePositionInterface } from "../../../common/NodePositionInterface";
 
 export class LiteralObjectNode extends AbstractNode {
     public entries: LiteralObjectEntryNode[]
 
-    public constructor(entries: LiteralObjectEntryNode[], position: NodePosition, parent: AbstractNode | undefined = undefined) {
+    public constructor(entries: LiteralObjectEntryNode[], position: NodePositionInterface, parent: AbstractNode | undefined = undefined) {
         super(position, parent)
         this.entries = entries
         for(const entry of this.entries) {

@@ -25,7 +25,7 @@ import { ValueUnset } from './ast/ValueUnset';
 import { Lexer } from '../lexer'
 import { Token } from '../token';
 import { NodePosition, NodePositionStub } from '../../common/NodePosition';
-import { AbstractNode } from './ast/AbstractNode';
+import { AbstractNode } from '../../common/AbstractNode';
 import { Parser as EelParser } from '../../dsl/eel/parser';
 import { Lexer as EelLexer } from '../../dsl/eel/lexer';
 

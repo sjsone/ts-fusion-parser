@@ -1,10 +1,10 @@
-import { AbstractNode } from "./AbstractNode";
-import { NodePosition } from "./NodePosition";
+import { AbstractNode } from "../../../common/AbstractNode";
+import { NodePositionInterface } from "../../../common/NodePositionInterface";
 
 export class LiteralBooleanNode extends AbstractNode {
     public value: string
 
-    public constructor(value: string, position: NodePosition, parent: AbstractNode | undefined = undefined) {
+    public constructor(value: string, position: NodePositionInterface, parent: AbstractNode | undefined = undefined) {
         super(position, parent)
         this.value = value
         this.position = position

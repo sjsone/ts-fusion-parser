@@ -4,7 +4,7 @@ export * from "./fusion/token"
 export * from "./fusion/lexer"
 export * from "./fusion/arrays"
 
-import * as AbstractNode from "./fusion/objectTreeParser/ast/AbstractNode"
+import * as AbstractNode from "./common/AbstractNode"
 import * as AbstractOperation from "./fusion/objectTreeParser/ast/AbstractOperation"
 import * as AbstractPathSegment from "./fusion/objectTreeParser/ast/AbstractPathSegment"
 import * as AbstractPathValue from "./fusion/objectTreeParser/ast/AbstractPathValue"

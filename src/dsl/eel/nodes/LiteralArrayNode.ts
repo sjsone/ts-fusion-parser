@@ -1,10 +1,10 @@
-import { AbstractNode } from "./AbstractNode";
-import { NodePosition } from "./NodePosition";
+import { AbstractNode } from "../../../common/AbstractNode";
+import { NodePositionInterface } from "../../../common/NodePositionInterface";
 
 export class LiteralArrayNode extends AbstractNode {
     public entries: AbstractNode[]
 
-    public constructor(entries: AbstractNode[], position: NodePosition, parent: AbstractNode | undefined = undefined) {
+    public constructor(entries: AbstractNode[], position: NodePositionInterface, parent: AbstractNode | undefined = undefined) {
         super(position, parent)
 
         this.entries = entries

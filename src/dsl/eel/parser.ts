@@ -1,5 +1,5 @@
 import { Lexer } from "./lexer";
-import { AbstractNode } from "./nodes/AbstractNode";
+import { AbstractNode } from "../../common/AbstractNode";
 import { BlockExpressionNode } from "./nodes/BlockExpressionNode";
 import { LiteralArrayNode } from "./nodes/LiteralArrayNode";
 import { LiteralNumberNode } from "./nodes/LiteralNumberNode";
@@ -16,7 +16,7 @@ import { TernaryOperationNode } from "./nodes/TernaryOperationNode";
 
 import { ParserHandoverResult, ParserInterface } from "../parserInterface";
 import { CallbackSignatureToken, ColonToken, CommaToken, DivisionToken, DotToken, ExclamationMarkToken, FalseValueToken, FloatToken, IntegerToken, IsEqualToken, IsNotEqualToken, LBraceToken, LBracketToken, LessThanOrEqualToken, LessThanToken, LogicalAndToken, LogicalOrToken, LParenToken, MinusToken, ModuloToken, MoreThanOrEqualToken, MoreThanToken, MultiplicationToken, NullValueToken, ObjectFunctionPathPartToken, ObjectPathPartToken, PlusToken, QuestionMarkToken, RBraceToken, RBracketToken, RParenToken, SpreadToken, StringDoubleQuotedToken, StringSingleQuotedToken, TrueValueToken, WhitespaceToken } from "./tokens";
-import { NodePosition } from "./nodes/NodePosition";
+import { NodePositionInterface } from "../../common/NodePositionInterface";
 import { SpreadOperationNode } from "./nodes/SpreadOperationNode";
 import { LiteralBooleanNode } from "./nodes/LiteralBooleanNode";
 import { LiteralNullNode } from "./nodes/LiteralNullNode";
@@ -37,17 +37,17 @@ export class Parser implements ParserInterface {
         this.positionOffset = positionOffset
     }
 
-    protected applyOffset(position: NodePosition) {
+    protected applyOffset(position: NodePositionInterface) {
         if (position.begin !== -1) position.begin += this.positionOffset
         if (position.end !== -1) position.end += this.positionOffset
         return position
     }
 
-    protected beginPosition(): NodePosition {
+    protected beginPosition(): NodePositionInterface {
         return { begin: this.lexer.getCursor(), end: -1 }
     }
 
-    protected endPosition(position: NodePosition) {
+    protected endPosition(position: NodePositionInterface) {
         position.end = this.lexer.getCursor()
         return this.applyOffset(position)
     }

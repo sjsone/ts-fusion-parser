@@ -1,11 +1,11 @@
-import { AbstractNode } from "./AbstractNode";
-import { NodePosition } from "./NodePosition";
+import { AbstractNode } from "../../../common/AbstractNode";
+import { NodePositionInterface } from "../../../common/NodePositionInterface";
 import { ObjectPathNode } from "./ObjectPathNode";
 
 export class ObjectOffsetAccessPathNode extends ObjectPathNode {
     public expression: AbstractNode
 
-    public constructor(expression: AbstractNode, position: NodePosition, offset: AbstractNode | undefined = undefined) {
+    public constructor(expression: AbstractNode, position: NodePositionInterface, offset: AbstractNode | undefined = undefined) {
         super('', position, undefined, offset)
         this.expression = expression
         this.expression["parent"] = this

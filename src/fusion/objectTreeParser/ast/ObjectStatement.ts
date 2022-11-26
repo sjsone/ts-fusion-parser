@@ -5,7 +5,7 @@ import { ObjectPath } from "./ObjectPath";
 import { ValueCopy } from "./ValueCopy";
 import { ValueAssignment } from "./ValueAssignment";
 import { ValueUnset } from "./ValueUnset";
-import { NodePosition } from "../../../common/NodePosition";
+import { NodePosition, NodePositionStub } from "../../../common/NodePosition";
 
 export class ObjectStatement extends AbstractStatement {
     public path: ObjectPath
@@ -14,7 +14,7 @@ export class ObjectStatement extends AbstractStatement {
     public cursor: number
 
     public constructor(path: ObjectPath, operation: ValueAssignment | ValueCopy | ValueUnset | null, block: Block | undefined, cursor: number, position: NodePosition) {
-        super()
+        super(NodePositionStub)
 
         this.path = path
         this.path["parent"] = this

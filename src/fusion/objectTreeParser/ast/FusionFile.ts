@@ -2,6 +2,7 @@
 import { VisitableAbstractNode } from "./VisitableAbstractNode";
 import { StatementList } from "./StatementList"
 import { AbstractNode } from "./AbstractNode";
+import { NodePositionStub } from "../../../common/NodePosition";
 
 type AstNodeVisitorInterface = any
 
@@ -12,7 +13,7 @@ export class FusionFile extends VisitableAbstractNode {
     public errors: Error[] = []
 
     public constructor(statementList: StatementList, contextPathAndFileName: string | undefined) {
-        super()
+        super(NodePositionStub)
         this.statementList = statementList
         this.statementList["parent"] = this
 

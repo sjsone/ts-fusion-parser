@@ -24,7 +24,7 @@ import { ValueCopy } from './ast/ValueCopy';
 import { ValueUnset } from './ast/ValueUnset';
 import { Lexer } from '../lexer'
 import { Token } from '../token';
-import { NodePosition } from '../../common/NodePosition';
+import { NodePosition, NodePositionStub } from '../../common/NodePosition';
 import { AbstractNode } from './ast/AbstractNode';
 import { Parser as EelParser } from '../../dsl/eel/parser';
 import { Lexer as EelLexer } from '../../dsl/eel/lexer';
@@ -301,7 +301,7 @@ export class ObjectTreeParser {
                     begin: this.lexer.getCursor(),
                     end: this.lexer.getCursor()
                 }
-                operation = new ValueAssignment(new NullValue(), newPosition)
+                operation = new ValueAssignment(new NullValue(NodePositionStub), newPosition)
             } else {
                 throw Error("operation is null")
             }
@@ -428,10 +428,10 @@ export class ObjectTreeParser {
                 this.consume()
                 const eelLexer = new EelLexer(this.lexer.getRemainingCode())
                 const eelParser = new EelParser(eelLexer, this.lexer.getCursor())
-                const eelNodes = eelParser.parse() 
+                const eelNodes = eelParser.parse()
 
                 eelNodes["parent"] = <any>eelExpressionValue
-                
+
                 for (const [type, nodes] of eelParser.nodesByType.entries()) {
                     const list = this.nodesByType.get(<any>type) ?? []
                     for (const node of nodes) {
@@ -461,7 +461,7 @@ export class ObjectTreeParser {
 
             case this.accept(Token.NULL_VALUE):
                 this.consume();
-                return new NullValue();
+                return new NullValue(NodePositionStub);
         }
 
         if (!this.ignoreErrors) console.log("parsePathValue")
@@ -512,7 +512,7 @@ export class ObjectTreeParser {
      */
     protected parseValueUnset(): ValueUnset {
         this.expect(Token.UNSET);
-        return new ValueUnset();
+        return new ValueUnset(NodePositionStub);
     }
 
     /**

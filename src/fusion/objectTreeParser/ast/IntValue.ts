@@ -5,19 +5,18 @@
 
 
 
+import { NodePositionStub } from "../../../common/NodePosition";
 import { AstNodeVisitorInterface } from "../astNodeVisitorInterface";
 import { AbstractPathValue } from "./AbstractPathValue";
 
-export class IntValue extends AbstractPathValue
-{
+export class IntValue extends AbstractPathValue {
     public value: number
     public constructor(value: number) {
-        super()
+        super(NodePositionStub)
         this.value = value
     }
 
-    public visit(visitor: AstNodeVisitorInterface)
-    {
+    public visit(visitor: AstNodeVisitorInterface) {
         return visitor.visitIntValue(this);
     }
 }

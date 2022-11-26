@@ -26,8 +26,8 @@ import { Lexer } from '../lexer'
 import { Token } from '../token';
 import { NodePosition } from './ast/NodePosition';
 import { AbstractNode } from './ast/AbstractNode';
-import { Parser as EelParser } from '../../eel/parser';
-import { Lexer as EelLexer } from '../../eel/lexer';
+import { Parser as EelParser } from '../../dsl/eel/parser';
+import { Lexer as EelLexer } from '../../dsl/eel/lexer';
 
 
 const stripslashes = (str: string) => str.replace('\\', '')

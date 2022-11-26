@@ -3,10 +3,10 @@
 
 
 
-import { Lexer } from "../../../afx/lexer";
-import { TagNode } from "../../../afx/nodes/TagNode";
-import { TextNode } from "../../../afx/nodes/TextNode";
-import { Parser } from "../../../afx/parser";
+import { Lexer } from "../../../dsl/afx/lexer";
+import { TagNode } from "../../../dsl/afx/nodes/TagNode";
+import { TextNode } from "../../../dsl/afx/nodes/TextNode";
+import { Parser } from "../../../dsl/afx/parser";
 import { AstNodeVisitorInterface } from "../astNodeVisitorInterface";
 import { AbstractPathValue } from "./AbstractPathValue";
 import { NodePosition } from "./NodePosition";

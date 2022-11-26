@@ -1,5 +1,5 @@
-import { Lexer } from "./eel/lexer"
-import { Parser } from "./eel/parser"
+import { Lexer } from "./dsl/eel/lexer"
+import { Parser } from "./dsl/eel/parser"
 
 const tests: { [key: string]: string } = {
     SingleLineString: `"test{(asdf)}"`,

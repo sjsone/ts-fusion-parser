@@ -1,4 +1,4 @@
-import { AbstractNode } from "./nodes/AbstractNode"
+import { AbstractNode } from "./afx/nodes/AbstractNode"
 
 export interface ParserHandoverResult<T extends AbstractNode> {
     [x: string]: any

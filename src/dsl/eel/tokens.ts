@@ -1,13 +1,4 @@
-export abstract class Token {
-    public abstract regex: RegExp
-    public value: string = ""
-    public position = {
-        begin: -1,
-        end: -1
-    }
-}
-
-export type TokenConstructor = new (...args: any) => Token
+import { Token } from "../Token"
 
 export class WhitespaceToken extends Token { public regex = /^(\s*)/ }
 export class AnyCharacterToken extends Token { public regex = /^([\s\S])/ }

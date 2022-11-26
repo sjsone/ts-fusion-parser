@@ -5,13 +5,13 @@ import { TagAttributeNode } from "./nodes/TagAttributeNode";
 import { TagNameNode } from "./nodes/TagNameNode";
 import { TagNode } from "./nodes/TagNode";
 import { TextNode } from "./nodes/TextNode";
-import { ParserHandoverResult, ParserInterface } from "./parserInterface";
-import { AnyCharacterToken, AttributeEelBeginToken, AttributeEelEndToken, AttributeNameToken, AttributeStringValueToken, AttributeValueAssignToken, CharacterToken, CommentToken, EscapedCharacterToken, ScriptEndToken, TagBeginToken, TagCloseToken, TagEndToken, TagSelfCloseToken, Token, TokenConstructor, WhitespaceToken, WordToken } from "./tokens";
+import { ParserHandoverResult, ParserInterface } from "../parserInterface";
+import { AnyCharacterToken, AttributeEelBeginToken, AttributeEelEndToken, AttributeNameToken, AttributeStringValueToken, AttributeValueAssignToken, CharacterToken, CommentToken, EscapedCharacterToken, ScriptEndToken, TagBeginToken, TagCloseToken, TagEndToken, TagSelfCloseToken, WhitespaceToken, WordToken } from "./tokens";
 import { Parser as EelParser } from '../eel/parser'
 import { Lexer as EelLexer } from '../eel/lexer'
 import { TagSpreadEelAttributeNode } from "./nodes/TagSpreadEelAttributeNode";
 import { InlineEelNode } from "./nodes/InlineEelNode";
-import { EOLError } from "./errors/eolError";
+
 export class Parser implements ParserInterface {
     protected lexer: Lexer
     public nodesByType: Map<typeof AbstractNode, AbstractNode[]> = new Map()

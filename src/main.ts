@@ -1,8 +1,8 @@
 import NodeFs from 'fs'
-import { TagNode } from './afx/nodes/TagNode'
-import { ObjectFunctionPathNode } from './eel/nodes/ObjectFunctionPathNode'
-import { ObjectNode } from './eel/nodes/ObjectNode'
-import { ObjectPathNode } from './eel/nodes/ObjectPathNode'
+import { TagNode } from './dsl/afx/nodes/TagNode'
+import { ObjectFunctionPathNode } from './dsl/eel/nodes/ObjectFunctionPathNode'
+import { ObjectNode } from './dsl/eel/nodes/ObjectNode'
+import { ObjectPathNode } from './dsl/eel/nodes/ObjectPathNode'
 import { PathSegment } from './fusion/objectTreeParser/ast/PathSegment'
 import { ObjectTreeParser } from "./lib"
 

@@ -14,13 +14,14 @@ import { ObjectPathNode } from "./nodes/ObjectPathNode";
 import { OperationNode } from "./nodes/OperationNode";
 import { TernaryOperationNode } from "./nodes/TernaryOperationNode";
 
-import { ParserHandoverResult, ParserInterface } from "../afx/parserInterface";
-import { CallbackSignatureToken, ColonToken, CommaToken, DivisionToken, DotToken, ExclamationMarkToken, FalseValueToken, FloatToken, IntegerToken, IsEqualToken, IsNotEqualToken, LBraceToken, LBracketToken, LessThanOrEqualToken, LessThanToken, LogicalAndToken, LogicalOrToken, LParenToken, MinusToken, ModuloToken, MoreThanOrEqualToken, MoreThanToken, MultiplicationToken, NullValueToken, ObjectFunctionPathPartToken, ObjectPathPartToken, PlusToken, QuestionMarkToken, RBraceToken, RBracketToken, RParenToken, SpreadToken, StringDoubleQuotedToken, StringSingleQuotedToken, Token, TrueValueToken, WhitespaceToken } from "./tokens";
+import { ParserHandoverResult, ParserInterface } from "../parserInterface";
+import { CallbackSignatureToken, ColonToken, CommaToken, DivisionToken, DotToken, ExclamationMarkToken, FalseValueToken, FloatToken, IntegerToken, IsEqualToken, IsNotEqualToken, LBraceToken, LBracketToken, LessThanOrEqualToken, LessThanToken, LogicalAndToken, LogicalOrToken, LParenToken, MinusToken, ModuloToken, MoreThanOrEqualToken, MoreThanToken, MultiplicationToken, NullValueToken, ObjectFunctionPathPartToken, ObjectPathPartToken, PlusToken, QuestionMarkToken, RBraceToken, RBracketToken, RParenToken, SpreadToken, StringDoubleQuotedToken, StringSingleQuotedToken, TrueValueToken, WhitespaceToken } from "./tokens";
 import { NodePosition } from "./nodes/NodePosition";
 import { SpreadOperationNode } from "./nodes/SpreadOperationNode";
 import { LiteralBooleanNode } from "./nodes/LiteralBooleanNode";
 import { LiteralNullNode } from "./nodes/LiteralNullNode";
 import { CallbackNode } from "./nodes/CallbackNode";
+
 export class Parser implements ParserInterface {
     protected lexer: Lexer
     public nodesByType: Map<typeof AbstractNode, AbstractNode[]> = new Map()
@@ -60,7 +61,7 @@ export class Parser implements ParserInterface {
         let object: AbstractNode | null = null
         const position = this.beginPosition()
         switch (true) {
-            case this.lexer.lookAhead(SpreadToken): 
+            case this.lexer.lookAhead(SpreadToken):
                 this.lexer.consumeLookAhead()
                 object = new SpreadOperationNode(this.parseExpression(), this.endPosition(position), parent)
                 break
@@ -73,12 +74,12 @@ export class Parser implements ParserInterface {
             case this.lexer.lookAhead(IntegerToken):
                 object = new LiteralNumberNode(this.lexer.consumeLookAhead().value, this.endPosition(position), parent)
                 break
-            
+
             case this.lexer.lookAhead(TrueValueToken):
             case this.lexer.lookAhead(FalseValueToken):
                 object = new LiteralBooleanNode(this.lexer.consumeLookAhead().value, this.endPosition(position), parent)
                 break
-            
+
             case this.lexer.lookAhead(NullValueToken):
                 object = new LiteralNullNode(this.lexer.consumeLookAhead().value, this.endPosition(position), parent)
                 break
@@ -209,7 +210,7 @@ export class Parser implements ParserInterface {
                 return this.parseObjectFunctionExpressionPart()
             case this.lexer.lookAhead(ObjectPathPartToken):
                 return this.parseObjectPath()
-            
+
         }
         this.lexer.debug()
         throw new Error("parseObjectExpressionPart")
@@ -340,7 +341,7 @@ export class Parser implements ParserInterface {
         const type = <typeof AbstractNode>node.constructor
         const list = this.nodesByType.get(type) ?? []
         // FIXME: Checking before pushing should not be necessary
-        if(!list.includes(node)) list.push(node)
+        if (!list.includes(node)) list.push(node)
         this.nodesByType.set(type, list)
         return node
     }

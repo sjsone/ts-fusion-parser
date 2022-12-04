@@ -417,6 +417,12 @@ export class ObjectTreeParser {
             case this.accept(Token.DSL_EXPRESSION_START):
                 return this.parseDslExpression();
 
+            case this.accept(Token.FLOAT):
+                return new FloatValue(parseFloat(this.consume().getValue()));
+
+            case this.accept(Token.INTEGER):
+                return new IntValue(parseInt(this.consume().getValue()));
+
             case this.accept(Token.FUSION_OBJECT_NAME):
                 const nodePosition = this.createPosition()
                 const value = this.consume().getValue()
@@ -444,12 +450,6 @@ export class ObjectTreeParser {
                 this.lexer.advanceCursor(eelLexer.getCursor() + 1)
 
                 return eelExpressionValue
-
-            case this.accept(Token.FLOAT):
-                return new FloatValue(parseFloat(this.consume().getValue()));
-
-            case this.accept(Token.INTEGER):
-                return new IntValue(parseInt(this.consume().getValue()));
 
             case this.accept(Token.TRUE_VALUE):
                 this.consume();

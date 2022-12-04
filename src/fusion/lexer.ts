@@ -24,7 +24,7 @@ export class Lexer {
         [Token.FALSE_VALUE]: '^(?=(false|FALSE))\\1',
         [Token.NULL_VALUE]: '^(?=(null|NULL))\\1',
         [Token.INTEGER]: '^-?[0-9]+',
-        [Token.FLOAT]: '^-?[0-9]+\.[0-9]+',
+        [Token.FLOAT]: '^-?[0-9]+\\.[0-9]+',
 
         [Token.DSL_EXPRESSION_START]: '^[a-zA-Z0-9\.]+(?=`)', // '/^[a-zA-Z0-9\.]++(?=`)/'
         [Token.DSL_EXPRESSION_CONTENT]: '^`[^`]*`', // /^`[^`]*+`/

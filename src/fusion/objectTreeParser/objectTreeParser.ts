@@ -423,6 +423,18 @@ export class ObjectTreeParser {
             case this.accept(Token.INTEGER):
                 return new IntValue(parseInt(this.consume().getValue()));
 
+            case this.accept(Token.TRUE_VALUE):
+                this.consume();
+                return new BoolValue(true);
+
+            case this.accept(Token.FALSE_VALUE):
+                this.consume();
+                return new BoolValue(false);
+
+            case this.accept(Token.NULL_VALUE):
+                this.consume();
+                return new NullValue(NodePositionStub);
+
             case this.accept(Token.FUSION_OBJECT_NAME):
                 const nodePosition = this.createPosition()
                 const value = this.consume().getValue()
@@ -451,17 +463,7 @@ export class ObjectTreeParser {
 
                 return eelExpressionValue
 
-            case this.accept(Token.TRUE_VALUE):
-                this.consume();
-                return new BoolValue(true);
 
-            case this.accept(Token.FALSE_VALUE):
-                this.consume();
-                return new BoolValue(false);
-
-            case this.accept(Token.NULL_VALUE):
-                this.consume();
-                return new NullValue(NodePositionStub);
         }
 
         if (!this.ignoreErrors) console.log("parsePathValue")

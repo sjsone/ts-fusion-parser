@@ -25,7 +25,7 @@ export class ExclamationMarkToken extends Token { public regex = /^(\!)/ }
 
 export class DivisionToken extends Token { public regex = /^(\/)/ }
 export class MultiplicationToken extends Token { public regex = /^(\*)/ }
-export class ModuloToken extends Token { public regex = /^(\*)/ }
+export class ModuloToken extends Token { public regex = /^(\%)/ }
 export class SpreadToken extends Token { public regex = /^(\.\.\.)/ }
 
 export class IsEqualToken extends Token { public regex = /^(==)/ }

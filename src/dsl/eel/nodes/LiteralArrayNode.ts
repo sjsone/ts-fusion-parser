@@ -4,7 +4,7 @@ import { NodePositionInterface } from "../../../common/NodePositionInterface";
 export class LiteralArrayNode extends AbstractNode {
     public entries: AbstractNode[]
 
-    public constructor(entries: AbstractNode[], position: NodePositionInterface, parent: AbstractNode | undefined = undefined) {
+    public constructor(entries: AbstractNode[], position: NodePositionInterface, parent: AbstractNode | null = null) {
         super(position, parent)
 
         this.entries = entries

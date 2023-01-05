@@ -8,11 +8,11 @@ type AstNodeVisitorInterface = any
 
 export class FusionFile extends VisitableAbstractNode {
     public statementList: StatementList
-    public contextPathAndFileName: string | undefined
+    public contextPathAndFileName: string | null = null
     public nodesByType: Map<any, AbstractNode[]> = new Map()
     public errors: Error[] = []
 
-    public constructor(statementList: StatementList, contextPathAndFileName: string | undefined) {
+    public constructor(statementList: StatementList, contextPathAndFileName: string | null) {
         super(NodePositionStub)
         this.statementList = statementList
         this.statementList["parent"] = this
@@ -20,11 +20,7 @@ export class FusionFile extends VisitableAbstractNode {
         this.contextPathAndFileName = contextPathAndFileName
     }
 
-    public visit(visitor: AstNodeVisitorInterface) {
-        return visitor.visitFusionFile(this)
-    }
-
-    public hasErrors() {
+    public hasErrors(): boolean {
         return this.errors.length > 0
     }
 }

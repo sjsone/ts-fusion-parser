@@ -8,8 +8,4 @@ export class BoolValue extends AbstractPathValue {
         super(NodePositionStub)
         this.value = value
     }
-
-    public visit(visitor: AstNodeVisitorInterface) {
-        return visitor.visitBoolValue(this);
-    }
 }

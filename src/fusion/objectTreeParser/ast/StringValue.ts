@@ -12,7 +12,4 @@ export class StringValue extends AbstractPathValue {
         this.position = position
     }
 
-    public visit(visitor: AstNodeVisitorInterface) {
-        return visitor.visitStringValue(this);
-    }
 }

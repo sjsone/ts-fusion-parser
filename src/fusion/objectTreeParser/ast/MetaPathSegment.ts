@@ -16,7 +16,4 @@ export class MetaPathSegment extends AbstractPathSegment {
         this.position = position
     }
 
-    public visit(visitor: AstNodeVisitorInterface) {
-        return visitor.visitMetaPathSegment(this);
-    }
 }

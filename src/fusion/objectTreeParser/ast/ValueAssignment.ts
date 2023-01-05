@@ -12,8 +12,4 @@ export class ValueAssignment extends AbstractOperation {
         this.pathValue["parent"] = this
         this.position = position
     }
-
-    public visit(visitor: AstNodeVisitorInterface, currentPath: string[]) {
-        return visitor.visitValueAssignment(this, currentPath);
-    }
 }

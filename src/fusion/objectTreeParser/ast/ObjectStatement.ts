@@ -29,7 +29,4 @@ export class ObjectStatement extends AbstractStatement {
         this.position = position
     }
 
-    public visit(visitor: AstNodeVisitorInterface, ...args: any[]) {
-        return visitor.visitObjectStatement(this, args.shift())
-    }
 }

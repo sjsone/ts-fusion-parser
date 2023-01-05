@@ -1,4 +1,4 @@
-export * from "./fusion/parser";
+// export * from "./fusion/parser";
 export * from "./fusion/objectTreeParser/objectTreeParser"
 export * from "./fusion/token"
 export * from "./fusion/lexer"

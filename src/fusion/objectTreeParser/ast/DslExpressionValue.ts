@@ -10,6 +10,7 @@ import { Parser } from "../../../dsl/afx/parser";
 import { AstNodeVisitorInterface } from "../astNodeVisitorInterface";
 import { AbstractPathValue } from "./AbstractPathValue";
 import { NodePosition, NodePositionStub } from "../../../common/NodePosition";
+import { AbstractNode } from "../../../common/AbstractNode";
 
 export class DslExpressionValue extends AbstractPathValue {
     public identifier: string
@@ -23,7 +24,7 @@ export class DslExpressionValue extends AbstractPathValue {
         this.position = position
     }
 
-    public parse() {
+    public parse(): Map<typeof AbstractNode, AbstractNode[]> {
         const lexer = new Lexer(this.code)
         const parser = new Parser(lexer, this.position!.begin + this.identifier.length + 1) // +1 because of [`] in afx`...`
         this.htmlNodes = parser.parse(true)
@@ -33,7 +34,4 @@ export class DslExpressionValue extends AbstractPathValue {
         return parser.nodesByType
     }
 
-    public visit(visitor: AstNodeVisitorInterface, ...args: any[]) {
-        return visitor.visitDslExpressionValue(this, args.shift());
-    }
 }

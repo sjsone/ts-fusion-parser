@@ -4,7 +4,7 @@ import { AbstractNode } from "../../../common/AbstractNode";
 export class InlineEelNode extends AbstractNode {
     protected eel: AbstractNode[]
 
-    constructor(position: NodePositionInterface, eel: AbstractNode[], parent: AbstractNode | undefined = undefined) {
+    constructor(position: NodePositionInterface, eel: AbstractNode[], parent: AbstractNode | null = null) {
         super(position, parent)
         this.eel = eel
         for (const eelNode of this.eel) {

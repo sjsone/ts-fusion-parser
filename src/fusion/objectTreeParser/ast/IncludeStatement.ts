@@ -10,9 +10,4 @@ export class IncludeStatement extends AbstractStatement
         this.filePattern = filePattern
         this.position = position
     }
-
-    public visit(visitor: AstNodeVisitorInterface)
-    {
-        return visitor.visitIncludeStatement(this)
-    }
 }

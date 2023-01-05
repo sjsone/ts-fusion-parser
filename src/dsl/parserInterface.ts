@@ -1,8 +1,8 @@
 import { AbstractNode } from "../common/AbstractNode"
 
 export interface ParserHandoverResult<T extends AbstractNode> {
-    [x: string]: any
-    nodeOrNodes: T | Array<T>
+    [key: string]: any
+    nodeOrNodes: Array<T>
     cursor: number
 }
 

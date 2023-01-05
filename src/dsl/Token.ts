@@ -1,7 +1,9 @@
+import { NodePositionInterface } from "../common/NodePositionInterface"
+
 export abstract class Token {
-    public abstract regex: RegExp
+    public regex: RegExp = new RegExp("")
     public value: string = ""
-    public position = {
+    public position: NodePositionInterface = {
         begin: -1,
         end: -1
     }

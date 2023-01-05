@@ -9,13 +9,13 @@ export class TagNode extends AbstractNode {
     protected name: string
     protected begin: TagNameNode
 
-    protected end: TagNameNode | undefined
+    protected end: TagNameNode | null
 
     protected attributes: Array<TagSpreadEelAttributeNode | TagAttributeNode>
     protected content: Array<TagNode | TextNode>
     protected selfClosing: boolean
 
-    constructor(position: NodePositionInterface, name: string, begin: TagNameNode, attributes: Array<TagSpreadEelAttributeNode | TagAttributeNode>, content: Array<TagNode | TextNode>, end: TagNameNode | undefined = undefined, selfClosing: boolean = false, parent: AbstractNode | undefined = undefined) {
+    constructor(position: NodePositionInterface, name: string, begin: TagNameNode, attributes: Array<TagSpreadEelAttributeNode | TagAttributeNode>, content: Array<TagNode | TextNode>, end: TagNameNode | null = null, selfClosing: boolean = false, parent: AbstractNode | null = null) {
         super(position, parent)
         this.name = name
         this.begin = begin

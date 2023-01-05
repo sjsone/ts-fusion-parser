@@ -10,8 +10,5 @@ export class CharValue extends AbstractPathValue {
         this.value = value
     }
 
-    public visit(visitor: AstNodeVisitorInterface) {
-        return visitor.visitCharValue(this);
-    }
 }
 

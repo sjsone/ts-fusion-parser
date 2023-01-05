@@ -3,9 +3,9 @@
 export class CustomError extends Error {
     constructor(message?: string) {
         super(message);
-        const actualPrototype = new.target.prototype;
+        // const actualPrototype = new.target.prototype;
 
-        if (Object.setPrototypeOf) { Object.setPrototypeOf(this, actualPrototype); }
-        else { (<any>this)["__proto__"] = actualPrototype; }
+        // if (Object.setPrototypeOf) { Object.setPrototypeOf(this, actualPrototype); }
+        // else { (<any>this)["__proto__"] = actualPrototype; }
     }
 }

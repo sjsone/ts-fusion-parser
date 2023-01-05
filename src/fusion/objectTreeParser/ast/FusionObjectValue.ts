@@ -13,8 +13,5 @@ export class FusionObjectValue extends AbstractPathValue {
         this.position = position
     }
 
-    public visit(visitor: AstNodeVisitorInterface) {
-        return visitor.visitFusionObjectValue(this);
-    }
 }
 

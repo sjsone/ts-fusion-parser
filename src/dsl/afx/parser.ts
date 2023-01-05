@@ -23,22 +23,22 @@ export class Parser implements ParserInterface {
         this.positionOffset = positionOffset
     }
 
-    protected applyOffset(position: NodePositionInterface) {
+    protected applyOffset(position: NodePositionInterface): NodePositionInterface {
         if (position.begin !== -1) position.begin += this.positionOffset
         if (position.end !== -1) position.end += this.positionOffset
         return position
     }
 
-    isTagNameExpectedToNotBeClosed(tagName: string) {
+    isTagNameExpectedToNotBeClosed(tagName: string): boolean {
         return ["link", "meta", "input", "img"].includes(tagName)
     }
 
-    parse(gracefullyReturnOnError: boolean = false) {
+    parse(gracefullyReturnOnError: boolean = false): (TextNode | TagNode)[] {
         this.gracefullyReturnOnError = gracefullyReturnOnError
         return this.parseTextsOrTags()
     }
 
-    parseText(parent: AbstractNode | undefined = undefined) {
+    parseText(parent: AbstractNode | null = null): TextNode {
         const position: NodePositionInterface = { begin: -1, end: -1 }
         let text = ""
         const inlineEel: any = []
@@ -71,7 +71,7 @@ export class Parser implements ParserInterface {
         return textNode
     }
 
-    parseJavascript(parent: AbstractNode | undefined = undefined) {
+    parseJavascript(parent: AbstractNode | null = null): TextNode {
         let text = ""
         const position: NodePositionInterface = { begin: -1, end: -1 }
         while (!this.lexer.isEOF() && !this.lexer.lookAhead(ScriptEndToken) && this.lexer.lookAhead(AnyCharacterToken)) {
@@ -85,7 +85,7 @@ export class Parser implements ParserInterface {
         return textNode
     }
 
-    parseTextsOrTags(parent: AbstractNode | undefined = undefined) {
+    parseTextsOrTags(parent: AbstractNode | null = null): (TextNode | TagNode)[] {
         const elements = []
         while (!this.lexer.isEOF()) {
             this.parseLazyWhitespace()
@@ -106,15 +106,15 @@ export class Parser implements ParserInterface {
         return elements
     }
 
-    parseComment() {
+    parseComment(): void {
         this.lexer.consume(CommentToken)
     }
 
-    parseTag(parent: AbstractNode | undefined = undefined) {
+    parseTag(parent: AbstractNode | null = null): TagNode {
         const token = this.lexer.consume(TagBeginToken)
         const nameNode = TagNameNode.From(token)
         this.lexer.tagStack.push(nameNode.toString())
-        const position = { ...token.position }
+        const position = token.position
         this.parseLazyWhitespace()
 
         const attributes: Array<TagSpreadEelAttributeNode | TagAttributeNode> = []
@@ -157,8 +157,8 @@ export class Parser implements ParserInterface {
         }
 
         const isScript = nameNode.toString() === "script"
-
         const content: Array<TagNode | TextNode> = isScript ? [this.parseJavascript()] : this.parseTextsOrTags()
+
         this.parseLazyWhitespace()
 
         if (this.lexer.isEOF()) {
@@ -166,7 +166,7 @@ export class Parser implements ParserInterface {
             endToken["value"] = ">"
             endToken.position = {
                 begin: position.end + 1,
-                end: position.end + 2 
+                end: position.end + 2
             }
             position.end = endToken.position.end
             this.lexer.tagStack.pop()
@@ -186,7 +186,7 @@ export class Parser implements ParserInterface {
         return tagNode
     }
 
-    parseSpreadEelAttribute() {
+    parseSpreadEelAttribute(): TagSpreadEelAttributeNode {
         const eelBegin = this.lexer.consumeLookAhead()
         const eelParser = new EelParser(new EelLexer(""))
         const result = this.handover<AbstractNode>(eelParser)
@@ -198,7 +198,7 @@ export class Parser implements ParserInterface {
         return new TagSpreadEelAttributeNode(position, Array.isArray(result) ? result : [result])
     }
 
-    parseTagAttribute() {
+    parseTagAttribute(): TagAttributeNode {
         this.parseLazyWhitespace()
         const name = this.lexer.consume(AttributeNameToken)
         const position = name.position
@@ -234,11 +234,11 @@ export class Parser implements ParserInterface {
         return new TagAttributeNode(this.applyOffset(position), name.value, value ? value.value : null)
     }
 
-    parseLazyWhitespace() {
+    parseLazyWhitespace(): void {
         this.lexer.lazyConsume(WhitespaceToken)
     }
 
-    public handover<T extends AbstractNode>(parser: ParserInterface, parent: AbstractNode | undefined = undefined): Array<T> {
+    public handover<T extends AbstractNode>(parser: ParserInterface, parent: AbstractNode | null = null): Array<T> {
         const text = this.lexer.getRemainingText()
         const result = parser.receiveHandover<T>(text, this.lexer["cursor"] + this.positionOffset)
         this.addNodesFromHandoverResult(result, parent)
@@ -247,16 +247,16 @@ export class Parser implements ParserInterface {
         return Array.isArray(result.nodeOrNodes) ? result.nodeOrNodes : [result.nodeOrNodes]
     }
 
-    protected addNodesFromHandoverResult<T extends AbstractNode>(result: ParserHandoverResult<T>, parent: AbstractNode | undefined = undefined) {
+    protected addNodesFromHandoverResult<T extends AbstractNode>(result: ParserHandoverResult<T>, parent: AbstractNode | null = null): void {
         if (Array.isArray(result.nodeOrNodes)) {
             for (const node of result.nodeOrNodes) {
                 node["parent"] = parent
             }
-        } else {
-            result.nodeOrNodes["parent"] = parent
         }
-        for (const [type, nodes] of result.nodesByType.entries()) {
-            const list = this.nodesByType.get(type) ?? []
+        for (const entry of result.nodesByType.entries()) {
+            const type = entry[0]
+            const nodes = entry[1]
+            const list = this.nodesByType.get(type) ? this.nodesByType.get(type)! : []
             for (const node of nodes) {
                 list.push(node)
             }
@@ -279,18 +279,18 @@ export class Parser implements ParserInterface {
         return result
     }
 
-    logRemaining(cap: number | undefined = undefined) {
-        console.log(">>::" + this.lexer.getRemainingText().substring(0, cap))
+    logRemaining(cap: number | null = null): void {
+        console.log(">>::" + this.lexer.getRemainingText().substring(0, cap === null ? undefined : cap))
     }
 
-    protected addNodeToNodesByType(node: AbstractNode) {
+    protected addNodeToNodesByType(node: AbstractNode): void {
         const type = <typeof AbstractNode>node.constructor
-        const list = this.nodesByType.get(type) ?? []
+        const list = this.nodesByType.get(type) ? this.nodesByType.get(type)! : []
         list.push(node)
         this.nodesByType.set(type, list)
     }
 
-    protected flushNodesByType() {
+    protected flushNodesByType(): Map<typeof AbstractNode, AbstractNode[]> {
         const map = new Map(this.nodesByType)
         this.nodesByType.clear()
         return map

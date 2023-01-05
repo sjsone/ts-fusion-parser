@@ -12,7 +12,4 @@ export class PathSegment extends AbstractPathSegment {
         this.position = position
     }
 
-    public visit(visitor: AstNodeVisitorInterface, ...args: any[]) {
-        return visitor.visitPathSegment(this);
-    }
 }

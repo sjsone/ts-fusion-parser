@@ -5,8 +5,8 @@ import { ObjectPathNode } from "./ObjectPathNode";
 export class ObjectOffsetAccessPathNode extends ObjectPathNode {
     public expression: AbstractNode
 
-    public constructor(expression: AbstractNode, position: NodePositionInterface, offset: AbstractNode | undefined = undefined) {
-        super('', position, undefined, offset)
+    public constructor(expression: AbstractNode, position: NodePositionInterface, offset: AbstractNode | null = null) {
+        super('', position, null, offset)
         this.expression = expression
         this.expression["parent"] = this
     }

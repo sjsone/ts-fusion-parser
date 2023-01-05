@@ -18,7 +18,4 @@ export class StatementList extends VisitableAbstractNode {
         }
     }
 
-    public visit(visitor: AstNodeVisitorInterface) {
-        return visitor.visitStatementList(this)
-    }
 }

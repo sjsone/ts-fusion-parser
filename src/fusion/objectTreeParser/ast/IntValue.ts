@@ -16,7 +16,4 @@ export class IntValue extends AbstractPathValue {
         this.value = value
     }
 
-    public visit(visitor: AstNodeVisitorInterface) {
-        return visitor.visitIntValue(this);
-    }
 }

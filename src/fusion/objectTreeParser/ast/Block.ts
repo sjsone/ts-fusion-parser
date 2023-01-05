@@ -12,7 +12,4 @@ export class Block extends VisitableAbstractNode {
         this.statementList["parent"] = this
     }
 
-    public visit(visitor: AstNodeVisitorInterface, ...args: any[]) {
-        return visitor.visitBlock(this, args.shift());
-    }
 }

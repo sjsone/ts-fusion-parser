@@ -36,20 +36,20 @@ const stripcslashes = stripslashes // TODO: stripcslashes = stripslashes = uff
 export class ObjectTreeParser {
     protected lexer: Lexer;
 
-    protected contextPathAndFilename: string | undefined;
+    protected contextPathAndFilename: string | null;
 
     protected nodesByType: Map<typeof AbstractNode, AbstractNode[]> = new Map()
 
     protected ignoreErrors: boolean
     protected ignoredErrors: Error[] = []
 
-    protected constructor(lexer: Lexer, contextPathAndFilename: string | undefined, ignoreErrors: boolean = false) {
+    protected constructor(lexer: Lexer, contextPathAndFilename: string | null, ignoreErrors: boolean = false) {
         this.lexer = lexer;
         this.contextPathAndFilename = contextPathAndFilename;
         this.ignoreErrors = ignoreErrors
     }
 
-    public static parse(sourceCode: string, contextPathAndFilename: string | undefined = undefined, ignoreErrors: boolean = false) {
+    public static parse(sourceCode: string, contextPathAndFilename: string | null = null, ignoreErrors: boolean = false) {
         const lexer = new Lexer(sourceCode);
         const parser = new ObjectTreeParser(lexer, contextPathAndFilename, ignoreErrors);
         return parser.parseFusionFile();
@@ -158,7 +158,7 @@ export class ObjectTreeParser {
      * FusionFile
      *  = StatementList
      */
-    protected parseFusionFile() {
+    protected parseFusionFile(): FusionFile {
         // try {
         const file = new FusionFile(this.parseStatementList(null, "file"), this.contextPathAndFilename);
         file.nodesByType = this.flushNodesByType()
@@ -195,7 +195,7 @@ export class ObjectTreeParser {
         this.lazyBigGap();
 
         while (this.accept(Token.EOF) === false && (stopLookahead === null || this.accept(stopLookahead) === false)) {
-            let statement
+            let statement: AbstractStatement
             try {
                 statement = this.parseStatement()
                 this.addNodeToNodesByType(statement)
@@ -244,7 +244,7 @@ export class ObjectTreeParser {
         const position = this.createPosition()
         this.expect(Token.INCLUDE);
         this.lazyExpect(Token.SPACE);
-        let filePattern
+        let filePattern: string
         switch (true) {
             case this.accept(Token.STRING_DOUBLE_QUOTED):
             case this.accept(Token.STRING_SINGLE_QUOTED):
@@ -341,7 +341,7 @@ export class ObjectTreeParser {
             case this.accept(Token.PROTOTYPE_START):
                 this.consume();
                 position = this.createPosition()
-                let prototypeName
+                let prototypeName: string
                 try {
                     prototypeName = this.expect(Token.FUSION_OBJECT_NAME).getValue();
                 } catch (error) {
@@ -402,7 +402,7 @@ export class ObjectTreeParser {
         // watch out for the order, its regex matching and first one wins.
         // sorted by likelyhood
         const position = this.createPosition()
-        let stringContent
+        let stringContent: string
         switch (true) {
             case this.accept(Token.STRING_SINGLE_QUOTED):
                 const charWrapped = this.consume().getValue();
@@ -450,14 +450,16 @@ export class ObjectTreeParser {
 
                 eelNodes["parent"] = <any>eelExpressionValue
 
-                for (const [type, nodes] of eelParser.nodesByType.entries()) {
-                    const list = this.nodesByType.get(<any>type) ?? []
+                for (const entry of eelParser.nodesByType.entries()) {
+                    const type = entry[0]
+                    const nodes = entry[1]
+                    const list = this.nodesByType.get(<any>type) ? this.nodesByType.get(<any>type)! : []
                     for (const node of nodes) {
                         list.push(<any>node)
                     }
                     this.nodesByType.set(<any>type, list)
                 }
-                eelExpressionValue.nodes = eelNodes
+                eelExpressionValue.nodes = [eelNodes]
 
                 this.lexer.advanceCursor(eelLexer.getCursor() + 1)
 
@@ -498,8 +500,11 @@ export class ObjectTreeParser {
         const dslExpression = new DslExpressionValue(dslIdentifier, dslCode, this.endPosition(position));
         const nodesByType = dslExpression.parse()
 
-        for (const [type, nodes] of nodesByType.entries()) {
-            const list = this.nodesByType.get(<any>type) ?? []
+        for (const entry of nodesByType.entries()) {
+            const type = entry[0]
+            const nodes = entry[1]
+
+            const list = this.nodesByType.get(<any>type) ? this.nodesByType.get(<any>type)! : []
             for (const node of nodes) {
                 list.push(<any>node)
             }
@@ -585,7 +590,7 @@ export class ObjectTreeParser {
         //     .build();
     }
 
-    protected createPosition() {
+    protected createPosition(): NodePosition {
         return new NodePosition(this.lexer.getCursor())
     }
 
@@ -594,14 +599,14 @@ export class ObjectTreeParser {
         return position
     }
 
-    protected addNodeToNodesByType(node: AbstractNode) {
+    protected addNodeToNodesByType(node: AbstractNode): void {
         const type = <typeof AbstractNode>node.constructor
-        const list = this.nodesByType.get(type) ?? []
+        const list = this.nodesByType.get(type) ? this.nodesByType.get(type)! : []
         list.push(node)
         this.nodesByType.set(type, list)
     }
 
-    protected flushNodesByType() {
+    protected flushNodesByType(): Map<typeof AbstractNode, AbstractNode[]> {
         const map = new Map(this.nodesByType)
         this.nodesByType.clear()
         return map

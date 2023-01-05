@@ -1,11 +1,6 @@
-import type { AstNodeVisitorInterface } from "../astNodeVisitorInterface";
+import { AstNodeVisitorInterface } from "../astNodeVisitorInterface";
 import { AbstractOperation } from "./AbstractOperation";
 
 
-export class ValueUnset extends AbstractOperation
-{
-    public visit(visitor: AstNodeVisitorInterface)
-    {
-        return visitor.visitValueUnset(this);
-    }
+export class ValueUnset extends AbstractOperation {
 }

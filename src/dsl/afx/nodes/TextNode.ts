@@ -6,7 +6,7 @@ export class TextNode extends AbstractNode {
     protected text: string
     protected inlineEel: InlineEelNode[]
 
-    constructor(position: NodePositionInterface, text: string, inlineEel: InlineEelNode[] = [], parent: AbstractNode | undefined = undefined) {
+    constructor(position: NodePositionInterface, text: string, inlineEel: InlineEelNode[] = [], parent: AbstractNode | null = null) {
         super(position, parent)
         this.text = text
         this.inlineEel = inlineEel

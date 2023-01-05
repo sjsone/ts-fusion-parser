@@ -5,7 +5,7 @@ export class CallbackNode extends AbstractNode {
     protected signature: string
     protected body: AbstractNode
 
-    constructor(signature: string, body: AbstractNode, position: NodePositionInterface, parent: AbstractNode | undefined = undefined) {
+    constructor(signature: string, body: AbstractNode, position: NodePositionInterface, parent: AbstractNode | null = null) {
         super(position, parent)
         this.signature = signature
         this.body = body

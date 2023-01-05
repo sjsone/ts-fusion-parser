@@ -16,11 +16,7 @@ export class ObjectPath extends VisitableAbstractNode {
         }
     }
 
-    public visit(visitor: AstNodeVisitorInterface, currentPathPrefix: string[]) {
-        return visitor.visitObjectPath(this, currentPathPrefix)
-    }
-
-    public setPosition(position: NodePosition) {
+    public setPosition(position: NodePosition): void {
         this.position = position
     }
 

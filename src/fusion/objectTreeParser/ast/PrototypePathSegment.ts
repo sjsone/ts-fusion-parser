@@ -10,10 +10,6 @@ export class PrototypePathSegment extends AbstractPathSegment {
         this.position = position
     }
 
-    public visit(visitor: AstNodeVisitorInterface) {
-        return visitor.visitPrototypePathSegment(this);
-    }
-
     protected debugPrintInner(): void {
         console.log(`|-identifier: "${this.identifier}" <${this.position}>`)
     }

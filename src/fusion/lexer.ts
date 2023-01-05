@@ -5,9 +5,9 @@ export class Lexer {
     // Difference to: Neos\Eel\Package.EelExpressionRecognizer
     // added an atomic group (to prevent catastrophic backtracking) and removed the end anchor 
     // protected static PATTERN_EEL_EXPRESSION = `^\\\${(?<exp>(>{ (>exp) }|[^{}"']+|"[^"\\\\]*(?:\\\\.[^"\\\\]*)*"|'[^'\\\\]*(?:\\\\.[^'\\\\]*)*')*)}`;
-    protected static PATTERN_EEL_EXPRESSION = `^\\\${(.*)}(?=\\s*\\n)`;
+    protected static PATTERN_EEL_EXPRESSION: string = `^\\\${(.*)}(?=\\s*\\n)`;
 
-    protected mode = "fusion"
+    protected mode: string = "fusion"
 
 
     public static TOKEN_REGEX: { [key: number]: string } = {
@@ -49,7 +49,7 @@ export class Lexer {
         [Token.RBRACE]: '^}',
         [Token.LBRACKET]: '^\\[',
         [Token.RBRACKET]: '^\\]',
-        
+
 
         // Strings
 
@@ -66,7 +66,7 @@ export class Lexer {
         [Token.EEL_EXPRESSION_OBJECT_PATH]: `^([0-9a-zA-Z])+(?:\\.[0-9a-zA-Z]+)*`,
         [Token.EEL_EXPRESSION_OBJECT_PATH_PART]: `^[0-9a-zA-Z]+`,
         [Token.EEL_EXPRESSION_CALLBACK]: `^\\(([a-zA-Z]+(?:\\s*,\\s*[a-zA-Z]+)*)\\)\\s*=>`,
-        
+
         [Token.LPAREN]: '^\\(',
         [Token.COMMA]: '^,',
     };
@@ -89,7 +89,7 @@ export class Lexer {
         return this.cursor;
     }
 
-    public advanceCursor(amount: number) {
+    public advanceCursor(amount: number): void {
         this.cursor += amount
         this.lookahead = null
     }
@@ -117,14 +117,14 @@ export class Lexer {
         }
 
         const regexStringForToken = Lexer.TOKEN_REGEX[tokenType];
-        if(logging) this.log("regexStringForToken", regexStringForToken);
+        if (logging) this.log("regexStringForToken", regexStringForToken);
 
         const remainingCode = this.code.substring(this.cursor)
-        if(logging) this.log("remainingCode|"+remainingCode);
+        if (logging) this.log("remainingCode|" + remainingCode);
         const regexForToken = new RegExp(regexStringForToken, 'g')
-        if(logging) this.log("regexForToken", regexForToken);
+        if (logging) this.log("regexForToken", regexForToken);
         const matches = regexForToken.exec(remainingCode)
-        if(logging) this.log("matches", matches);
+        if (logging) this.log("matches", matches);
         if (matches === null) {
             return null;
         }
@@ -138,37 +138,37 @@ export class Lexer {
 
     public consumeUntil(tokenType: number, logging: boolean = false): string {
         const regexStringForToken = Lexer.TOKEN_REGEX[tokenType];
-        if(logging) this.log("regexStringForToken", regexStringForToken);
+        if (logging) this.log("regexStringForToken", regexStringForToken);
         const regexForToken = new RegExp(regexStringForToken, 'g')
-        if(logging) this.log("regexForToken", regexForToken);
+        if (logging) this.log("regexForToken", regexForToken);
 
         let cursor = this.cursor
         let found = ''
         let next = this.code.substring(cursor)
-        while(!regexForToken.test(next) && cursor < this.code.length) {
-            if(logging) this.log("found:"+found, "next:"+next);
+        while (!regexForToken.test(next) && cursor < this.code.length) {
+            if (logging) this.log("found:" + found, "next:" + next);
             found += next[0]
             next = next.substring(1)
             cursor++
         }
-        if(logging) this.log("this.cursor", this.cursor);
-        this.cursor += found.length 
-        if(logging) this.log("this.cursor", this.cursor);
+        if (logging) this.log("this.cursor", this.cursor);
+        this.cursor += found.length
+        if (logging) this.log("this.cursor", this.cursor);
 
         this.lookahead = null
 
         return found;
     }
 
-    debug() {
-        this.log("remainingCode|"+ this.code.substring(this.cursor))
+    debug(): void {
+        this.log("remainingCode|" + this.code.substring(this.cursor))
         // console.trace()
         // this.log("exiting...")
         // NodeProcess.exit()
 
     }
 
-    protected log(...args: any[]) {
+    protected log(...args: any[]): void {
         console.log(this.mode, ...args)
     }
 }

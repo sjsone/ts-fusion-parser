@@ -5,7 +5,7 @@ import { ObjectPathNode } from "./ObjectPathNode"
 export class ObjectFunctionPathNode extends ObjectPathNode {
     public args: AbstractNode[]
 
-    public constructor(value: string, args: AbstractNode[], position: NodePositionInterface, offset: AbstractNode | undefined = undefined) {
+    public constructor(value: string, args: AbstractNode[], position: NodePositionInterface, offset: AbstractNode | null = null) {
         super(value, position)
         this.args = args
         for (const arg of this.args) {

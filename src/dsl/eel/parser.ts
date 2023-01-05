@@ -33,11 +33,11 @@ export class Parser implements ParserInterface {
         this.positionOffset = positionOffset
     }
 
-    setPositionOffset(positionOffset: number) {
+    setPositionOffset(positionOffset: number): void {
         this.positionOffset = positionOffset
     }
 
-    protected applyOffset(position: NodePositionInterface) {
+    protected applyOffset(position: NodePositionInterface): NodePositionInterface {
         if (position.begin !== -1) position.begin += this.positionOffset
         if (position.end !== -1) position.end += this.positionOffset
         return position
@@ -47,17 +47,17 @@ export class Parser implements ParserInterface {
         return { begin: this.lexer.getCursor(), end: -1 }
     }
 
-    protected endPosition(position: NodePositionInterface) {
+    protected endPosition(position: NodePositionInterface): NodePositionInterface {
         position.end = this.lexer.getCursor()
         return this.applyOffset(position)
     }
 
-    parse() {
+    parse(): AbstractNode {
         this.parseLazyWhitespace()
         return this.parseExpression()
     }
 
-    protected parseExpression(parent: AbstractNode | undefined = undefined): any {
+    protected parseExpression(parent: AbstractNode | null = null): AbstractNode {
         let object: AbstractNode | null = null
         const position = this.beginPosition()
         switch (true) {
@@ -72,16 +72,16 @@ export class Parser implements ParserInterface {
 
             case this.lexer.lookAhead(FloatToken):
             case this.lexer.lookAhead(IntegerToken):
-                object = new LiteralNumberNode(this.lexer.consumeLookAhead().value, this.endPosition(position), parent)
+                object = new LiteralNumberNode(this.lexer.consumeLookAhead()!.value, this.endPosition(position), parent)
                 break
 
             case this.lexer.lookAhead(TrueValueToken):
             case this.lexer.lookAhead(FalseValueToken):
-                object = new LiteralBooleanNode(this.lexer.consumeLookAhead().value, this.endPosition(position), parent)
+                object = new LiteralBooleanNode(this.lexer.consumeLookAhead()!.value, this.endPosition(position), parent)
                 break
 
             case this.lexer.lookAhead(NullValueToken):
-                object = new LiteralNullNode(this.lexer.consumeLookAhead().value, this.endPosition(position), parent)
+                object = new LiteralNullNode(this.lexer.consumeLookAhead()!.value, this.endPosition(position), parent)
                 break
 
             case this.lexer.lookAhead(CallbackSignatureToken):
@@ -89,7 +89,7 @@ export class Parser implements ParserInterface {
                 this.parseLazyWhitespace()
                 const callbackBody = this.parseExpression()
                 this.parseLazyWhitespace()
-                object = new CallbackNode(signature.value, callbackBody, this.endPosition(position), parent)
+                object = new CallbackNode(signature!.value, callbackBody, this.endPosition(position), parent)
                 break
 
             case this.lexer.lookAhead(LParenToken):
@@ -131,7 +131,7 @@ export class Parser implements ParserInterface {
         return object
     }
 
-    protected parseOperationIfPossible(object: AbstractNode) {
+    protected parseOperationIfPossible(object: AbstractNode): TernaryOperationNode | OperationNode | null {
         this.parseLazyWhitespace()
 
         let operationToken = null
@@ -169,7 +169,7 @@ export class Parser implements ParserInterface {
         return null
     }
 
-    protected parseTernaryOperation(object: AbstractNode) {
+    protected parseTernaryOperation(object: AbstractNode): TernaryOperationNode {
         const position = this.beginPosition()
         this.lexer.consumeLookAhead()
         this.parseLazyWhitespace()
@@ -181,19 +181,19 @@ export class Parser implements ParserInterface {
         return new TernaryOperationNode(object, thenPart, elsePart, this.endPosition(position))
     }
 
-    protected parseString(parent: AbstractNode | undefined = undefined) {
+    protected parseString(parent: AbstractNode | null = null): LiteralStringNode {
         const position = this.beginPosition()
         switch (true) {
             case this.lexer.lookAhead(StringDoubleQuotedToken):
             case this.lexer.lookAhead(StringSingleQuotedToken):
-                const stringNode = new LiteralStringNode(this.lexer.consumeLookAhead().value, this.endPosition(position), parent)
+                const stringNode = new LiteralStringNode(this.lexer.consumeLookAhead()!.value, this.endPosition(position), parent)
                 return this.addNodeToNodesByType(stringNode)
         }
         this.lexer.debug()
         throw Error("parseString")
     }
 
-    protected parseObjectExpression(parent: AbstractNode | undefined = undefined) {
+    protected parseObjectExpression(parent: AbstractNode | null = null): ObjectNode {
         const position = this.beginPosition()
         const rootPart = this.parseObjectExpressionPart()
         this.addNodeToNodesByType(rootPart)
@@ -204,7 +204,7 @@ export class Parser implements ParserInterface {
         return this.addNodeToNodesByType(new ObjectNode(parts, this.endPosition(position), parent))
     }
 
-    protected parseObjectExpressionPart(): any {
+    protected parseObjectExpressionPart(): ObjectPathNode {
         switch (true) {
             case this.lexer.lookAhead(ObjectFunctionPathPartToken):
                 return this.parseObjectFunctionExpressionPart()
@@ -216,7 +216,7 @@ export class Parser implements ParserInterface {
         throw new Error("parseObjectExpressionPart")
     }
 
-    protected parseObjectFunctionExpressionPart() {
+    protected parseObjectFunctionExpressionPart(): ObjectFunctionPathNode {
         const position = this.beginPosition()
         const base = this.lexer.consumeLookAhead()
         const args = []
@@ -231,19 +231,19 @@ export class Parser implements ParserInterface {
         this.parseLazyWhitespace()
         this.lexer.consume(RParenToken)
 
-        const node = new ObjectFunctionPathNode(base.value.slice(0, -1), args, this.endPosition(position), this.parseObjectOffsetExpression())
+        const node = new ObjectFunctionPathNode(base!.value.slice(0, -1), args, this.endPosition(position), this.parseObjectOffsetExpression())
         return this.addNodeToNodesByType(node)
     }
 
-    protected parseObjectPath() {
+    protected parseObjectPath(): ObjectPathNode {
         const position = this.beginPosition()
-        const node = new ObjectPathNode(this.lexer.consumeLookAhead().value, this.endPosition(position), undefined, this.parseObjectOffsetExpression());
+        const node = new ObjectPathNode(this.lexer.consumeLookAhead()!.value, this.endPosition(position), undefined, this.parseObjectOffsetExpression());
         return this.addNodeToNodesByType(node)
     }
 
-    protected parseObjectOffsetExpression(): ObjectOffsetAccessPathNode | undefined {
+    protected parseObjectOffsetExpression(): ObjectOffsetAccessPathNode | null {
         this.parseLazyWhitespace()
-        if (!this.lexer.lookAhead(LBracketToken)) return undefined
+        if (!this.lexer.lookAhead(LBracketToken)) return null
         const position = this.beginPosition()
         this.lexer.consumeLookAhead()
         this.parseLazyWhitespace()
@@ -254,7 +254,7 @@ export class Parser implements ParserInterface {
         return this.addNodeToNodesByType(node)
     }
 
-    protected parseObjectLiteral(parent: AbstractNode | undefined = undefined) {
+    protected parseObjectLiteral(parent: AbstractNode | null = null): LiteralObjectNode {
         const position = this.beginPosition()
         this.lexer.consumeLookAhead()
         const entries = []
@@ -278,7 +278,7 @@ export class Parser implements ParserInterface {
         return this.addNodeToNodesByType(new LiteralObjectNode(entries, this.endPosition(position), parent))
     }
 
-    protected parseObjectLiteralEntryKey() {
+    protected parseObjectLiteralEntryKey(): ObjectPathNode | LiteralStringNode {
         switch (true) {
             case this.lexer.lookAhead(StringDoubleQuotedToken):
             case this.lexer.lookAhead(StringSingleQuotedToken):
@@ -289,7 +289,7 @@ export class Parser implements ParserInterface {
         }
     }
 
-    protected parseArrayLiteral(parent: AbstractNode | undefined = undefined) {
+    protected parseArrayLiteral(parent: AbstractNode | null = null): LiteralArrayNode {
         const position = this.beginPosition()
         this.lexer.consumeLookAhead()
         const entries = []
@@ -306,11 +306,11 @@ export class Parser implements ParserInterface {
         return this.addNodeToNodesByType(new LiteralArrayNode(entries, this.endPosition(position), parent))
     }
 
-    protected parseLazyWhitespace() {
+    protected parseLazyWhitespace(): void {
         this.lexer.lazyConsume(WhitespaceToken)
     }
 
-    public handover<T extends AbstractNode>(parser: ParserInterface): T | Array<T> {
+    public handover<T extends AbstractNode>(parser: ParserInterface): Array<T> {
         const result = parser.receiveHandover<T>(this.lexer.getRemainingText(), this.lexer.getCursor() + this.positionOffset)
         this.lexer["cursor"] += result.cursor
         return result.nodeOrNodes
@@ -333,20 +333,20 @@ export class Parser implements ParserInterface {
         return result
     }
 
-    logRemaining(cap: number | undefined = undefined) {
-        console.log(">>::" + this.lexer.getRemainingText().substring(0, cap))
+    logRemaining(cap: number | null = null): void {
+        console.log(">>::" + this.lexer.getRemainingText().substring(0, cap === null ? undefined : cap))
     }
 
     protected addNodeToNodesByType<T extends AbstractNode>(node: T): T {
         const type = <typeof AbstractNode>node.constructor
-        const list = this.nodesByType.get(type) ?? []
+        const list = this.nodesByType.get(type) ? this.nodesByType.get(type)! : []
         // FIXME: Checking before pushing should not be necessary
         if (!list.includes(node)) list.push(node)
         this.nodesByType.set(type, list)
         return node
     }
 
-    protected flushNodesByType() {
+    protected flushNodesByType(): Map<typeof AbstractNode, AbstractNode[]> {
         const map = new Map(this.nodesByType)
         this.nodesByType.clear()
         return map

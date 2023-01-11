@@ -14,6 +14,10 @@ export class TagAttributeNode extends AbstractNode {
                 if (element instanceof AbstractNode) element["parent"] = this
             }
         }
+    }
 
+    public toString(intend?: number): string {
+        const valueString = Array.isArray(this.value) ? "{" + this.value.map(v => v.toString()).join(" ") + "}" : this.value
+        return this.name + "=" + valueString
     }
 }

@@ -27,4 +27,8 @@ export class FusionFile extends VisitableAbstractNode {
     public hasErrors() {
         return this.errors.length > 0
     }
+
+    public toString(intend: number = 0): string {
+        return this.statementList.toString(intend)
+    }
 }

@@ -10,5 +10,9 @@ export class ObjectPathNode extends AbstractValueNode<string> {
         this.offset = offset
         if(this.offset) this.offset["parent"] = this
     }
+
+    public toString(intend?: number | undefined): string {
+        return this.value + (this.offset?.toString() ?? '')
+    }
 }
 

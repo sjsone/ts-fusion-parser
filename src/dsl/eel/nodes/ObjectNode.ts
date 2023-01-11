@@ -12,4 +12,8 @@ export class ObjectNode extends AbstractNode {
             part["parent"] = this
         }
     }
+
+    public toString(intend?: number): string {
+        return this.path.map(part => part.toString()).join(".")
+    }
 }

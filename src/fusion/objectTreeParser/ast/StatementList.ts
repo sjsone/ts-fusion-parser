@@ -18,6 +18,10 @@ export class StatementList extends VisitableAbstractNode {
         }
     }
 
+    public toString(intend: number = 0): string {
+        return this.statements.map(statement => statement.toString(intend+1)).join("\n")
+    }
+
     public visit(visitor: AstNodeVisitorInterface) {
         return visitor.visitStatementList(this)
     }

@@ -16,4 +16,8 @@ export class TernaryOperationNode extends AbstractNode {
         this.condition["parent"] = this
         this.position = position
     }
+
+    public toString(intend?: number): string {
+        return `${this.condition.toString()} ? ${this.thenPart.toString()} : ${this.elsePart.toString()}`
+    }
 }

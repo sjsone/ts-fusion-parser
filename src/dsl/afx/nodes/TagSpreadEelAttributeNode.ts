@@ -11,4 +11,8 @@ export class TagSpreadEelAttributeNode extends AbstractNode {
             node["parent"] = this
         }
     }
+
+    public toString(intend?: number): string {
+        return "{" + this.nodes.map(v => v.toString()).join(" ") + "}"
+    }
 }

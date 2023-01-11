@@ -14,4 +14,8 @@ export class LiteralArrayNode extends AbstractNode {
 
         this.position = position
     }
+    
+    public toString(intend?: number): string {
+        return `[${this.entries.map(entry => entry.toString()).join(", ")}]`
+    }
 }

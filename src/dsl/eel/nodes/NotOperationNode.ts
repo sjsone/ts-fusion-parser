@@ -10,4 +10,8 @@ export class NotOperationNode extends AbstractNode {
         this.node["parent"] = this
         this.position = position
     }
+
+    public toString(intend?: number): string {
+        return `!${this.node.toString()}`
+    }
 }

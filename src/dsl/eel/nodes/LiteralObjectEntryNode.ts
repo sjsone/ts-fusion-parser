@@ -15,4 +15,8 @@ export class LiteralObjectEntryNode extends AbstractNode {
         this.value["parent"] = this
         this.position = position
     }
+
+    public toString(intend?: number): string {
+        return `${this.key.toString()}: ${this.value.toString()}`
+    }
 }

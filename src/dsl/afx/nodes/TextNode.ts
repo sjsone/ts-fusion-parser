@@ -14,4 +14,9 @@ export class TextNode extends AbstractNode {
             inlineEel["parent"] = this
         }
     }
+    public toString(intend: number = 0): string {
+        const strIntend = "    ".repeat(intend)
+
+        return this.text.trim().replace(/\n/g, "\n"+strIntend)
+    }
 }

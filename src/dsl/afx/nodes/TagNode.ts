@@ -32,4 +32,16 @@ export class TagNode extends AbstractNode {
 
         this.selfClosing = selfClosing
     }
+
+    public toString(intend: number = 0): string {
+        const attributes = this.attributes.length > 0 ? " " + this.attributes.map(a => a.toString()).join(" ") : ""
+
+        const strIntend = "    ".repeat(intend)
+        const strIntendC = "    ".repeat(intend + 1)
+
+        const content = this.content.map(c => c.toString(intend + 1)).join("\n" + strIntend)
+        const tagBody = content.length > 0 ? "\n" + strIntendC + content + "\n" + strIntend : ""
+
+        return `<${this.name}${attributes}${this.selfClosing ? "/>" : `${tagBody}</${this.name}>`}`
+    }
 }

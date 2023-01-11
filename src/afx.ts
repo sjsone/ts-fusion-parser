@@ -6,6 +6,7 @@ import { ObjectPathNode } from "./dsl/eel/nodes/ObjectPathNode"
 import { InlineEelNode } from "./dsl/afx/nodes/InlineEelNode"
 import { ObjectNode } from "./dsl/eel/nodes/ObjectNode"
 import { TagNode } from "./dsl/afx/nodes/TagNode"
+import { AbstractNode } from "./common/AbstractNode"
 
 const simpleText = `
     asfd &lt;
@@ -44,15 +45,13 @@ const afx = `
 
 const notWorking = `
 
-<div>
+<div class="asdf" {...props.testClass}>
+before
 {props.text}
+after
 </div>
 <div>
 `
-const parser = new Parser(new Lexer(notWorking))
+const parser = new Parser(new Lexer(afx))
 let nodes: any = parser.parse(true)
-
-
-
-nodes = parser.nodesByType.get(<any>TagNode) 
-console.log("nodes", nodes.map((node: TagNode) => notWorking.substring(node["position"].begin, node["position"].end)))
+console.log(nodes.map((node: AbstractNode) => node.toString()).join("\n"))

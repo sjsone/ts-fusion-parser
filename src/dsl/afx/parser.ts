@@ -57,6 +57,8 @@ export class Parser implements ParserInterface {
                 const inlineEelNode = new InlineEelNode(position, result)
                 this.addNodeToNodesByType(inlineEelNode)
                 inlineEel.push(inlineEelNode)
+
+                text += this.lexer.getSnippet(position.begin, position.end)
             } else {
                 text += charToken.value
             }
@@ -113,7 +115,7 @@ export class Parser implements ParserInterface {
     parseTag(parent: AbstractNode | undefined = undefined) {
         const token = this.lexer.consume(TagBeginToken)
         const nameNode = TagNameNode.From(token)
-        this.lexer.tagStack.push(nameNode.toString())
+        this.lexer.tagStack.push(<any>nameNode.toString())
         const position = { ...token.position }
         this.parseLazyWhitespace()
 

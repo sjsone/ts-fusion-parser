@@ -10,4 +10,8 @@ export class ObjectOffsetAccessPathNode extends ObjectPathNode {
         this.expression = expression
         this.expression["parent"] = this
     }
+
+    public toString(intend?: number | undefined): string {
+        return `[${this.expression.toString()}]` + (this.offset?.toString() ?? '')
+    }
 }

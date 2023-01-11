@@ -9,4 +9,8 @@ export class LiteralNullNode extends AbstractNode {
         this.value = value
         this.position = position
     }
+
+    public toString(intend?: number): string {
+        return this.value
+    }
 }

@@ -11,4 +11,8 @@ export class CallbackNode extends AbstractNode {
         this.body = body
         this.body["parent"] = this
     }
+
+    public toString(intend?: number): string {
+        return `${this.signature} ${this.body.toString()}`
+    }
 }

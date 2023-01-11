@@ -8,4 +8,8 @@ export class AbstractValueNode<T> extends AbstractNode {
         super(position, parent)
         this.value = value
     }
+
+    public toString(intend?: number): string {
+        return ''+this.value
+    }
 }

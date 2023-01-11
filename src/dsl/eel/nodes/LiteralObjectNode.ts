@@ -12,4 +12,8 @@ export class LiteralObjectNode extends AbstractNode {
             entry["parent"] = this
         } 
     }
+
+    public toString(intend?: number): string {
+        return `{${this.entries.map(entry => entry.toString()).join(", ")}}`
+    }
 }

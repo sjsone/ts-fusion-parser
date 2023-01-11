@@ -15,4 +15,8 @@ export class OperationNode extends AbstractNode {
         this.operation = operation
         this.position = position
     }
+
+    public toString(intend?: number): string {
+        return this.leftHand.toString() + ` ${this.operation} ` + this.rightHand.toString()
+    }
 }

@@ -10,5 +10,9 @@ export class BlockExpressionNode extends AbstractNode {
         this.position = position
 
     }
+
+    public toString(intend?: number): string {
+        return `(${this.node.toString()})`
+    }
 }
 

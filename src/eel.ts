@@ -82,8 +82,9 @@ const runAllTests = () => {
 
 }
 // runAllTests()
-const lexer = new Lexer(tests.ObjectPathWithMinus)
+const eelTest = tests.OffsetAccess
+console.log(eelTest)
+const lexer = new Lexer(eelTest)
 const parser = new Parser(lexer)
 const result = parser.parse()   
-console.log(result)
-// console.log(">"+tests.MultipleTails.substring(30, 36)+"<")
+console.log(result.toString())

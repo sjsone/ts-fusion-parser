@@ -21,6 +21,7 @@ import { SpreadOperationNode } from "./nodes/SpreadOperationNode";
 import { LiteralBooleanNode } from "./nodes/LiteralBooleanNode";
 import { LiteralNullNode } from "./nodes/LiteralNullNode";
 import { CallbackNode } from "./nodes/CallbackNode";
+import { EmptyEelNode } from "./nodes/EmptyEelNode";
 
 export class Parser implements ParserInterface {
     protected lexer: Lexer
@@ -52,8 +53,12 @@ export class Parser implements ParserInterface {
         return this.applyOffset(position)
     }
 
-    parse() {
+    parse(checkForEmptyEel: boolean = true) {
         this.parseLazyWhitespace()
+        if (checkForEmptyEel && this.lexer.lookAhead(RBraceToken)) {
+            this.lexer.consumeLookAhead()
+            return new EmptyEelNode(this.endPosition(this.beginPosition()))
+        }
         return this.parseExpression()
     }
 

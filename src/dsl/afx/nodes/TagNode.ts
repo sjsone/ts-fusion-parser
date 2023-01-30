@@ -14,6 +14,8 @@ export class TagNode extends AbstractNode {
     protected attributes: Array<TagSpreadEelAttributeNode | TagAttributeNode>
     protected content: Array<TagNode | TextNode>
     protected selfClosing: boolean
+    protected artificiallyClosed: boolean = false
+
 
     constructor(position: NodePositionInterface, name: string, begin: TagNameNode, attributes: Array<TagSpreadEelAttributeNode | TagAttributeNode>, content: Array<TagNode | TextNode>, end: TagNameNode | undefined = undefined, selfClosing: boolean = false, parent: AbstractNode | undefined = undefined) {
         super(position, parent)
@@ -39,9 +41,9 @@ export class TagNode extends AbstractNode {
         const strIntend = "    ".repeat(intend)
         const strIntendC = "    ".repeat(intend + 1)
 
-        const content = this.content.map(c => c.toString(intend + 1)).join("\n" + strIntend)
+        const content = this.content.map(c => c.toString(intend + 1)).join("\n" + strIntendC)
         const tagBody = content.length > 0 ? "\n" + strIntendC + content + "\n" + strIntend : ""
 
-        return `<${this.name}${attributes}${this.selfClosing ? "/>" : `${tagBody}</${this.name}>`}`
+        return `<${this.name}${attributes}${this.artificiallyClosed ? ">" : this.selfClosing ? " />" : `>${tagBody}</${this.name}>`}`
     }
 }

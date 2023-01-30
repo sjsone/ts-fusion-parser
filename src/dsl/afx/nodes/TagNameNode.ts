@@ -14,7 +14,7 @@ export class TagNameNode extends AbstractNode {
         return this.name.substring(1)
     }
 
-    static From(token: TagBeginToken|TagEndToken, parent: AbstractNode | undefined = undefined) {
+    static From(token: TagBeginToken | TagEndToken, parent: AbstractNode | undefined = undefined) {
         return new this(token.position, token.value, parent)
     }
 }

@@ -1,64 +1,47 @@
 export class Arrays {
-    /**
-      * Merges two arrays recursively and "binary safe" (integer keys are overridden as well), overruling similar values
-      * in the first array (firstArray) with the values of the second array (secondArray) in case of identical keys,
-      * ie. keeping the values of the second.
-      *
-      * @param {array} firstArray First array
-      * @param {array} secondArray Second array, overruling the first array
-      * @param {boolean} dontAddNewKeys If set, keys that are NOT found in firstArray (first array) will not be set. Thus only existing value can/will be overruled from second array.
-      * @param {boolean} emptyValuesOverride If set (which is the default), values from secondArray will overrule if they are empty (according to PHP's empty() function)
-      * @return array Resulting array where secondArray values has overruled firstArray values
-      */
-    public static arrayMergeRecursiveOverrule(firstArray: { [key: string]: any }, secondArray: { [key: string]: any }, dontAddNewKeys: boolean = false, emptyValuesOverride: boolean = true) {
-        const data = [firstArray, secondArray];
-        let entryCount = 1;
-        for (let i = 0; i < entryCount; i++) {
-            const firstArrayInner = data[i * 2];
-            const secondArrayInner = data[i * 2 + 1];
-            for (const [key, value] of Object.entries(secondArrayInner)) {
-                if (firstArrayInner[key] !== undefined && typeof firstArrayInner[key] === "object") {
-                    if ((!emptyValuesOverride || value.length > 0) && Array.isArray(value)) {
-                        data.push(firstArrayInner[key])
-                        data.push(value)
-                        entryCount++;
-                    } else {
-                        firstArrayInner[key] = value;
-                    }
-                } else {
-                    if (dontAddNewKeys) {
-                        if (Object.keys(firstArrayInner).includes(key) && (emptyValuesOverride || !value)) {
-                            firstArrayInner[key] = value;
-                        }
-                    } else {
-                        if (emptyValuesOverride || !value) {
-                            firstArrayInner[key] = value;
-                        } else if (firstArrayInner[key] === undefined && value.length === 0) {
-                            firstArrayInner[key] = value;
-                        }
-                    }
+    // public static arrayMergeRecursiveOverrule(firstArray: { [key: string]: any }, secondArray: { [key: string]: any }, doNotAddNewKeys = false, emptyValuesOverride = true): { [key: string]: any } {
+    //     for (const [key, value] of Object.entries(secondArray)) {
+    //         if (firstArray[key] !== undefined && typeof firstArray[key] === "object") {
+    //             if ((!emptyValuesOverride || value.length > 0) && Array.isArray(value)) {
+    //                 firstArray[key] = this.arrayMergeRecursiveOverrule(firstArray[key], value, doNotAddNewKeys, emptyValuesOverride);
+    //             } else {
+    //                 firstArray[key] = value;
+    //             }
+    //         } else {
+    //             if (!doNotAddNewKeys || Object.keys(firstArray).includes(key)) {
+    //                 if (emptyValuesOverride || !value || value.length > 0) {
+    //                     firstArray[key] = value;
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     return firstArray;
+    // }
+
+    public static arrayMergeRecursiveOverrule(firstArray: { [key: string]: any }, secondArray: { [key: string]: any }, doNotAddNewKeys = false, emptyValuesOverride = true): { [key: string]: any } {
+        for (const [key, value] of Object.entries(secondArray)) {
+            if (firstArray[key] !== undefined && typeof firstArray[key] === "object") {
+                firstArray[key] = this.arrayMergeRecursiveOverrule(firstArray[key], value, doNotAddNewKeys, emptyValuesOverride);
+            } else {
+                if (!doNotAddNewKeys || Object.keys(firstArray).includes(key)) {
+                    firstArray[key] = emptyValuesOverride || !value || value.length > 0 ? value : firstArray[key];
                 }
             }
         }
-        // reset(firstArray);
         return firstArray;
     }
 
-    public static unsetValueByPath(arr: { [key: string]: any }, path: any) {
+    public static unsetValueByPath(arr: { [key: string]: any }, path: string | string[]): { [key: string]: any } {
         if (typeof path === "string") {
-            path = path.split('.')
-        } else if (!(typeof path === "object")) {
-            throw new Error("unsetValueByPath() expects path to be string or array")
-            // throw new \InvalidArgumentException('unsetValueByPath() expects path to be string or array, "' . gettype(path) . '" given.', 1305111513);
+            path = path.split(".");
+        } else if (!Array.isArray(path)) {
+            throw new Error("unsetValueByPath() expects path to be string or array");
         }
-        const key = path.shift()
-        if (path.length === 0) {
-            delete arr[key]
-        } else {
-            if (arr[key] === undefined || !(typeof arr[key] === "object")) {
-                return arr;
-            }
-            arr[key] = this.unsetValueByPath(arr[key], path);
+        const [key, ...remainingPath] = path;
+        if (!remainingPath.length) {
+            delete arr[key];
+        } else if (typeof arr[key] === "object") {
+            arr[key] = this.unsetValueByPath(arr[key], remainingPath);
         }
         return arr;
     }
@@ -83,35 +66,33 @@ export class Arrays {
         }
     }
 
-
-    public static arrayMergeRecursiveOverruleWithCallback(firstArray: { [key: string]: any }, secondArray: { [key: string]: any }, toArray: (value: any) => any, overrideFirst: null | ((key: string, firstValue: any, secondValue: any) => boolean) = null): { [key: string]: any } {
+    public static mergeArraysRecursively(firstArray: { [key: string]: any }, secondArray: { [key: string]: any }, toArray: (value: any) => any, overrideFirst: ((key: string, firstValue: any, secondValue: any) => boolean) | null = null): { [key: string]: any } {
         const data = [firstArray, secondArray];
         let entryCount = 1;
         for (let i = 0; i < entryCount; i++) {
-            let firstArrayInner = data[i * 2];
-            let secondArrayInner = data[i * 2 + 1];
+            const firstArrayInner = data[i * 2];
+            const secondArrayInner = data[i * 2 + 1];
 
             for (const key in secondArrayInner) {
-                let value = secondArrayInner[key]
-                if (firstArrayInner[key] === undefined || (!(typeof firstArrayInner[key] === "object") && !(typeof value === "object"))) {
+                let value = secondArrayInner[key];
+                if (firstArrayInner[key] === undefined || typeof firstArrayInner[key] !== "object" || typeof value !== "object") {
                     firstArrayInner[key] = value;
                 } else {
-                    if (!(typeof value === "object")) {
+                    if (typeof value !== "object") {
                         value = toArray(value);
                     }
 
-                    if (!(typeof firstArrayInner[key] === "object")) {
+                    if (typeof firstArrayInner[key] !== "object") {
                         firstArrayInner[key] = toArray(firstArrayInner[key]);
                     }
 
                     if (typeof firstArrayInner[key] === "object" && typeof value === "object") {
-                        if (overrideFirst !== null && overrideFirst(key, firstArrayInner[key], value)) {
+                        if (overrideFirst && overrideFirst(key, firstArrayInner[key], value)) {
                             firstArrayInner[key] = value;
+                        } else {
+                            data.push(firstArrayInner[key], value);
+                            entryCount += 1;
                         }
-
-                        data.push(firstArrayInner[key])
-                        data.push(value)
-                        entryCount++;
                     } else {
                         firstArrayInner[key] = value;
                     }

@@ -1,7 +1,7 @@
-import { AstNodeVisitorInterface } from "../astNodeVisitorInterface";
+import { AstNodeVisitorInterface } from "../../common/nodeVisitorInterface";
 import { VisitableAbstractNode } from "./VisitableAbstractNode";
 import { StatementList } from "./StatementList";
-import { NodePositionStub } from "../../../common/NodePosition";
+import { NodePositionStub } from "../../common/NodePosition";
 
 export class Block extends VisitableAbstractNode {
     public statementList: StatementList

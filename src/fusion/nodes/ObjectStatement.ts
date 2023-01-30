@@ -1,11 +1,11 @@
 import { Block } from "./Block";
-import { AstNodeVisitorInterface } from "../astNodeVisitorInterface";
+import { AstNodeVisitorInterface } from "../../common/nodeVisitorInterface";
 import { AbstractStatement } from "./AbstractStatement";
 import { ObjectPath } from "./ObjectPath";
 import { ValueCopy } from "./ValueCopy";
 import { ValueAssignment } from "./ValueAssignment";
 import { ValueUnset } from "./ValueUnset";
-import { NodePosition, NodePositionStub } from "../../../common/NodePosition";
+import { NodePosition, NodePositionStub } from "../../common/NodePosition";
 
 export class ObjectStatement extends AbstractStatement {
     public path: ObjectPath

@@ -1,5 +1,5 @@
-import { NodePositionStub } from "../../../common/NodePosition";
-import { AstNodeVisitorInterface } from "../astNodeVisitorInterface";
+import { NodePositionStub } from "../../common/NodePosition";
+import { AstNodeVisitorInterface } from "../../common/nodeVisitorInterface";
 import { AbstractOperation } from "./AbstractOperation";
 import { AssignedObjectPath } from "./AssignedObjectPath";
 

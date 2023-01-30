@@ -75,14 +75,6 @@ export class Token {
         return this.value;
     }
 
-    /**
-     * Returns the constant representation of a given type.
-     *
-     * @param {number} type The type as an integer
-     *
-     * @return string The string representation
-     * @throws \LogicException
-     */
     public static typeToString(type: number): string {
         const stringRepresentation = Token.getConstants()[type]
 

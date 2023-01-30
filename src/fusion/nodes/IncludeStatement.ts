@@ -1,6 +1,6 @@
-import { AstNodeVisitorInterface } from "../astNodeVisitorInterface";
+import { AstNodeVisitorInterface } from "../../common/nodeVisitorInterface";
 import { AbstractStatement } from "./AbstractStatement";
-import { NodePosition, NodePositionStub } from "../../../common/NodePosition";
+import { NodePosition, NodePositionStub } from "../../common/NodePosition";
 
 export class IncludeStatement extends AbstractStatement
 {

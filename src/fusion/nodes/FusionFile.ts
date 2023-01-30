@@ -1,8 +1,8 @@
 
 import { VisitableAbstractNode } from "./VisitableAbstractNode";
 import { StatementList } from "./StatementList"
-import { AbstractNode } from "../../../common/AbstractNode";
-import { NodePositionStub } from "../../../common/NodePosition";
+import { AbstractNode } from "../../common/AbstractNode";
+import { NodePositionStub } from "../../common/NodePosition";
 
 type AstNodeVisitorInterface = any
 

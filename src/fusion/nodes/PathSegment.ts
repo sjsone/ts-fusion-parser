@@ -1,6 +1,6 @@
-import { AstNodeVisitorInterface } from "../astNodeVisitorInterface";
+import { AstNodeVisitorInterface } from "../../common/nodeVisitorInterface";
 import { AbstractPathSegment } from "./AbstractPathSegment";
-import { NodePosition, NodePositionStub } from "../../../common/NodePosition";
+import { NodePosition, NodePositionStub } from "../../common/NodePosition";
 
 
 export class PathSegment extends AbstractPathSegment {

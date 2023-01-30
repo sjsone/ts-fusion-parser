@@ -3,7 +3,7 @@ import { TagNode } from './dsl/afx/nodes/TagNode'
 import { ObjectFunctionPathNode } from './dsl/eel/nodes/ObjectFunctionPathNode'
 import { ObjectNode } from './dsl/eel/nodes/ObjectNode'
 import { ObjectPathNode } from './dsl/eel/nodes/ObjectPathNode'
-import { PathSegment } from './fusion/objectTreeParser/ast/PathSegment'
+import { PathSegment } from './fusion/nodes/PathSegment'
 import { ObjectTreeParser } from "./lib"
 
 const fusion = `

@@ -1,7 +1,7 @@
-import { AbstractNode } from "../../../common/AbstractNode";
-import { AstNodeVisitorInterface } from "../astNodeVisitorInterface";
+import { AbstractNode } from "../../common/AbstractNode";
+import { AstNodeVisitorInterface } from "../../common/nodeVisitorInterface";
 import { AbstractPathValue } from "./AbstractPathValue";
-import { NodePosition, NodePositionStub } from "../../../common/NodePosition";
+import { NodePosition, NodePositionStub } from "../../common/NodePosition";
 
 export class EelExpressionValue extends AbstractPathValue {
     public value = ""

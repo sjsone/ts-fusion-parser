@@ -1,9 +1,9 @@
 
 
 
-import { AstNodeVisitorInterface } from "../astNodeVisitorInterface";
+import { AstNodeVisitorInterface } from "../../common/nodeVisitorInterface";
 import { AbstractPathValue } from "./AbstractPathValue";
-import { NodePosition, NodePositionStub } from "../../../common/NodePosition";
+import { NodePosition, NodePositionStub } from "../../common/NodePosition";
 
 export class FusionObjectValue extends AbstractPathValue {
     public value: string

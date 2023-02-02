@@ -11,4 +11,8 @@ export class LiteralStringNode extends AbstractLiteralNode<string> {
         super(value, position, parent)
         this.quotationType = quotationType
     }
+
+    public toString(intend?: number | undefined): string {
+        return this.quotationType + this.value + this.quotationType
+    }
 }

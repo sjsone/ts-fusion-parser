@@ -9,7 +9,7 @@
     },
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "prepublishOnly": "rm -rf out && tsc",
+        "prepublishOnly": "git rev-parse --abbrev-ref HEAD | grep -q 'main' && rm -rf out && tsc",
         "watch-ts": "tsc --watch",
         "watch-src": "nodemon out/main.js",
         "watch-afx": "nodemon out/afx.js",

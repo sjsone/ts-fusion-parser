@@ -36,17 +36,11 @@ const html = `
 `
 
 const afx = `
-    <div>
-        <div data-list={props.list} >
-            <!-- @fusion-ignore -->
-            test {props.text}    {asdf.lkjh.asdf}
-
-            <!-- 
-                @fusion-ignore 
-                
-            -->
-        </div>
-    </div>
+<div>
+<!--
+<a />
+-->
+</div>
 `
 
 const notWorking = `

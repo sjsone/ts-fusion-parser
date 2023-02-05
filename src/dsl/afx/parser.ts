@@ -101,7 +101,7 @@ export class Parser implements ParserInterface {
                     break
                 case this.lexer.lookAhead(CommentToken):
                     const comment = this.parseComment()
-                    if(comment) elements.push(comment)
+                    if (comment) elements.push(comment)
                     break;
                 default:
                     return elements
@@ -111,8 +111,7 @@ export class Parser implements ParserInterface {
     }
 
     parseComment() {
-        const commentValueRegex = /^<!-- ?([\w\W]*?) ?-->$/gm
-
+        const commentValueRegex = /^<!--([\w\W]*?)-->$/gm
         const token = this.lexer.consume(CommentToken)
         const commentValueRegexResult = commentValueRegex.exec(token.value)
         if (commentValueRegexResult) {

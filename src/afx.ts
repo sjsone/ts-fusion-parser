@@ -40,6 +40,7 @@ const afx = `
 <!--
 <a />
 -->
+<test-a />
 </div>
 `
 

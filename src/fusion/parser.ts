@@ -28,6 +28,7 @@ import { NodePosition, NodePositionStub } from '../common/NodePosition';
 import { AbstractNode } from '../common/AbstractNode';
 import { Parser as EelParser } from '../dsl/eel/parser';
 import { Lexer as EelLexer } from '../dsl/eel/lexer';
+import { Comment } from '../common/Comment';
 
 
 const stripslashes = (str: string) => str.replace('\\', '')
@@ -122,11 +123,14 @@ export class ObjectTreeParser {
             switch (true) {
                 case this.accept(Token.SPACE):
                 case this.accept(Token.NEWLINE):
+                    this.consume();
+                    break;
                 case this.accept(Token.SLASH_COMMENT):
                 case this.accept(Token.HASH_COMMENT):
                 case this.accept(Token.MULTILINE_COMMENT):
-                    this.consume();
+                    this.parseComment();
                     break;
+
 
                 default:
                     return;
@@ -142,15 +146,44 @@ export class ObjectTreeParser {
         while (true) {
             switch (true) {
                 case this.accept(Token.SPACE):
+                    this.consume();
+                    break;
                 case this.accept(Token.SLASH_COMMENT):
                 case this.accept(Token.HASH_COMMENT):
-                    // case this.accept(Token.MULTILINE_COMMENT):
-                    this.consume();
+                    this.parseComment();
                     break;
 
                 default:
                     return;
             }
+        }
+    }
+
+    protected parseComment() {
+        let type: number | undefined = undefined
+        let prefix: string | undefined = undefined
+        switch (true) {
+            case this.accept(Token.SLASH_COMMENT):
+                type = type ?? Token.SLASH_COMMENT
+                prefix = prefix ?? "//"
+
+            case this.accept(Token.HASH_COMMENT):
+                type = type ?? Token.HASH_COMMENT
+                prefix = prefix ?? "#"
+
+            case this.accept(Token.MULTILINE_COMMENT):
+                type = type ?? Token.MULTILINE_COMMENT
+                prefix = prefix ?? "/*"
+
+                const position = this.createPosition()
+                const rawComment = this.consume().getValue();
+
+                position.begin -= rawComment.length
+
+                this.addNodeToNodesByType(new Comment(rawComment.replace(prefix, ""), type === Token.MULTILINE_COMMENT, prefix, this.endPosition(position)))
+                break;
+            default:
+                throw new Error('Expected Comment')
         }
     }
 

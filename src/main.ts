@@ -1,4 +1,5 @@
 import NodeFs from 'fs'
+import { Comment } from './common/Comment'
 import { TagNode } from './dsl/afx/nodes/TagNode'
 import { ObjectFunctionPathNode } from './dsl/eel/nodes/ObjectFunctionPathNode'
 import { ObjectNode } from './dsl/eel/nodes/ObjectNode'
@@ -8,10 +9,12 @@ import { ObjectTreeParser } from "./lib"
 
 const fusion = `
 prototype(Test.Tset:Component) { 
+    // @fusion-ignore
     test = Neos.Fusion:DataStructure {
         a
     }
     renderer = afx\`
+        <!--  @fusion-ignore -->
  		<div></div>
         <div>
     \`
@@ -36,6 +39,6 @@ console.info('Execution time: %ds %dms', timeEnd[0], timeEnd[1] / 1000000)
 //     console.log("substring", substring)
 // }
 
-for(const test of <PathSegment[]><unknown>(objectTree.nodesByType.get(PathSegment)!)) {
+for(const test of <Comment[]><unknown>(objectTree.nodesByType.get(Comment)!)) {
     console.log(test)
 }

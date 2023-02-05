@@ -11,6 +11,7 @@ import { Parser as EelParser } from '../eel/parser'
 import { Lexer as EelLexer } from '../eel/lexer'
 import { TagSpreadEelAttributeNode } from "./nodes/TagSpreadEelAttributeNode";
 import { InlineEelNode } from "./nodes/InlineEelNode";
+import { Comment } from "../../common/Comment";
 
 export class Parser implements ParserInterface {
     protected lexer: Lexer
@@ -99,7 +100,8 @@ export class Parser implements ParserInterface {
                     elements.push(this.parseTag(parent))
                     break
                 case this.lexer.lookAhead(CommentToken):
-                    this.parseComment()
+                    const comment = this.parseComment()
+                    if(comment) elements.push(comment)
                     break;
                 default:
                     return elements
@@ -109,7 +111,16 @@ export class Parser implements ParserInterface {
     }
 
     parseComment() {
-        this.lexer.consume(CommentToken)
+        const commentValueRegex = /^<!-- ?([\w\W]*?) ?-->$/gm
+
+        const token = this.lexer.consume(CommentToken)
+        const commentValueRegexResult = commentValueRegex.exec(token.value)
+        if (commentValueRegexResult) {
+            const comment = new Comment(commentValueRegexResult[1], token.value.includes("\n"), '<!--', this.applyOffset(token.position))
+            this.addNodeToNodesByType(comment)
+            return comment
+        }
+        return undefined
     }
 
     parseTag(parent: AbstractNode | undefined = undefined) {
@@ -161,7 +172,7 @@ export class Parser implements ParserInterface {
 
         const isScript = nameNode.toString() === "script"
 
-        const content: Array<TagNode | TextNode> = isScript ? [this.parseJavascript()] : this.parseTextsOrTags()
+        const content: Array<TagNode | TextNode | Comment> = isScript ? [this.parseJavascript()] : this.parseTextsOrTags()
         this.parseLazyWhitespace()
 
         if (this.lexer.isEOF()) {

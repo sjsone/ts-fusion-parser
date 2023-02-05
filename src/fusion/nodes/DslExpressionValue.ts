@@ -10,11 +10,12 @@ import { Parser } from "../../dsl/afx/parser";
 import { AstNodeVisitorInterface } from "../../common/nodeVisitorInterface";
 import { AbstractPathValue } from "./AbstractPathValue";
 import { NodePosition, NodePositionStub } from "../../common/NodePosition";
+import { Comment } from "../../common/Comment";
 
 export class DslExpressionValue extends AbstractPathValue {
     public identifier: string
     public code: string
-    public htmlNodes: Array<TextNode | TagNode> = []
+    public htmlNodes: Array<TextNode | TagNode | Comment> = []
 
     public constructor(identifier: string, code: string, position: NodePosition) {
         super(NodePositionStub)

@@ -118,7 +118,8 @@ export class ObjectTreeParser {
      * OptionalBigGap
      *  = ( NEWLINE / OptionalSmallGap )*
      */
-    protected lazyBigGap(): Comment | undefined {
+    protected lazyBigGap(): Comment[] {
+        const comments = []
         while (true) {
             switch (true) {
                 case this.accept(Token.SPACE):
@@ -128,9 +129,10 @@ export class ObjectTreeParser {
                 case this.accept(Token.SLASH_COMMENT):
                 case this.accept(Token.HASH_COMMENT):
                 case this.accept(Token.MULTILINE_COMMENT):
-                    return this.parseComment();
+                    comments.push(this.parseComment())
+                    break;
                 default:
-                    return;
+                    return comments;
             }
         }
     }
@@ -221,8 +223,7 @@ export class ObjectTreeParser {
     protected parseStatementList(stopLookahead: number | null = null, debugName: string = ""): StatementList {
         const statements = [];
         const comments = []
-        let comment = this.lazyBigGap()
-        if (comment) comments.push(comment)
+        comments.push(...this.lazyBigGap())
 
         while (this.accept(Token.EOF) === false && (stopLookahead === null || this.accept(stopLookahead) === false)) {
             let statement
@@ -230,8 +231,7 @@ export class ObjectTreeParser {
                 statement = this.parseStatement()
                 this.addNodeToNodesByType(statement)
                 statements.push(statement)
-                comment = this.lazyBigGap()
-                if (comment) comments.push(comment)
+                comments.push(...this.lazyBigGap())
             } catch (e) {
                 if (!this.ignoreErrors) {
                     throw e

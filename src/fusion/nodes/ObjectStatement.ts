@@ -1,5 +1,5 @@
 import { Block } from "./Block";
-import { AstNodeVisitorInterface } from "../../common/nodeVisitorInterface";
+import { FusionNodeVisitorInterface } from "../FusionNodeVisitorInterface";
 import { AbstractStatement } from "./AbstractStatement";
 import { ObjectPath } from "./ObjectPath";
 import { ValueCopy } from "./ValueCopy";
@@ -29,7 +29,7 @@ export class ObjectStatement extends AbstractStatement {
         this.position = position
     }
 
-    public visit(visitor: AstNodeVisitorInterface, ...args: any[]) {
+    public visit(visitor: FusionNodeVisitorInterface, ...args: any[]) {
         return visitor.visitObjectStatement(this, args.shift())
     }
 }

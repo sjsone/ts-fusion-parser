@@ -1,49 +1,55 @@
 prototype(WebExcess.OpenStreetMap:Map.Component) < prototype(Neos.Fusion:Component) {
+    test = null
+    // pathsWithoutChain = ${
+    //     PropTypes.dataStructure({
+    //         'Inline': PropTypes.dataStructure({
+    //             'CSS': PropTypes.string,
+    //             'JS': PropTypes.string,
+    //             'MJS': PropTypes.string,
+    //             'HTML': PropTypes.string
+    //         }),
+    //         'File': PropTypes.dataStructure({
+    //             'CSS': PropTypes.string,
+    //             'JS': PropTypes.string,
+    //             'MJS': PropTypes.string,
+    //             'PRELOADASSET': PropTypes.string,
+    //             'PRELOADCSS': PropTypes.string,
+    //             'PRELOADSCRIPT': PropTypes.string,
+    //             'MODULEPRELOAD': PropTypes.string
+    //         })
+    //     })
+    // }
 
-    pathsWithoutChain = ${
-        PropTypes.dataStructure({
-            'Inline': PropTypes.dataStructure({
-                'CSS': PropTypes.string,
-                'JS': PropTypes.string,
-                'MJS': PropTypes.string,
-                'HTML': PropTypes.string
-            }),
-            'File': PropTypes.dataStructure({
-                'CSS': PropTypes.string,
-                'JS': PropTypes.string,
-                'MJS': PropTypes.string,
-                'PRELOADASSET': PropTypes.string,
-                'PRELOADCSS': PropTypes.string,
-                'PRELOADSCRIPT': PropTypes.string,
-                'MODULEPRELOAD': PropTypes.string
-            })
-        })
+    prototype(WebExcess.OpenStreetMap:Test) {
+        asdf = "asdf"
     }
 
-    pathsWithChain = ${
-        PropTypes.dataStructure({
-            'Inline': PropTypes.dataStructure({
-                'CSS': PropTypes.string,
-                'JS': PropTypes.string,
-                'MJS': PropTypes.string,
-                'HTML': PropTypes.string
-            }),
-            'File': PropTypes.dataStructure({
-                'CSS': PropTypes.string,
-                'JS': PropTypes.string,
-                'MJS': PropTypes.string,
-                'PRELOADASSET': PropTypes.string,
-                'PRELOADCSS': PropTypes.string,
-                'PRELOADSCRIPT': PropTypes.string,
-                'MODULEPRELOAD': PropTypes.string
-            })
-        }).isRequired
-    }
+    // pathsWithChain = ${
+    //     PropTypes.dataStructure({
+    //         'Inline': PropTypes.dataStructure({
+    //             'CSS': PropTypes.string,
+    //             'JS': PropTypes.string,
+    //             'MJS': PropTypes.string,
+    //             'HTML': PropTypes.string
+    //         }),
+    //         'File': PropTypes.dataStructure({
+    //             'CSS': PropTypes.string,
+    //             'JS': PropTypes.string,
+    //             'MJS': PropTypes.string,
+    //             'PRELOADASSET': PropTypes.string,
+    //             'PRELOADCSS': PropTypes.string,
+    //             'PRELOADSCRIPT': PropTypes.string,
+    //             'MODULEPRELOAD': PropTypes.string
+    //         })
+    //     }).isRequired
+    // }
 
 
-    descriptionTemplateOptions = null
 
-    fieldNames = 'job'
+    @context.test = ${""}
+
+
+    tzu = sasdf
 
     asdf = Template {
         path = "asdfasdf"
@@ -60,5 +66,6 @@ prototype(WebExcess.OpenStreetMap:Map.Component) < prototype(Neos.Fusion:Compone
         </svg>
     '}
 
+    renderer = "asdf"
     
 }

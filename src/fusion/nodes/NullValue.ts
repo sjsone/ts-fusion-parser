@@ -1,9 +1,9 @@
-import { AstNodeVisitorInterface } from "../../common/nodeVisitorInterface";
+import { FusionNodeVisitorInterface } from "../FusionNodeVisitorInterface";
 import { AbstractPathValue } from "./AbstractPathValue";
 
 export class NullValue extends AbstractPathValue {
     
-    public visit(visitor: AstNodeVisitorInterface) {
+    public visit(visitor: FusionNodeVisitorInterface) {
         return visitor.visitNullValue(this);
     }
 }

@@ -1,4 +1,4 @@
-import { AstNodeVisitorInterface } from "../../common/nodeVisitorInterface";
+import { FusionNodeVisitorInterface } from "../FusionNodeVisitorInterface";
 import { VisitableAbstractNode } from "./VisitableAbstractNode";
 import { AbstractPathSegment } from "./AbstractPathSegment";
 import { NodePosition, NodePositionStub } from "../../common/NodePosition";
@@ -16,7 +16,7 @@ export class ObjectPath extends VisitableAbstractNode {
         }
     }
 
-    public visit(visitor: AstNodeVisitorInterface, currentPathPrefix: string[]) {
+    public visit(visitor: FusionNodeVisitorInterface, currentPathPrefix: string[]) {
         return visitor.visitObjectPath(this, currentPathPrefix)
     }
 

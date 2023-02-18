@@ -1,5 +1,8 @@
+import { EelFormatter } from "./dsl/eel/EelFormatter"
 import { Lexer } from "./dsl/eel/lexer"
 import { Parser } from "./dsl/eel/parser"
+
+console.clear()
 
 const tests: { [key: string]: string } = {
     SingleLineString: `"test{(asdf)}"`,
@@ -62,7 +65,6 @@ const tests: { [key: string]: string } = {
     
 }
 
-
 const runAllTests = () => {
     const failedTests: { name: string, text: string, error: Error }[] = []
     for (const name in tests) {
@@ -82,9 +84,12 @@ const runAllTests = () => {
 
 }
 // runAllTests()
+
 const eelTest = tests.OffsetAccess
 console.log(eelTest)
 const lexer = new Lexer(eelTest)
 const parser = new Parser(lexer)
-const result = parser.parse()   
-console.log(result.toString())
+const result = parser.parse()  
+
+const eelFormatter = new EelFormatter()
+console.log(eelFormatter.visitAbstractNode(result))

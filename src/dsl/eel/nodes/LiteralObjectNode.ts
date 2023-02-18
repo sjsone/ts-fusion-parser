@@ -8,9 +8,9 @@ export class LiteralObjectNode extends AbstractNode {
     public constructor(entries: LiteralObjectEntryNode[], position: NodePositionInterface, parent: AbstractNode | undefined = undefined) {
         super(position, parent)
         this.entries = entries
-        for(const entry of this.entries) {
+        for (const entry of this.entries) {
             entry["parent"] = this
-        } 
+        }
     }
 
     public toString(intend?: number): string {

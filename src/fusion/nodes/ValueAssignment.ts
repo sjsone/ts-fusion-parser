@@ -1,4 +1,4 @@
-import { AstNodeVisitorInterface } from "../../common/nodeVisitorInterface";
+import { FusionNodeVisitorInterface } from "../FusionNodeVisitorInterface";
 import { AbstractOperation } from "./AbstractOperation";
 import { AbstractPathValue } from "./AbstractPathValue";
 import { NodePosition, NodePositionStub } from "../../common/NodePosition";
@@ -14,7 +14,7 @@ export class ValueAssignment extends AbstractOperation {
     }
     
 
-    public visit(visitor: AstNodeVisitorInterface, currentPath: string[]) {
+    public visit(visitor: FusionNodeVisitorInterface, currentPath: string[]) {
         return visitor.visitValueAssignment(this, currentPath);
     }
 }

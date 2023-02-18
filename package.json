@@ -4,17 +4,21 @@
     "description": "Parser for Neos Fusion Files",
     "dependencies": {},
     "devDependencies": {
-        "@types/node": "^17.0.31",
-        "typescript": "^4.6.4"
+        "@types/node": "^18.13.0",
+        "esbuild": "^0.17.7",
+        "typescript": "^4.9.5"
     },
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "prepublishOnly": "git rev-parse --abbrev-ref HEAD | grep -q 'main' && rm -rf out && tsc",
         "watch-ts": "tsc --watch",
-        "watch-src": "nodemon out/main.js",
-        "watch-afx": "nodemon out/afx.js",
-        "watch-eel": "nodemon out/eel.js",
-        "version-patch": "npm version patch && git push --tags && git push --all"
+        "watch-src": "watchexec -c -w src/ -e ts yarn run esbuild-main",
+        "watch-afx": "watchexec -c -w src/ -e ts yarn run esbuild-afx",
+        "watch-eel": "watchexec -c -w src/ -e ts yarn run esbuild-eel",
+        "version-patch": "npm version patch && git push --tags && git push --all",
+        "esbuild-main": "esbuild ./src/main.ts --bundle --outfile=out/main.js --format=cjs --platform=node --keep-names && node out/main.js",
+        "esbuild-afx": "esbuild ./src/afx.ts --bundle --outfile=out/afx.js --format=cjs --platform=node --keep-names && node out/afx.js",
+        "esbuild-eel": "esbuild ./src/eel.ts --bundle --outfile=out/eel.js --format=cjs --platform=node --keep-names && node out/eel.js"
     },
     "main": "out/lib.js",
     "author": "Simon Schmidt",

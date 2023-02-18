@@ -1,4 +1,4 @@
-import { AstNodeVisitorInterface } from "../../common/nodeVisitorInterface";
+import { FusionNodeVisitorInterface } from "../FusionNodeVisitorInterface";
 import { VisitableAbstractNode } from "./VisitableAbstractNode";
 import { StatementList } from "./StatementList";
 import { NodePositionStub } from "../../common/NodePosition";
@@ -12,7 +12,7 @@ export class Block extends VisitableAbstractNode {
         this.statementList["parent"] = this
     }
 
-    public visit(visitor: AstNodeVisitorInterface, ...args: any[]) {
+    public visit(visitor: FusionNodeVisitorInterface, ...args: any[]) {
         return visitor.visitBlock(this, args.shift());
     }
 }

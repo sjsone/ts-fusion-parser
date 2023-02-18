@@ -1,5 +1,5 @@
 import { NodePositionStub } from "../../common/NodePosition";
-import { AstNodeVisitorInterface } from "../../common/nodeVisitorInterface";
+import { FusionNodeVisitorInterface } from "../FusionNodeVisitorInterface";
 import { AbstractOperation } from "./AbstractOperation";
 import { AssignedObjectPath } from "./AssignedObjectPath";
 
@@ -12,7 +12,7 @@ export class ValueCopy extends AbstractOperation {
         this.assignedObjectPath["parent"] = this
     }
 
-    public visit(visitor: AstNodeVisitorInterface, ...args: any[]) {
+    public visit(visitor: FusionNodeVisitorInterface, ...args: any[]) {
         return visitor.visitValueCopy(this);
     }
 }

@@ -5,7 +5,7 @@ import { AbstractStatement } from './AbstractStatement'
 import { NodePositionStub } from "../../common/NodePosition";
 import { Comment } from "../../common/Comment";
 
-type AstNodeVisitorInterface = any
+type FusionNodeVisitorInterface = any
 
 export class StatementList extends VisitableAbstractNode {
     public statements: AbstractStatement[] = [];
@@ -29,7 +29,7 @@ export class StatementList extends VisitableAbstractNode {
         return this.statements.map(statement => statement.toString(intend + 1)).join("\n")
     }
 
-    public visit(visitor: AstNodeVisitorInterface) {
+    public visit(visitor: FusionNodeVisitorInterface) {
         return visitor.visitStatementList(this)
     }
 }

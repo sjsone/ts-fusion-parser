@@ -7,7 +7,7 @@ import { Lexer } from "../../dsl/afx/lexer";
 import { TagNode } from "../../dsl/afx/nodes/TagNode";
 import { TextNode } from "../../dsl/afx/nodes/TextNode";
 import { Parser } from "../../dsl/afx/parser";
-import { AstNodeVisitorInterface } from "../../common/nodeVisitorInterface";
+import { FusionNodeVisitorInterface } from "../FusionNodeVisitorInterface";
 import { AbstractPathValue } from "./AbstractPathValue";
 import { NodePosition, NodePositionStub } from "../../common/NodePosition";
 import { Comment } from "../../common/Comment";
@@ -34,7 +34,7 @@ export class DslExpressionValue extends AbstractPathValue {
         return parser.nodesByType
     }
 
-    public visit(visitor: AstNodeVisitorInterface, ...args: any[]) {
+    public visit(visitor: FusionNodeVisitorInterface, ...args: any[]) {
         return visitor.visitDslExpressionValue(this, args.shift());
     }
 }

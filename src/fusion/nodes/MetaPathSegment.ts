@@ -4,7 +4,7 @@
 
 
 
-import { AstNodeVisitorInterface } from "../../common/nodeVisitorInterface";
+import { FusionNodeVisitorInterface } from "../FusionNodeVisitorInterface";
 import { AbstractPathSegment } from "./AbstractPathSegment";
 import { NodePosition, NodePositionStub } from "../../common/NodePosition";
 
@@ -16,7 +16,7 @@ export class MetaPathSegment extends AbstractPathSegment {
         this.position = position
     }
 
-    public visit(visitor: AstNodeVisitorInterface) {
+    public visit(visitor: FusionNodeVisitorInterface) {
         return visitor.visitMetaPathSegment(this);
     }
 }

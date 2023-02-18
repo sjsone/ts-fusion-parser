@@ -2,7 +2,7 @@
 
 
 import { NodePositionStub } from "../../common/NodePosition";
-import { AstNodeVisitorInterface } from "../../common/nodeVisitorInterface";
+import { FusionNodeVisitorInterface } from "../FusionNodeVisitorInterface";
 import { AbstractPathValue } from "./AbstractPathValue";
 
 export class SimpleValue extends AbstractPathValue {
@@ -12,7 +12,7 @@ export class SimpleValue extends AbstractPathValue {
         this.value = value
     }
 
-    public visit(visitor: AstNodeVisitorInterface) {
+    public visit(visitor: FusionNodeVisitorInterface) {
         return visitor.visitSimpleValue(this);
     }
 }

@@ -4,7 +4,7 @@ import { StatementList } from "./StatementList"
 import { AbstractNode } from "../../common/AbstractNode";
 import { NodePositionStub } from "../../common/NodePosition";
 
-type AstNodeVisitorInterface = any
+type FusionNodeVisitorInterface = any
 
 export class FusionFile extends VisitableAbstractNode {
     public statementList: StatementList
@@ -20,7 +20,7 @@ export class FusionFile extends VisitableAbstractNode {
         this.contextPathAndFileName = contextPathAndFileName
     }
 
-    public visit(visitor: AstNodeVisitorInterface) {
+    public visit(visitor: FusionNodeVisitorInterface) {
         return visitor.visitFusionFile(this)
     }
 

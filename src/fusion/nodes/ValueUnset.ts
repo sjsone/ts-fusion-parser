@@ -1,11 +1,11 @@
-import type { AstNodeVisitorInterface } from "../../common/nodeVisitorInterface";
+import type { FusionNodeVisitorInterface } from "../FusionNodeVisitorInterface";
 import { AbstractOperation } from "./AbstractOperation";
 
 
 export class ValueUnset extends AbstractOperation
 
 {
-    public visit(visitor: AstNodeVisitorInterface)
+    public visit(visitor: FusionNodeVisitorInterface)
     {
         return visitor.visitValueUnset(this);
     }

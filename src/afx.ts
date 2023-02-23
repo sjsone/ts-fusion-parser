@@ -48,11 +48,16 @@ const notWorking = `
 
 <div class="asdf" {...props.testClass}>
 before
-{props.text}
+{props.}
 after
 </div>
 <div>
 `
-const parser = new Parser(new Lexer(afx))
-let nodes: any = parser.parse(true)
+const parser = new Parser(new Lexer(notWorking), undefined, {
+    allowUnclosedTags: true,
+    eelParserOptions: {
+        allowIncompleteObjectPaths: true
+    }
+})
+let nodes: any = parser.parse()
 console.log(nodes.map((node: AbstractNode) => node.toString()).join("\n"))

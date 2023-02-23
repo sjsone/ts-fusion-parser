@@ -26,13 +26,20 @@ import { Lexer } from './lexer'
 import { Token } from './token';
 import { NodePosition, NodePositionStub } from '../common/NodePosition';
 import { AbstractNode } from '../common/AbstractNode';
-import { Parser as EelParser } from '../dsl/eel/parser';
+import { EelParserOptions, Parser as EelParser } from '../dsl/eel/parser';
 import { Lexer as EelLexer } from '../dsl/eel/lexer';
 import { Comment } from '../common/Comment';
+import { AfxParserOptions } from '../dsl/afx/parser';
 
 
 const stripslashes = (str: string) => str.replace('\\', '')
 const stripcslashes = stripslashes // TODO: stripcslashes = stripslashes = uff
+
+export interface FusionParserOptions {
+    ignoreErrors: boolean
+    afxParserOptions?: AfxParserOptions,
+    eelParserOptions?: EelParserOptions
+}
 
 export class ObjectTreeParser {
     protected lexer: Lexer;
@@ -41,18 +48,21 @@ export class ObjectTreeParser {
 
     protected nodesByType: Map<typeof AbstractNode, AbstractNode[]> = new Map()
 
-    protected ignoreErrors: boolean
     protected ignoredErrors: Error[] = []
 
-    protected constructor(lexer: Lexer, contextPathAndFilename: string | undefined, ignoreErrors: boolean = false) {
-        this.lexer = lexer;
-        this.contextPathAndFilename = contextPathAndFilename;
-        this.ignoreErrors = ignoreErrors
+    protected options: FusionParserOptions = {
+        ignoreErrors: false
     }
 
-    public static parse(sourceCode: string, contextPathAndFilename: string | undefined = undefined, ignoreErrors: boolean = false) {
+    protected constructor(lexer: Lexer, contextPathAndFilename: string | undefined, options?: FusionParserOptions) {
+        this.lexer = lexer;
+        this.contextPathAndFilename = contextPathAndFilename;
+        if (options) this.options = options
+    }
+
+    public static parse(sourceCode: string, contextPathAndFilename: string | undefined = undefined, options?: FusionParserOptions) {
         const lexer = new Lexer(sourceCode);
-        const parser = new ObjectTreeParser(lexer, contextPathAndFilename, ignoreErrors);
+        const parser = new ObjectTreeParser(lexer, contextPathAndFilename, options);
         return parser.parseFusionFile();
     }
 
@@ -233,7 +243,7 @@ export class ObjectTreeParser {
                 statements.push(statement)
                 comments.push(...this.lazyBigGap())
             } catch (e) {
-                if (!this.ignoreErrors) {
+                if (!this.options.ignoreErrors) {
                     throw e
                 } else {
                     this.ignoredErrors.push(<Error>e)
@@ -262,8 +272,8 @@ export class ObjectTreeParser {
                 return this.parseObjectStatement();
         }
 
-        if (!this.ignoreErrors) console.log("parseStatement")
-        if (!this.ignoreErrors) this.lexer.debug()
+        if (!this.options.ignoreErrors) console.log("parseStatement")
+        if (!this.options.ignoreErrors) this.lexer.debug()
         throw Error("Error while parsing statement")
     }
 
@@ -327,7 +337,7 @@ export class ObjectTreeParser {
             return new ObjectStatement(currentPath, operation, block, cursorAfterObjectPath, this.endPosition(position));
         }
         if (operation === null) {
-            if (this.ignoreErrors) {
+            if (this.options.ignoreErrors) {
                 const newPosition = {
                     begin: this.lexer.getCursor(),
                     end: this.lexer.getCursor()
@@ -476,7 +486,7 @@ export class ObjectTreeParser {
                 const eelExpressionValue = new EelExpressionValue();
                 this.consume()
                 const eelLexer = new EelLexer(this.lexer.getRemainingCode())
-                const eelParser = new EelParser(eelLexer, this.lexer.getCursor())
+                const eelParser = new EelParser(eelLexer, this.lexer.getCursor(), this.options.eelParserOptions)
                 const eelNodes = eelParser.parse()
 
                 eelNodes["parent"] = <any>eelExpressionValue
@@ -497,8 +507,8 @@ export class ObjectTreeParser {
 
         }
 
-        if (!this.ignoreErrors) console.log("parsePathValue")
-        if (!this.ignoreErrors) this.lexer.debug()
+        if (!this.options.ignoreErrors) console.log("parsePathValue")
+        if (!this.options.ignoreErrors) this.lexer.debug()
 
         throw Error("Could not parse value")
         // throw this.prepareParserException(new ParserException())
@@ -519,14 +529,14 @@ export class ObjectTreeParser {
         try {
             dslCode = this.expect(Token.DSL_EXPRESSION_CONTENT).getValue();
         } catch (error) {
-            if (this.ignoreErrors) {
+            if (this.options.ignoreErrors) {
                 this.ignoredErrors.push(<Error>error)
             } else {
                 throw error
             }
         }
         dslCode = dslCode.substring(1, dslCode.length - 1);
-        const dslExpression = new DslExpressionValue(dslIdentifier, dslCode, this.endPosition(position));
+        const dslExpression = new DslExpressionValue(dslIdentifier, dslCode, this.endPosition(position), this.options.afxParserOptions);
         const nodesByType = dslExpression.parse()
 
         for (const [type, nodes] of nodesByType.entries()) {
@@ -582,7 +592,7 @@ export class ObjectTreeParser {
         try {
             this.expect(Token.RBRACE);
         } catch (error) {
-            if (this.ignoreErrors) {
+            if (this.options.ignoreErrors) {
                 this.ignoredErrors.push(<Error>error)
             } else {
                 throw error
@@ -607,8 +617,8 @@ export class ObjectTreeParser {
             return;
         }
 
-        if (!this.ignoreErrors) console.log("parseEndOfStatement")
-        if (!this.ignoreErrors) this.lexer.debug()
+        if (!this.options.ignoreErrors) console.log("parseEndOfStatement")
+        if (!this.options.ignoreErrors) this.lexer.debug()
         throw Error("parsed EOF from: " + debugFrom)
         // throw this.prepareParserException(new ParserException())
         //     .setCode(1635878683)

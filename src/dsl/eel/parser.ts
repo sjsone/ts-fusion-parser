@@ -22,6 +22,11 @@ import { LiteralBooleanNode } from "./nodes/LiteralBooleanNode";
 import { LiteralNullNode } from "./nodes/LiteralNullNode";
 import { CallbackNode } from "./nodes/CallbackNode";
 import { EmptyEelNode } from "./nodes/EmptyEelNode";
+import { IncompleteObjectPathError } from "../errors/IncompleteObjectPathError";
+
+export interface EelParserOptions {
+    allowIncompleteObjectPaths: boolean
+}
 
 export class Parser implements ParserInterface {
     protected lexer: Lexer
@@ -29,9 +34,14 @@ export class Parser implements ParserInterface {
 
     public positionOffset: number
 
-    constructor(lexer: Lexer, positionOffset: number = 0) {
+    protected options: EelParserOptions = {
+        allowIncompleteObjectPaths: false
+    }
+
+    constructor(lexer: Lexer, positionOffset: number = 0, options?: EelParserOptions) {
         this.lexer = lexer
         this.positionOffset = positionOffset
+        if (options) this.options = options
     }
 
     setPositionOffset(positionOffset: number) {
@@ -204,7 +214,12 @@ export class Parser implements ParserInterface {
         this.addNodeToNodesByType(rootPart)
         const parts = [rootPart]
         while (this.lexer.lazyConsume(DotToken)) {
-            parts.push(this.addNodeToNodesByType(this.parseObjectExpressionPart()))
+            try {
+                parts.push(this.addNodeToNodesByType(this.parseObjectExpressionPart()))
+            } catch (error) {
+                if (!(error instanceof IncompleteObjectPathError && this.options.allowIncompleteObjectPaths)) throw error
+                continue
+            }
         }
         return this.addNodeToNodesByType(new ObjectNode(parts, this.endPosition(position), parent))
     }
@@ -215,10 +230,9 @@ export class Parser implements ParserInterface {
                 return this.parseObjectFunctionExpressionPart()
             case this.lexer.lookAhead(ObjectPathPartToken):
                 return this.parseObjectPath()
-
         }
         this.lexer.debug()
-        throw new Error("parseObjectExpressionPart")
+        throw new IncompleteObjectPathError("parseObjectExpressionPart: " + this.lexer.getRemainingText())
     }
 
     protected parseObjectFunctionExpressionPart() {

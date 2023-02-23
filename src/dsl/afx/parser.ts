@@ -7,21 +7,30 @@ import { TagNode } from "./nodes/TagNode";
 import { TextNode } from "./nodes/TextNode";
 import { ParserHandoverResult, ParserInterface } from "../parserInterface";
 import { AnyCharacterToken, AttributeEelBeginToken, AttributeEelEndToken, AttributeNameToken, AttributeStringValueToken, AttributeValueAssignToken, CharacterToken, CommentToken, EscapedCharacterToken, ScriptEndToken, TagBeginToken, TagCloseToken, TagEndToken, TagSelfCloseToken, WhitespaceToken, WordToken } from "./tokens";
-import { Parser as EelParser } from '../eel/parser'
+import { EelParserOptions, Parser as EelParser } from '../eel/parser'
 import { Lexer as EelLexer } from '../eel/lexer'
 import { TagSpreadEelAttributeNode } from "./nodes/TagSpreadEelAttributeNode";
 import { InlineEelNode } from "./nodes/InlineEelNode";
 import { Comment } from "../../common/Comment";
 
+export interface AfxParserOptions {
+    allowUnclosedTags: boolean
+    eelParserOptions?: EelParserOptions
+}
+
 export class Parser implements ParserInterface {
     protected lexer: Lexer
     public nodesByType: Map<typeof AbstractNode, AbstractNode[]> = new Map()
     public positionOffset: number
-    public gracefullyReturnOnError: boolean = false
 
-    constructor(lexer: Lexer, positionOffset: number = 0) {
+    protected options: AfxParserOptions = {
+        allowUnclosedTags: false
+    }
+
+    constructor(lexer: Lexer, positionOffset: number = 0, options?: AfxParserOptions) {
         this.lexer = lexer
         this.positionOffset = positionOffset
+        if (options) this.options = options
     }
 
     protected applyOffset(position: NodePositionInterface) {
@@ -34,8 +43,7 @@ export class Parser implements ParserInterface {
         return ["link", "meta", "input", "img"].includes(tagName)
     }
 
-    parse(gracefullyReturnOnError: boolean = false) {
-        this.gracefullyReturnOnError = gracefullyReturnOnError
+    parse() {
         return this.parseTextsOrTags()
     }
 
@@ -47,7 +55,7 @@ export class Parser implements ParserInterface {
             const charToken = this.lexer.consumeLookAhead()
             if ((new AttributeEelBeginToken).regex.test(charToken.value)) {
                 const eelBegin = charToken
-                const eelParser = new EelParser(new EelLexer(""))
+                const eelParser = this.buildEelParser()
                 const result = this.handover<AbstractNode>(eelParser)
 
                 const eelEnd = this.lexer.consume(AttributeEelEndToken)
@@ -142,7 +150,7 @@ export class Parser implements ParserInterface {
                 this.parseLazyWhitespace()
             }
         } catch (error) {
-            if (!this.gracefullyReturnOnError) throw error
+            if (!this.options.allowUnclosedTags) throw error
             const endToken = new TagSelfCloseToken()
             endToken["value"] = ">"
             endToken.position = {
@@ -202,7 +210,7 @@ export class Parser implements ParserInterface {
 
     parseSpreadEelAttribute() {
         const eelBegin = this.lexer.consumeLookAhead()
-        const eelParser = new EelParser(new EelLexer(""))
+        const eelParser = this.buildEelParser()
         const result = this.handover<AbstractNode>(eelParser)
         const eelEnd = this.lexer.consume(AttributeEelEndToken)
         const position = {
@@ -227,7 +235,7 @@ export class Parser implements ParserInterface {
                 case this.lexer.lookAhead(AttributeEelBeginToken):
                     const eelBegin = this.lexer.consumeLookAhead()
 
-                    const eelParser = new EelParser(new EelLexer(""))
+                    const eelParser = this.buildEelParser()
                     const result = this.handover<AbstractNode>(eelParser)
                     // console.log("result", result)
                     const eelEnd = this.lexer.consume(AttributeEelEndToken)
@@ -308,5 +316,9 @@ export class Parser implements ParserInterface {
         const map = new Map(this.nodesByType)
         this.nodesByType.clear()
         return map
+    }
+
+    protected buildEelParser() {
+        return new EelParser(new EelLexer(""), undefined, this.options.eelParserOptions)
     }
 }

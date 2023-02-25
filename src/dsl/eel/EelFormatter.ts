@@ -21,6 +21,8 @@ import { SpreadOperationNode } from "./nodes/SpreadOperationNode";
 import { TernaryOperationNode } from "./nodes/TernaryOperationNode";
 
 export class EelFormatter extends AbstractFormatter implements EelNodeVisitorInterface<string> {
+    protected indentObjectFormatting: boolean = false
+
     visitCallbackNode(callbackNode: CallbackNode) {
         return `${callbackNode["signature"]} ${callbackNode["body"].toString()}`
     }
@@ -30,7 +32,7 @@ export class EelFormatter extends AbstractFormatter implements EelNodeVisitorInt
     }
 
     visitLiteralObjectEntryNode(literalObjectEntryNode: LiteralObjectEntryNode) {
-        return `${this.visitAbstractNode(literalObjectEntryNode.key)}: ${this.visitAbstractNode(literalObjectEntryNode.value)}}`
+        return `${this.visitAbstractNode(literalObjectEntryNode.key)}: ${this.visitAbstractNode(literalObjectEntryNode.value)}`
     }
 
     visitNotOperationNode(notOperationNode: NotOperationNode) {
@@ -55,7 +57,24 @@ export class EelFormatter extends AbstractFormatter implements EelNodeVisitorInt
     }
 
     visitLiteralObjectNode(literalObjectNode: LiteralObjectNode) {
-        return `{${literalObjectNode.entries.map(entry => this.visitAbstractNode(entry)).join(", ")}}`
+        if (literalObjectNode.entries.length === 0) return "{}"
+
+        const currentIndentObjectFormatting = !!this.indentObjectFormatting
+
+        let renderedValue = literalObjectNode.entries.map(entry => this.visitLiteralObjectEntryNode(entry)).join(", ")
+        if (renderedValue.length > 32) {
+            this.indentObjectFormatting = true
+
+            this.incrementLevel()
+            const indentedLines = literalObjectNode.entries.map(entry => this.indentLine(this.visitLiteralObjectEntryNode(entry))).join(",\n")
+            this.decrementLevel()
+
+            return `{${'\n' + indentedLines + '\n'}${this.buildIndent()}}`
+        }
+
+        this.indentObjectFormatting = currentIndentObjectFormatting
+
+        return `{${renderedValue}}`
     }
 
     visitObjectFunctionPathNode(objectFunctionPathNode: ObjectFunctionPathNode) {

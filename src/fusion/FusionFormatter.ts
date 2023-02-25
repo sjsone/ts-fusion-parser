@@ -41,45 +41,55 @@ export class FusionFormatter extends AbstractFormatter implements FusionNodeVisi
         return this.visitStatementList(fusionFile.statementList)
     }
 
-    visitStatementList(statementList: StatementList) {
-        const groups: string[][] = []
-
-        for(const statement of statementList.statements) {
-            if(statement instanceof ObjectStatement) {
-                const line = this.visitObjectStatement(statement)
-
-                const firstSegment = statement.path.segments[0]
-                if(firstSegment instanceof MetaPathSegment && firstSegment.identifier === "context") {
-                    console.log("here")
-                }
-
-                const name = statement.path.segments.map(s => s["identifier"]).join(".")
-                console.log(">> name", name)
-            }
-            console.log(">", statement.constructor.name)
+    protected groupStatements(statementList: StatementList) {
+        const groups: { [key: string]: AbstractStatement[] } = {
+            'prototypes': [] as AbstractStatement[],
+            'body': [] as AbstractStatement[],
+            'renderer': [] as AbstractStatement[]
         }
 
+        for (const statement of statementList.statements) {
+            if (!(statement instanceof ObjectStatement)) {
+                groups.body.push(statement)
+                continue
+            }
 
-        const lines = statementList.statements.map(statement => this.visitAbstractNode(statement)).sort((a, b) => {
-            if (a.startsWith("@context")) return -1
-            if (b.startsWith("@context")) return 1
+            const firstSegment = statement.path.segments[0]
+            if (firstSegment instanceof PrototypePathSegment) {
+                groups.prototypes.push(statement)
+                continue
+            }
 
-            if (a.startsWith("prototype(")) return -1
-            if (b.startsWith("prototype(")) return 1
+            if (firstSegment instanceof MetaPathSegment && statement.path.segments[1]["identifier"] === "renderer") {
+                groups.renderer.push(statement)
+                continue
+            }
 
-            if (a.startsWith("renderer")) return 1
-            if (b.startsWith("renderer")) return -1
+            if (firstSegment["identifier"] === "renderer") {
+                groups.renderer.push(statement)
+                continue
+            }
 
+            groups.body.push(statement)
+        }
 
-            return 0
-        })
+        return groups
+    }
 
-        const formattedLines: string[] = []
+    visitStatementList(statementList: StatementList) {
+        const groups = this.groupStatements(statementList)
 
+        const lines: string[] = [
+            ...groups.prototypes.map(statement => this.indentLine(this.visitAbstractNode(statement))),
+            ...(groups.prototypes.length > 0 && groups.body.length > 0 ? [""] : []),
+            ...groups.body.map(statement => this.indentLine(this.visitAbstractNode(statement))).filter(Boolean),
+            ...(groups.body.length > 0 && groups.renderer.length > 0 ? [""] : []),
+            ...groups.renderer.map(statement => this.indentLine(this.visitAbstractNode(statement))).filter(Boolean),
+        ]
 
+        console.log(">> lines", lines)
 
-
-        return formattedLines.join("\n")
+        return lines.join("\n")
     }
 
     visitIncludeStatement(includeStatement: IncludeStatement) {

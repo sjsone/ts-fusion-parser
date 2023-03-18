@@ -7,6 +7,7 @@ import { ValueAssignment } from "./ValueAssignment";
 import { ValueUnset } from "./ValueUnset";
 import { NodePosition, NodePositionStub } from "../../common/NodePosition";
 
+// TODO: Generic for operation type
 export class ObjectStatement extends AbstractStatement {
     public path: ObjectPath
     public operation: ValueAssignment | ValueCopy | ValueUnset | null

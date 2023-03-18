@@ -79,5 +79,6 @@ export abstract class AbstractLexer {
     public debug() {
         console.log("cursor: ", this.cursor)
         console.log("text length: ", this.text.length)
+        console.log("rest: ", this.getRemainingText())
     }
 }

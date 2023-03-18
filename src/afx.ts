@@ -49,34 +49,16 @@ const notWorking = `
 
 <div class="asdf" {...props.testClass}>
 before
-{props.text}
+{props.}
 after
 </div>
 <div>
 `
-
-
-const stringifyTest = `
-<div class="form-group">
-                <Neos.Fusion.Form:FieldContainer field.name="firstName" label="First Name" attributes.style="display:flex;flex-direction:column;justify-content:space-between;">
-                    <Neos.Fusion.Form:Input attributes.style="width:300px;margin-bottom:15px;" />
-                </Neos.Fusion.Form:FieldContainer>
-                <Neos.Fusion.Form:FieldContainer field.name="lastName" label="Last Name" attributes.style="display:flex;flex-direction:column;justify-content:space-between;">
-                    <Neos.Fusion.Form:Input attributes.style="width:300px;margin-bottom:15px;" />
-                </Neos.Fusion.Form:FieldContainer>
-                <Neos.Fusion.Form:FieldContainer field.name="username" label="Username" attributes.style="display:flex;flex-direction:column;justify-content:space-between;">
-                    <small>(lowercase letters and numbers only)</small>
-                    <Neos.Fusion.Form:Input attributes.style="width:300px;margin-bottom:15px;" />
-                </Neos.Fusion.Form:FieldContainer>
-                <Neos.Fusion.Form:FieldContainer field.name="password" label="Password" attributes.style="display:flex;flex-direction:column;justify-content:space-between;">
-                    <Neos.Fusion.Form:Password attributes.style="width:300px" />
-                </Neos.Fusion.Form:FieldContainer>
-            </div>
-`
-const parser = new Parser(new Lexer(notWorking))
-let nodes: any = parser.parse(true)
-const afxFormatter = new AfxFormatter
-
-const formatted = nodes.map((node: AbstractNode) => afxFormatter.visitAbstractNode(node)).join("\n")
-
-console.log(formatted)
+const parser = new Parser(new Lexer(notWorking), undefined, {
+    allowUnclosedTags: true,
+    eelParserOptions: {
+        allowIncompleteObjectPaths: true
+    }
+})
+let nodes: any = parser.parse()
+console.log(nodes.map((node: AbstractNode) => node.toString()).join("\n"))

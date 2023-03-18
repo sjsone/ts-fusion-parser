@@ -12,7 +12,7 @@ export class Block extends VisitableAbstractNode {
         this.statementList["parent"] = this
     }
 
-    public visit(visitor: FusionNodeVisitorInterface, ...args: any[]) {
+    public visit(visitor: FusionNodeVisitorInterface<any>, ...args: any[]) {
         return visitor.visitBlock(this, args.shift());
     }
 }

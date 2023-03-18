@@ -16,7 +16,7 @@ export class AssignedObjectPath extends VisitableAbstractNode {
         this.isRelative = isRelative
     }
 
-    public visit(visitor: FusionNodeVisitorInterface, ...args: any[]) {
+    public visit(visitor: FusionNodeVisitorInterface<any>, ...args: any[]) {
         return visitor.visitAssignedObjectPath(this);
     }
 }

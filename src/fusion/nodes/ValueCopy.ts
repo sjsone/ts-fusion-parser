@@ -12,7 +12,7 @@ export class ValueCopy extends AbstractOperation {
         this.assignedObjectPath["parent"] = this
     }
 
-    public visit(visitor: FusionNodeVisitorInterface, ...args: any[]) {
+    public visit(visitor: FusionNodeVisitorInterface<any>, ...args: any[]) {
         return visitor.visitValueCopy(this);
     }
 }

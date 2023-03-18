@@ -16,7 +16,7 @@ export class ObjectPath extends VisitableAbstractNode {
         }
     }
 
-    public visit(visitor: FusionNodeVisitorInterface, currentPathPrefix: string[]) {
+    public visit(visitor: FusionNodeVisitorInterface<any>, currentPathPrefix: string[]) {
         return visitor.visitObjectPath(this, currentPathPrefix)
     }
 

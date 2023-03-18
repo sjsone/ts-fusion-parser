@@ -14,7 +14,7 @@ export class ValueAssignment extends AbstractOperation {
     }
     
 
-    public visit(visitor: FusionNodeVisitorInterface, currentPath: string[]) {
+    public visit(visitor: FusionNodeVisitorInterface<any>, currentPath: string[]) {
         return visitor.visitValueAssignment(this, currentPath);
     }
 }

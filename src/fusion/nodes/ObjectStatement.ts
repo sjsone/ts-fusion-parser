@@ -30,7 +30,7 @@ export class ObjectStatement extends AbstractStatement {
         this.position = position
     }
 
-    public visit(visitor: FusionNodeVisitorInterface, ...args: any[]) {
+    public visit(visitor: FusionNodeVisitorInterface<any>, ...args: any[]) {
         return visitor.visitObjectStatement(this, args.shift())
     }
 }

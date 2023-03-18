@@ -16,7 +16,7 @@ export class IntValue extends AbstractPathValue {
         this.value = value
     }
 
-    public visit(visitor: FusionNodeVisitorInterface) {
+    public visit(visitor: FusionNodeVisitorInterface<any>) {
         return visitor.visitIntValue(this);
     }
 }

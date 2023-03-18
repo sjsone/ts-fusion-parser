@@ -29,7 +29,7 @@ export class StatementList extends VisitableAbstractNode {
         return this.statements.map(statement => statement.toString(intend + 1)).join("\n")
     }
 
-    public visit(visitor: FusionNodeVisitorInterface) {
+    public visit(visitor: FusionNodeVisitorInterface<any>) {
         return visitor.visitStatementList(this)
     }
 }

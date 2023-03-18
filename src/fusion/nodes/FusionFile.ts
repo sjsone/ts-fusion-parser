@@ -20,7 +20,7 @@ export class FusionFile extends VisitableAbstractNode {
         this.contextPathAndFileName = contextPathAndFileName
     }
 
-    public visit(visitor: FusionNodeVisitorInterface) {
+    public visit(visitor: FusionNodeVisitorInterface<any>) {
         return visitor.visitFusionFile(this)
     }
 

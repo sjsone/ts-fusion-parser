@@ -11,7 +11,7 @@ export class EelExpressionValue extends AbstractPathValue {
         super(NodePositionStub)
     }
 
-    public visit(visitor: FusionNodeVisitorInterface) {
+    public visit(visitor: FusionNodeVisitorInterface<any>) {
         return visitor.visitEelExpressionValue(this);
     }
 }

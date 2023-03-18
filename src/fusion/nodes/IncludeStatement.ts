@@ -11,7 +11,7 @@ export class IncludeStatement extends AbstractStatement
         this.position = position
     }
 
-    public visit(visitor: FusionNodeVisitorInterface)
+    public visit(visitor: FusionNodeVisitorInterface<any>)
     {
         return visitor.visitIncludeStatement(this)
     }

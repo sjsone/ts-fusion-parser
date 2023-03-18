@@ -36,7 +36,7 @@ export class DslExpressionValue extends AbstractPathValue {
         return parser.nodesByType
     }
 
-    public visit(visitor: FusionNodeVisitorInterface, ...args: any[]) {
+    public visit(visitor: FusionNodeVisitorInterface<any>, ...args: any[]) {
         return visitor.visitDslExpressionValue(this, args.shift());
     }
 }

@@ -20,7 +20,7 @@ export class Arrays {
 
     public static arrayMergeRecursiveOverrule(firstArray: { [key: string]: any }, secondArray: { [key: string]: any }, doNotAddNewKeys = false, emptyValuesOverride = true): { [key: string]: any } {
         for (const [key, value] of Object.entries(secondArray)) {
-            if (firstArray[key] !== undefined && typeof firstArray[key] === "object") {
+            if (firstArray[key] !== undefined && firstArray[key] !== null && typeof firstArray[key] === "object") {
                 firstArray[key] = this.arrayMergeRecursiveOverrule(firstArray[key], value, doNotAddNewKeys, emptyValuesOverride);
             } else {
                 if (!doNotAddNewKeys || Object.keys(firstArray).includes(key)) {

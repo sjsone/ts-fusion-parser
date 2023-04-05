@@ -26,6 +26,7 @@ import { IncompleteObjectPathError } from "../errors/IncompleteObjectPathError";
 
 export interface EelParserOptions {
     allowIncompleteObjectPaths: boolean
+    logDebug?: boolean
 }
 
 export class Parser implements ParserInterface {
@@ -35,7 +36,8 @@ export class Parser implements ParserInterface {
     public positionOffset: number
 
     protected options: EelParserOptions = {
-        allowIncompleteObjectPaths: false
+        allowIncompleteObjectPaths: false,
+        logDebug: false
     }
 
     constructor(lexer: Lexer, positionOffset: number = 0, options?: EelParserOptions) {
@@ -135,7 +137,7 @@ export class Parser implements ParserInterface {
         }
 
         if (object === null) {
-            this.lexer.debug()
+            if (this.options.logDebug) this.lexer.debug()
             throw Error("parseExpression")
         }
 
@@ -204,7 +206,7 @@ export class Parser implements ParserInterface {
                 const stringNode = new LiteralStringNode(this.lexer.consumeLookAhead().value, this.endPosition(position), parent)
                 return this.addNodeToNodesByType(stringNode)
         }
-        this.lexer.debug()
+        if (this.options.logDebug) this.lexer.debug()
         throw Error("parseString")
     }
 
@@ -231,7 +233,7 @@ export class Parser implements ParserInterface {
             case this.lexer.lookAhead(ObjectPathPartToken):
                 return this.parseObjectPath()
         }
-        this.lexer.debug()
+        if (this.options.logDebug) this.lexer.debug()
         throw new IncompleteObjectPathError("parseObjectExpressionPart: " + this.lexer.getRemainingText())
     }
 

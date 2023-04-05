@@ -5,7 +5,7 @@ import { Token, TokenConstructor } from "./Token";
 export abstract class AbstractLexer {
     protected text: string
     protected cursor: number = -1
-    protected lookAheadTokenType: TokenConstructor|undefined
+    protected lookAheadTokenType: TokenConstructor | undefined
     public tagStack: Token[] = []
 
     constructor(text: string) {
@@ -14,7 +14,7 @@ export abstract class AbstractLexer {
     }
 
     public getRemainingText(info: any = undefined) {
-        if(this.isEOF()) {
+        if (this.isEOF()) {
             // console.log("tagStack", this.tagStack, info)
             throw new EOLError("Hit EOL but was not expecting it")
         }
@@ -30,23 +30,23 @@ export abstract class AbstractLexer {
     }
 
     public isEOF(debug: boolean = false) {
-        if(debug) console.log(`${this.cursor} >= ${this.text.length}`, this.cursor >= this.text.length)
+        if (debug) console.log(`${this.cursor} >= ${this.text.length}`, this.cursor >= this.text.length)
         return this.cursor > this.text.length - 1
     }
 
-    public lookAhead(tokenType: TokenConstructor ) {
-        if(this.isEOF()) return false
+    public lookAhead(tokenType: TokenConstructor) {
+        if (this.isEOF()) return false
         const text = this.getRemainingText(tokenType.name)
         const token = new tokenType()
-        if(token.regex.test(text)) {
+        if (token.regex.test(text)) {
             this.lookAheadTokenType = tokenType
             return true
         }
-        return false 
+        return false
     }
 
     public consumeLookAhead() {
-        if(this.lookAheadTokenType === undefined) throw new Error("Tried to consume lookAhead but is was undefined")
+        if (this.lookAheadTokenType === undefined) throw new Error("Tried to consume lookAhead but is was undefined")
         return this.consume(this.lookAheadTokenType)
     }
 
@@ -55,22 +55,21 @@ export abstract class AbstractLexer {
         const begin = this.cursor
         const token = new tokenType()
         const match = token.regex.exec(text)
-        if(match === null) {
-            console.log("HTML: " + this.getRemainingText().substring(0, 150) + "...")
-            throw new Error(`Trying to consume [${tokenType.name}]`)
+        if (match === null) {
+            throw new Error(`Trying to consume [${tokenType.name}]\nGot: ${this.getRemainingText().substring(0, 150)}...`)
         }
         const value = match[1]
         token.value = value
         this.cursor += value.length
         const end = this.cursor
         this.lookAheadTokenType = undefined
-        token.position = {begin, end}
+        token.position = { begin, end }
         this.tagStack.push(token)
         return token
     }
 
-    public lazyConsume<T extends Token>(tokenType: new (...args: any) => T): T|undefined {
-        if(this.lookAhead(tokenType)) {
+    public lazyConsume<T extends Token>(tokenType: new (...args: any) => T): T | undefined {
+        if (this.lookAhead(tokenType)) {
             return <T>this.consumeLookAhead()
         }
         return undefined

@@ -5,6 +5,7 @@ import { NodePosition, NodePositionStub } from "../../common/NodePosition";
 
 export class EelExpressionValue extends AbstractPathValue {
     public value = ""
+    // TODO: check if `nodes` really has to be an array
     public nodes: AbstractNode[] = []
 
     public constructor() {

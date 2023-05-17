@@ -24,6 +24,11 @@ export class FusionFile extends VisitableAbstractNode {
         return visitor.visitFusionFile(this)
     }
 
+    getNodesByType<T extends abstract new (...args: any) => any>(type: T) {
+        const nodes = this.nodesByType.get(type);
+        return nodes !== undefined ? nodes as InstanceType<T>[] : undefined;
+    }
+
     public hasErrors() {
         return this.errors.length > 0
     }

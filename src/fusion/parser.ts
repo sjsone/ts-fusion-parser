@@ -486,6 +486,7 @@ export class ObjectTreeParser {
             case this.accept(Token.EEL_EXPRESSION_START):
                 const eelExpressionValue = new EelExpressionValue();
                 this.consume()
+                const eelPosition = this.createPosition()
                 const eelLexer = new EelLexer(this.lexer.getRemainingCode())
                 const eelParser = new EelParser(eelLexer, this.lexer.getCursor(), this.options.eelParserOptions)
                 const eelNodes = eelParser.parse()
@@ -500,9 +501,9 @@ export class ObjectTreeParser {
                     this.nodesByType.set(<any>type, list)
                 }
                 eelExpressionValue.nodes = eelNodes
-
                 this.lexer.advanceCursor(eelLexer.getCursor() + 1)
-
+                eelExpressionValue["position"] = this.endPosition(eelPosition)
+                eelExpressionValue.value = this.lexer.getCode().slice(eelPosition.begin, eelPosition.end - 1) // -1 for `}`
                 return eelExpressionValue
 
 

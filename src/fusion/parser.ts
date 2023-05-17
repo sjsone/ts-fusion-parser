@@ -398,6 +398,7 @@ export class ObjectTreeParser {
 
             case this.accept(Token.OBJECT_PATH_PART):
                 const pathKey = this.consume().getValue();
+                position = this.createPosition()
                 position.begin -= pathKey.length
                 return new PathSegment(pathKey, this.endPosition(position));
 

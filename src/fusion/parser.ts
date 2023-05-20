@@ -30,6 +30,7 @@ import { EelParserOptions, Parser as EelParser } from '../dsl/eel/parser';
 import { Lexer as EelLexer } from '../dsl/eel/lexer';
 import { Comment } from '../common/Comment';
 import { AfxParserOptions } from '../dsl/afx/parser';
+import { IncompletePathSegment } from './nodes/IncompletePathSegment';
 
 
 const stripslashes = (str: string) => str.replace('\\', '')
@@ -414,6 +415,9 @@ export class ObjectTreeParser {
                 const quotedPathKey = stringWrapped.substring(1, stringWrapped.length - 1);
                 position.begin -= quotedPathKey.length
                 return new PathSegment(quotedPathKey, this.endPosition(position));
+            case this.accept(Token.SPACE):
+            case this.accept(Token.NEWLINE):
+                if (this.options.ignoreErrors) return new IncompletePathSegment(this.endPosition(this.createPosition()));
         }
 
         throw Error("Could not parse segment")

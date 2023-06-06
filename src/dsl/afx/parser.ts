@@ -40,6 +40,7 @@ export class Parser implements ParserInterface {
     }
 
     isTagNameExpectedToNotBeClosed(tagName: string) {
+        // TODO: make it configurable
         return ["link", "meta", "input", "img"].includes(tagName)
     }
 

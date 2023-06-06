@@ -1,0 +1,26 @@
+
+/**
+* This is a test bla blu
++ Descriptions can be multiple lines
+*
+* @copy Neos.Fusion:Component
+* @param string[] items which should be tested
+* @renderer afx A simple div
+*/
+prototype(SJSONE.Website:Meta.Testing) < prototype(Neos.Fusion:Component) {
+    @PropTypes {
+        items = ${PropTypes.arrayOf(PropTypes.string)}
+    }
+    
+    items = ${[]}
+
+    @private {
+
+    }
+
+    renderer = afx`
+        <div>
+            Testing
+        </div>
+    `
+}

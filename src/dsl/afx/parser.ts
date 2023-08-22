@@ -12,6 +12,7 @@ import { Lexer as EelLexer } from '../eel/lexer'
 import { TagSpreadEelAttributeNode } from "./nodes/TagSpreadEelAttributeNode";
 import { InlineEelNode } from "./nodes/InlineEelNode";
 import { Comment } from "../../common/Comment";
+import { ParserError } from "../../common/ParserError";
 
 export interface AfxParserOptions {
     allowUnclosedTags: boolean
@@ -151,7 +152,11 @@ export class Parser implements ParserInterface {
                 this.parseLazyWhitespace()
             }
         } catch (error) {
-            if (!this.options.allowUnclosedTags) throw error
+            if (!this.options.allowUnclosedTags) {
+                if(error instanceof Error) {
+                    throw new ParserError(error.message, this.lexer.getCursor())
+                } else throw error
+            }
             const endToken = new TagSelfCloseToken()
             endToken["value"] = ">"
             endToken.position = {

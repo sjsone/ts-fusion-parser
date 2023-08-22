@@ -23,6 +23,7 @@ import { LiteralNullNode } from "./nodes/LiteralNullNode";
 import { CallbackNode } from "./nodes/CallbackNode";
 import { EmptyEelNode } from "./nodes/EmptyEelNode";
 import { IncompleteObjectPathError } from "../errors/IncompleteObjectPathError";
+import { EelParserError } from "../errors/EelParserError";
 
 export interface EelParserOptions {
     allowIncompleteObjectPaths: boolean
@@ -207,7 +208,7 @@ export class Parser implements ParserInterface {
                 return this.addNodeToNodesByType(stringNode)
         }
         if (this.options.logDebug) this.lexer.debug()
-        throw Error("parseString")
+        throw new EelParserError("parseString", this.lexer.getCursor())
     }
 
     protected parseObjectExpression(parent: AbstractNode | undefined = undefined) {
@@ -234,7 +235,7 @@ export class Parser implements ParserInterface {
                 return this.parseObjectPath()
         }
         if (this.options.logDebug) this.lexer.debug()
-        throw new IncompleteObjectPathError("parseObjectExpressionPart: " + this.lexer.getRemainingText())
+        throw new IncompleteObjectPathError("parseObjectExpressionPart: " + this.lexer.getRemainingText(), this.lexer.getCursor())
     }
 
     protected parseObjectFunctionExpressionPart() {

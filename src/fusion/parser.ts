@@ -31,6 +31,7 @@ import { Lexer as EelLexer } from '../dsl/eel/lexer';
 import { Comment } from '../common/Comment';
 import { AfxParserOptions } from '../dsl/afx/parser';
 import { IncompletePathSegment } from './nodes/IncompletePathSegment';
+import { ParserError } from '../common/ParserError';
 
 
 const stripslashes = (str: string) => str.replace('\\', '')
@@ -275,7 +276,7 @@ export class ObjectTreeParser {
 
         if (!this.options.ignoreErrors) console.log("parseStatement")
         if (!this.options.ignoreErrors) this.lexer.debug()
-        throw Error("Error while parsing statement")
+        throw new ParserError("Error while parsing statement", this.lexer.getCursor())
     }
 
     /**
@@ -516,7 +517,7 @@ export class ObjectTreeParser {
         if (!this.options.ignoreErrors) console.log("parsePathValue")
         if (!this.options.ignoreErrors) this.lexer.debug()
 
-        throw Error("Could not parse value")
+        throw new ParserError("Could not parse value", this.lexer.getCursor())
         // throw this.prepareParserException(new ParserException())
         //     .setCode(1646988841)
         //     .setMessageCreator([MessageCreator.class, 'forParsePathValue'])

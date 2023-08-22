@@ -1,5 +1,5 @@
-import { CustomError } from "../../customError";
+import { ParserError } from "../../common/ParserError";
 
-export class EelParserError extends CustomError {
+export class EelParserError extends ParserError {
 
 }

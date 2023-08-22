@@ -23,5 +23,12 @@
     "main": "out/lib.js",
     "author": "Simon Schmidt",
     "license": "AGPL-3.0-or-later",
-    "repository": "git@gitlab.com:sjsone/ts-fusion-parser.git"
+    "repository": "git@gitlab.com:sjsone/ts-fusion-parser.git",
+    "keywords": [
+        "neos",
+        "fusion",
+        "parser",
+        "neos cms",
+        "cms"
+    ]
 }

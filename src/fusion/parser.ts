@@ -243,6 +243,7 @@ export class ObjectTreeParser {
                 statement = this.parseStatement()
                 this.addNodeToNodesByType(statement)
                 statements.push(statement)
+                // TODO: save order of statements and comments
                 comments.push(...this.lazyBigGap())
             } catch (e) {
                 if (!this.options.ignoreErrors) {

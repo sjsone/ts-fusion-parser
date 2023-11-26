@@ -40,11 +40,6 @@ export class Parser implements ParserInterface {
         return position
     }
 
-    isTagNameExpectedToNotBeClosed(tagName: string) {
-        // TODO: make it configurable
-        return ["link", "meta", "input", "img"].includes(tagName)
-    }
-
     parse() {
         return this.parseTextsOrTags()
     }
@@ -175,7 +170,7 @@ export class Parser implements ParserInterface {
         const endToken = this.lexer.consumeLookAhead()
         this.parseLazyWhitespace()
 
-        if (endToken instanceof TagSelfCloseToken || this.isTagNameExpectedToNotBeClosed(nameNode.toString())) {
+        if (endToken instanceof TagSelfCloseToken) {
             position.end = endToken.position.end
             this.lexer.tagStack.pop()
             const tagNode = new TagNode(this.applyOffset(position), nameNode.toString(), nameNode, attributes, [], TagNameNode.From(endToken), true, parent)

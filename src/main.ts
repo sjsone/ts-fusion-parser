@@ -46,10 +46,10 @@ const timeEnd = process.hrtime(timeStart);
 console.info('Execution time: %ds %dms', timeEnd[0], timeEnd[1] / 1000000)
 
 
-const dslExpressionValue = <DslExpressionValue>objectTree.statementList.statements[0].operation.pathValue
-console.log(dslExpressionValue.htmlNodes[1].content.map(c => ({
-    name: c.constructor.name,
-    text: c["text"] 
-})))
+// const dslExpressionValue = <DslExpressionValue>objectTree.statementList.statements[0].operation.pathValue
+// console.log(dslExpressionValue.htmlNodes[1].content.map(c => ({
+//     name: c.constructor.name,
+//     text: c["text"] 
+// })))
 
-console.log(dslExpressionValue.htmlNodes[1].content)
+// console.log(dslExpressionValue.htmlNodes[1].content)

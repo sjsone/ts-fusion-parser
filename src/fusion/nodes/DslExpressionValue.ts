@@ -3,19 +3,20 @@
 
 
 
+import { Comment } from "../../common/Comment";
+import { NodePosition, NodePositionStub } from "../../common/NodePosition";
+import { AstNodeVisitorInterface } from "../../common/nodeVisitorInterface";
 import { Lexer } from "../../dsl/afx/lexer";
+import { InlineEelNode } from "../../dsl/afx/nodes/InlineEelNode";
 import { TagNode } from "../../dsl/afx/nodes/TagNode";
 import { TextNode } from "../../dsl/afx/nodes/TextNode";
 import { AfxParserOptions, Parser } from "../../dsl/afx/parser";
-import { AstNodeVisitorInterface } from "../../common/nodeVisitorInterface";
 import { AbstractPathValue } from "./AbstractPathValue";
-import { NodePosition, NodePositionStub } from "../../common/NodePosition";
-import { Comment } from "../../common/Comment";
 
 export class DslExpressionValue extends AbstractPathValue {
     public identifier: string
     public code: string
-    public htmlNodes: Array<TextNode | TagNode | Comment> = []
+    public htmlNodes: Array<TextNode | InlineEelNode | TagNode | Comment> = []
     protected afxParserOptions?: AfxParserOptions
 
     public constructor(identifier: string, code: string, position: NodePosition, afxParserOptions?: AfxParserOptions) {

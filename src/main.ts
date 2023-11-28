@@ -8,6 +8,7 @@ import { ObjectPathNode } from './dsl/eel/nodes/ObjectPathNode'
 import { EelParserOptions } from './dsl/eel/parser'
 import { PathSegment } from './fusion/nodes/PathSegment'
 import { FusionParserOptions, ObjectTreeParser } from "./lib"
+import { DslExpressionValue } from './fusion/nodes/DslExpressionValue'
 
 const eelParserOptions: EelParserOptions = {
     allowIncompleteObjectPaths: true
@@ -25,17 +26,13 @@ const fusionParserOptions: FusionParserOptions = {
 }
 
 const fusion = `
-prototype(Test.Tset:Component) { 
-    // @fusion-ignore
-    test = Neos.Fusion:DataStructure {
-        // a
-    }
-    renderer = afx\`
-        <!--  @fusion-ignore -->
- 		<div>{props.}</div>
-        <div>
-    \`
-}
+renderer = afx\`
+    <!--  @fusion-ignore -->
+    <div>
+        before{props.eeltest}
+        after <span>inspan</span>
+    </div>
+\`
 `
 
 
@@ -47,15 +44,12 @@ const timeStart = process.hrtime();
 const objectTree = ObjectTreeParser.parse(fusionToParse, undefined, fusionParserOptions)
 const timeEnd = process.hrtime(timeStart);
 console.info('Execution time: %ds %dms', timeEnd[0], timeEnd[1] / 1000000)
-// console.log(objectTree.nodesByType.get(ObjectNode))
 
-// for(const objectPathNode of <ObjectNode[]><unknown>(objectTree.nodesByType.get(ObjectNode)!)) {
-//     // const value = objectPathNode["value"]
-//     const substring = fusionToParse.substring(objectPathNode["position"].begin, objectPathNode["position"].end)
-//     // if(value !== substring) console.log(value, substring)
-//     console.log("substring", substring)
-// }
 
-for (const test of <Comment[]><unknown>(objectTree.nodesByType.get(Comment)!)) {
-    console.log(test)
-}
+const dslExpressionValue = <DslExpressionValue>objectTree.statementList.statements[0].operation.pathValue
+console.log(dslExpressionValue.htmlNodes[1].content.map(c => ({
+    name: c.constructor.name,
+    text: c["text"] 
+})))
+
+console.log(dslExpressionValue.htmlNodes[1].content)

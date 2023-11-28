@@ -5,6 +5,9 @@ import { TagNameNode } from "./TagNameNode";
 import { TextNode } from "./TextNode";
 import { TagSpreadEelAttributeNode } from "./TagSpreadEelAttributeNode";
 import { Comment } from "../../../common/Comment";
+import { type InlineEelNode } from "./InlineEelNode";
+
+export type TagNodeContent = Array<TagNode | TextNode | Comment | InlineEelNode>
 
 export class TagNode extends AbstractNode {
     protected name: string
@@ -13,12 +16,11 @@ export class TagNode extends AbstractNode {
     protected end: TagNameNode | undefined
 
     protected attributes: Array<TagSpreadEelAttributeNode | TagAttributeNode>
-    protected content: Array<TagNode | TextNode | Comment>
+    protected content: TagNodeContent
     protected selfClosing: boolean
     protected artificiallyClosed: boolean = false
 
-
-    constructor(position: NodePositionInterface, name: string, begin: TagNameNode, attributes: Array<TagSpreadEelAttributeNode | TagAttributeNode>, content: Array<TagNode | TextNode | Comment>, end: TagNameNode | undefined = undefined, selfClosing: boolean = false, parent: AbstractNode | undefined = undefined) {
+    constructor(position: NodePositionInterface, name: string, begin: TagNameNode, attributes: Array<TagSpreadEelAttributeNode | TagAttributeNode>, content: TagNodeContent, end: TagNameNode | undefined = undefined, selfClosing: boolean = false, parent: AbstractNode | undefined = undefined) {
         super(position, parent)
         this.name = name
         this.begin = begin

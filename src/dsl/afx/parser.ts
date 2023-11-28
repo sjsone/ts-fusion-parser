@@ -1,18 +1,20 @@
-import { Lexer } from "./lexer";
 import { AbstractNode } from "../../common/AbstractNode";
+import { Comment } from "../../common/Comment";
 import { NodePositionInterface } from "../../common/NodePositionInterface";
+import { ParserError } from "../../common/ParserError";
+import { Lexer as EelLexer } from '../eel/lexer';
+import { Parser as EelParser, EelParserOptions } from '../eel/parser';
+import { ParserHandoverResult, ParserInterface } from "../parserInterface";
+import { Lexer } from "./lexer";
+import { InlineEelNode } from "./nodes/InlineEelNode";
 import { TagAttributeNode } from "./nodes/TagAttributeNode";
 import { TagNameNode } from "./nodes/TagNameNode";
 import { TagNode } from "./nodes/TagNode";
-import { TextNode } from "./nodes/TextNode";
-import { ParserHandoverResult, ParserInterface } from "../parserInterface";
-import { AnyCharacterToken, AttributeEelBeginToken, AttributeEelEndToken, AttributeNameToken, AttributeStringValueToken, AttributeValueAssignToken, CharacterToken, CommentToken, EscapedCharacterToken, ScriptEndToken, TagBeginToken, TagCloseToken, TagEndToken, TagSelfCloseToken, WhitespaceToken, WordToken } from "./tokens";
-import { EelParserOptions, Parser as EelParser } from '../eel/parser'
-import { Lexer as EelLexer } from '../eel/lexer'
 import { TagSpreadEelAttributeNode } from "./nodes/TagSpreadEelAttributeNode";
-import { InlineEelNode } from "./nodes/InlineEelNode";
-import { Comment } from "../../common/Comment";
-import { ParserError } from "../../common/ParserError";
+import { TextNode } from "./nodes/TextNode";
+import { AnyCharacterToken, AttributeEelBeginToken, AttributeEelEndToken, AttributeNameToken, AttributeStringValueToken, AttributeValueAssignToken, CharacterToken, CommentToken, EscapedCharacterToken, ScriptEndToken, TagBeginToken, TagCloseToken, TagEndToken, TagSelfCloseToken, WhitespaceToken, WordToken } from "./tokens";
+
+import { type TagNodeContent } from "./nodes/TagNode";
 
 export interface AfxParserOptions {
     allowUnclosedTags: boolean
@@ -41,16 +43,25 @@ export class Parser implements ParserInterface {
     }
 
     parse() {
-        return this.parseTextsOrTags()
+        return [...this.parseTextsOrTags()]
     }
 
-    parseText(parent: AbstractNode | undefined = undefined) {
+    *parseText(parent: AbstractNode | undefined = undefined) {
         const position: NodePositionInterface = { begin: -1, end: -1 }
-        let text = ""
-        const inlineEel: any = []
+        let currentText: string = ''
+        let currentTextPosition: NodePositionInterface = { begin: this.lexer.getCursor(), end: -1 }
+
         while (!this.lexer.isEOF() && (this.lexer.lookAhead(CharacterToken) || this.lexer.lookAhead(EscapedCharacterToken))) {
             const charToken = this.lexer.consumeLookAhead()
             if ((new AttributeEelBeginToken).regex.test(charToken.value)) {
+                if (currentText !== '') {
+                    currentTextPosition.end = this.lexer.getCursor() - 1
+                    const textNode = new TextNode(currentTextPosition, currentText, parent)
+                    this.addNodeToNodesByType(textNode)
+                    yield textNode
+                    currentTextPosition = { begin: this.lexer.getCursor(), end: -1 }
+                    currentText = ''
+                }
                 const eelBegin = charToken
                 const eelParser = this.buildEelParser()
                 const result = this.handover<AbstractNode>(eelParser)
@@ -62,21 +73,21 @@ export class Parser implements ParserInterface {
                 }
                 const inlineEelNode = new InlineEelNode(position, result)
                 this.addNodeToNodesByType(inlineEelNode)
-                inlineEel.push(inlineEelNode)
-
-                text += this.lexer.getSnippet(position.begin, position.end)
+                yield inlineEelNode
             } else {
-                text += charToken.value
+                currentText += charToken.value
             }
 
             if (position.begin === -1) position.begin = charToken.position.begin
             position.end = charToken.position.end
         }
 
-
-        const textNode = new TextNode(this.applyOffset(position), text, inlineEel, parent)
-        this.addNodeToNodesByType(textNode)
-        return textNode
+        if (currentText !== '') {
+            currentTextPosition.end = this.lexer.getCursor() - 1
+            const textNode = new TextNode(currentTextPosition, currentText, parent)
+            this.addNodeToNodesByType(textNode)
+            yield textNode
+        }
     }
 
     parseJavascript(parent: AbstractNode | undefined = undefined) {
@@ -88,43 +99,39 @@ export class Parser implements ParserInterface {
             if (position.begin === -1) position.begin = charToken.position.begin
             position.end = charToken.position.end
         }
-        const textNode = new TextNode(this.applyOffset(position), text, undefined, parent)
+        const textNode = new TextNode(this.applyOffset(position), text, parent)
         this.addNodeToNodesByType(textNode)
         return textNode
     }
 
-    parseTextsOrTags(parent: AbstractNode | undefined = undefined) {
-        const elements = []
+    *parseTextsOrTags(parent: AbstractNode | undefined = undefined) {
         while (!this.lexer.isEOF()) {
             this.parseLazyWhitespace()
             switch (true) {
                 case this.lexer.lookAhead(CharacterToken):
-                    elements.push(this.parseText(parent))
+                    yield* this.parseText(parent)
                     break
                 case this.lexer.lookAhead(TagBeginToken):
-                    elements.push(this.parseTag(parent))
+                    yield this.parseTag(parent)
                     break
                 case this.lexer.lookAhead(CommentToken):
-                    const comment = this.parseComment()
-                    if (comment) elements.push(comment)
+                    yield* this.parseComment()
                     break;
                 default:
-                    return elements
+                    return
             }
         }
-        return elements
     }
 
-    parseComment() {
+    *parseComment() {
         const commentValueRegex = /^<!--([\w\W]*?)-->$/gm
         const token = this.lexer.consume(CommentToken)
         const commentValueRegexResult = commentValueRegex.exec(token.value)
         if (commentValueRegexResult) {
             const comment = new Comment(commentValueRegexResult[1], token.value.includes("\n"), '<!--', this.applyOffset(token.position))
             this.addNodeToNodesByType(comment)
-            return comment
+            yield comment
         }
-        return undefined
     }
 
     parseTag(parent: AbstractNode | undefined = undefined) {
@@ -148,7 +155,7 @@ export class Parser implements ParserInterface {
             }
         } catch (error) {
             if (!this.options.allowUnclosedTags) {
-                if(error instanceof Error) {
+                if (error instanceof Error) {
                     throw new ParserError(error.message, this.lexer.getCursor())
                 } else throw error
             }
@@ -180,7 +187,7 @@ export class Parser implements ParserInterface {
 
         const isScript = nameNode.toString() === "script"
 
-        const content: Array<TagNode | TextNode | Comment> = isScript ? [this.parseJavascript()] : this.parseTextsOrTags()
+        const content: TagNodeContent = isScript ? [this.parseJavascript()] : [...this.parseTextsOrTags()]
         this.parseLazyWhitespace()
 
         if (this.lexer.isEOF()) {
@@ -233,7 +240,7 @@ export class Parser implements ParserInterface {
                 case this.lexer.lookAhead(AttributeStringValueToken):
                     value = this.lexer.consumeLookAhead()
                     break
-                case this.lexer.lookAhead(AttributeEelBeginToken):
+                case this.lexer.lookAhead(AttributeEelBeginToken): {
                     const eelBegin = this.lexer.consumeLookAhead()
 
                     const eelParser = this.buildEelParser()
@@ -248,6 +255,7 @@ export class Parser implements ParserInterface {
                         }
                     }
                     break
+                }
             }
         }
 

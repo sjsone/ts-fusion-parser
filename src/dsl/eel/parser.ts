@@ -213,12 +213,12 @@ export class Parser implements ParserInterface {
 
     protected parseObjectExpression(parent: AbstractNode | undefined = undefined) {
         const position = this.beginPosition()
-        const rootPart = this.parseObjectExpressionPart()
+        const rootPart = this.parseObjectExpressionPart(parent)
         this.addNodeToNodesByType(rootPart)
         const parts = [rootPart]
         while (this.lexer.lazyConsume(DotToken)) {
             try {
-                parts.push(this.addNodeToNodesByType(this.parseObjectExpressionPart()))
+                parts.push(this.addNodeToNodesByType(this.parseObjectExpressionPart(parent)))
             } catch (error) {
                 if (!(error instanceof IncompleteObjectPathError && this.options.allowIncompleteObjectPaths)) throw error
                 continue
@@ -227,18 +227,18 @@ export class Parser implements ParserInterface {
         return this.addNodeToNodesByType(new ObjectNode(parts, this.endPosition(position), parent))
     }
 
-    protected parseObjectExpressionPart(): any {
+    protected parseObjectExpressionPart(parent: AbstractNode | undefined): any {
         switch (true) {
             case this.lexer.lookAhead(ObjectFunctionPathPartToken):
-                return this.parseObjectFunctionExpressionPart()
+                return this.parseObjectFunctionExpressionPart(parent)
             case this.lexer.lookAhead(ObjectPathPartToken):
-                return this.parseObjectPath()
+                return this.parseObjectPath(parent)
         }
         if (this.options.logDebug) this.lexer.debug()
         throw new IncompleteObjectPathError("parseObjectExpressionPart: " + this.lexer.getRemainingText(), this.lexer.getCursor())
     }
 
-    protected parseObjectFunctionExpressionPart() {
+    protected parseObjectFunctionExpressionPart(parent: AbstractNode | undefined = undefined) {
         const position = this.beginPosition()
         const base = this.lexer.consumeLookAhead()
         const args = []
@@ -253,13 +253,13 @@ export class Parser implements ParserInterface {
         this.parseLazyWhitespace()
         this.lexer.consume(RParenToken)
 
-        const node = new ObjectFunctionPathNode(base.value.slice(0, -1), args, this.endPosition(position), this.parseObjectOffsetExpression())
+        const node = new ObjectFunctionPathNode(base.value.slice(0, -1), args, this.endPosition(position), parent, this.parseObjectOffsetExpression())
         return this.addNodeToNodesByType(node)
     }
 
-    protected parseObjectPath() {
+    protected parseObjectPath(parent: AbstractNode | undefined = undefined) {
         const position = this.beginPosition()
-        const node = new ObjectPathNode(this.lexer.consumeLookAhead().value, this.endPosition(position), undefined, this.parseObjectOffsetExpression());
+        const node = new ObjectPathNode(this.lexer.consumeLookAhead().value, this.endPosition(position), parent, this.parseObjectOffsetExpression());
         return this.addNodeToNodesByType(node)
     }
 

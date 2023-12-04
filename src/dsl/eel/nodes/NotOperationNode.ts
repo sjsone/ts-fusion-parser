@@ -1,7 +1,8 @@
 import { AbstractNode } from "../../../common/AbstractNode";
 import { NodePositionInterface } from "../../../common/NodePositionInterface";
+import { EelNode } from "./EelNode";
 
-export class NotOperationNode extends AbstractNode {
+export class NotOperationNode extends EelNode {
     public node: AbstractNode
 
     public constructor(node: AbstractNode, position: NodePositionInterface, parent: AbstractNode | undefined = undefined) {

@@ -1,21 +1,18 @@
 import { AbstractNode } from "../../../common/AbstractNode";
 import { NodePositionInterface } from "../../../common/NodePositionInterface";
+import { AbstractLiteralNode } from "./AbstractLiteralNode";
 
-export class LiteralArrayNode extends AbstractNode {
-    public entries: AbstractNode[]
+export class LiteralArrayNode extends AbstractLiteralNode<AbstractNode[]> {
 
     public constructor(entries: AbstractNode[], position: NodePositionInterface, parent: AbstractNode | undefined = undefined) {
-        super(position, parent)
+        super(entries, position, parent)
 
-        this.entries = entries
-        for (const entry of this.entries) {
+        for (const entry of this.value) {
             entry["parent"] = this
         }
-
-        this.position = position
     }
-    
+
     public toString(intend?: number): string {
-        return `[${this.entries.map(entry => entry.toString()).join(", ")}]`
+        return `[${this.value.map(entry => entry.toString()).join(", ")}]`
     }
 }

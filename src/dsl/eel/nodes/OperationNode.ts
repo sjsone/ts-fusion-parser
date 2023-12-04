@@ -1,7 +1,8 @@
 import { AbstractNode } from "../../../common/AbstractNode";
 import { NodePositionInterface } from "../../../common/NodePositionInterface";
+import { EelNode } from "./EelNode";
 
-export class OperationNode extends AbstractNode {
+export class OperationNode extends EelNode {
     public leftHand: AbstractNode
     public operation: string
     public rightHand: AbstractNode

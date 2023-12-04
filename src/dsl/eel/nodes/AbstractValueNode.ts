@@ -1,7 +1,8 @@
 import { AbstractNode } from "../../../common/AbstractNode";
 import { NodePositionInterface } from "../../../common/NodePositionInterface";
+import { EelNode } from "./EelNode";
 
-export class AbstractValueNode<T> extends AbstractNode {
+export class AbstractValueNode<T> extends EelNode {
     protected value: T
 
     constructor(value: T, position: NodePositionInterface, parent: AbstractNode | undefined = undefined) {
@@ -9,7 +10,11 @@ export class AbstractValueNode<T> extends AbstractNode {
         this.value = value
     }
 
+    public getValue() {
+        return this.value
+    }
+
     public toString(intend?: number): string {
-        return ''+this.value
+        return '' + this.value
     }
 }

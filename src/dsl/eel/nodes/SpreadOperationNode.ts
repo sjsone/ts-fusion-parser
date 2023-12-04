@@ -1,10 +1,11 @@
 import { AbstractNode } from "../../../common/AbstractNode";
 import { NodePositionInterface } from "../../../common/NodePositionInterface";
+import { EelNode } from "./EelNode";
 
-export class SpreadOperationNode extends AbstractNode {
-    public node: AbstractNode
+export class SpreadOperationNode extends EelNode {
+    public node: EelNode
 
-    public constructor(node: AbstractNode, position: NodePositionInterface, parent: AbstractNode | undefined = undefined) {
+    public constructor(node: EelNode, position: NodePositionInterface, parent: AbstractNode | undefined = undefined) {
         super(position, parent)
         this.node = node
         this.node["parent"] = this
@@ -12,6 +13,6 @@ export class SpreadOperationNode extends AbstractNode {
     }
 
     public toString(intend?: number): string {
-        return '...'+this.node.toString()
+        return '...' + this.node.toString()
     }
 }

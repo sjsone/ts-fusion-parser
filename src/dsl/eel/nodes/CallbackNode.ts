@@ -1,7 +1,8 @@
-import { NodePositionInterface } from "../../../common/NodePositionInterface"
 import { AbstractNode } from "../../../common/AbstractNode"
+import { NodePositionInterface } from "../../../common/NodePositionInterface"
+import { EelNode } from "./EelNode"
 
-export class CallbackNode extends AbstractNode {
+export class CallbackNode extends EelNode {
     protected signature: string
     protected body: AbstractNode
 

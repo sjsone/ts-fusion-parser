@@ -2,8 +2,9 @@ import { AbstractNode } from "../../../common/AbstractNode";
 import { LiteralStringNode } from "./LiteralStringNode";
 import { NodePositionInterface } from "../../../common/NodePositionInterface";
 import { ObjectPathNode } from "./ObjectPathNode";
+import { EelNode } from "./EelNode";
 
-export class LiteralObjectEntryNode extends AbstractNode {
+export class LiteralObjectEntryNode extends EelNode {
     public key: LiteralStringNode | ObjectPathNode
     public value: AbstractNode
 

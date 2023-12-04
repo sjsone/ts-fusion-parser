@@ -12,6 +12,7 @@
         "test": "echo \"Error: no test specified\" && exit 1",
         "prepublishOnly": "git rev-parse --abbrev-ref HEAD | grep -q 'main' && rm -rf out && tsc",
         "watch-ts": "tsc --watch",
+        "perf": "tsc && node --cpu-prof out/perf.js",
         "watch": "watchexec -c -w src/ -e ts yarn run esbuild-main",
         "watch-afx": "watchexec -c -w src/ -e ts yarn run esbuild-afx",
         "watch-eel": "watchexec -c -w src/ -e ts yarn run esbuild-eel",

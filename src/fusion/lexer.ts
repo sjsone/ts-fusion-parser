@@ -49,7 +49,7 @@ export class Lexer {
         [Token.RBRACE]: '^}',
         [Token.LBRACKET]: '^\\[',
         [Token.RBRACKET]: '^\\]',
-        
+
 
         // Strings
 
@@ -66,7 +66,7 @@ export class Lexer {
         [Token.EEL_EXPRESSION_OBJECT_PATH]: `^([0-9a-zA-Z])+(?:\\.[0-9a-zA-Z]+)*`,
         [Token.EEL_EXPRESSION_OBJECT_PATH_PART]: `^[0-9a-zA-Z]+`,
         [Token.EEL_EXPRESSION_CALLBACK]: `^\\(([a-zA-Z]+(?:\\s*,\\s*[a-zA-Z]+)*)\\)\\s*=>`,
-        
+
         [Token.LPAREN]: '^\\(',
         [Token.COMMA]: '^,',
     };
@@ -106,54 +106,48 @@ export class Lexer {
 
     public getCachedLookaheadOrTryToGenerateLookaheadForTokenAndGetLookahead(tokenType: number, debug = false): Token | null {
         const logging = debug
-        if (this.lookahead !== null) {
-            return this.lookahead;
-        }
-        if (this.cursor === this.codeLen) {
-            return this.lookahead = new Token(Token.EOF, '');
-        }
-        if (tokenType === Token.EOF) {
-            return null;
-        }
+        if (this.lookahead !== null) return this.lookahead
+        if (this.cursor === this.codeLen) return this.lookahead = new Token(Token.EOF, '')
+        if (tokenType === Token.EOF) return null
 
-        const regexStringForToken = Lexer.TOKEN_REGEX[tokenType];
-        if(logging) this.log("regexStringForToken", regexStringForToken);
+        const regexStringForToken = Lexer.TOKEN_REGEX[tokenType]
+        if (logging) this.log("regexStringForToken", regexStringForToken)
 
         const remainingCode = this.code.substring(this.cursor)
-        if(logging) this.log("remainingCode|"+remainingCode);
+        if (logging) this.log("remainingCode|" + remainingCode)
         const regexForToken = new RegExp(regexStringForToken, 'g')
-        if(logging) this.log("regexForToken", regexForToken);
+        if (logging) this.log("regexForToken", regexForToken)
         const matches = regexForToken.exec(remainingCode)
-        if(logging) this.log("matches", matches);
+        if (logging) this.log("matches", matches)
         if (matches === null) {
-            return null;
+            return null
         }
 
-        this.cursor += matches[0].length;
+        this.cursor += matches[0].length
 
-        this.lookahead = new Token(tokenType, matches[0]);
+        this.lookahead = new Token(tokenType, matches[0])
 
         return this.lookahead
     }
 
     public consumeUntil(tokenType: number, logging: boolean = false): string {
-        const regexStringForToken = Lexer.TOKEN_REGEX[tokenType];
-        if(logging) this.log("regexStringForToken", regexStringForToken);
+        const regexStringForToken = Lexer.TOKEN_REGEX[tokenType]
+        if (logging) this.log("regexStringForToken", regexStringForToken);
         const regexForToken = new RegExp(regexStringForToken, 'g')
-        if(logging) this.log("regexForToken", regexForToken);
+        if (logging) this.log("regexForToken", regexForToken);
 
         let cursor = this.cursor
         let found = ''
         let next = this.code.substring(cursor)
-        while(!regexForToken.test(next) && cursor < this.code.length) {
-            if(logging) this.log("found:"+found, "next:"+next);
+        while (!regexForToken.test(next) && cursor < this.code.length) {
+            if (logging) this.log("found:" + found, "next:" + next);
             found += next[0]
             next = next.substring(1)
             cursor++
         }
-        if(logging) this.log("this.cursor", this.cursor);
-        this.cursor += found.length 
-        if(logging) this.log("this.cursor", this.cursor);
+        if (logging) this.log("this.cursor", this.cursor);
+        this.cursor += found.length
+        if (logging) this.log("this.cursor", this.cursor);
 
         this.lookahead = null
 
@@ -161,7 +155,7 @@ export class Lexer {
     }
 
     debug() {
-        this.log("remainingCode|"+ this.code.substring(this.cursor))
+        this.log("remainingCode|" + this.code.substring(this.cursor))
         // console.trace()
         // this.log("exiting...")
         // NodeProcess.exit()

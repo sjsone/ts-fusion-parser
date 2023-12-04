@@ -250,7 +250,7 @@ export class Parser implements ParserInterface {
         this.parseLazyWhitespace()
         this.lexer.consume(RParenToken)
 
-        const node = new ObjectFunctionPathNode(base.value.slice(0, -1), args, this.endPosition(position), parent, this.parseObjectOffsetExpression())
+        const node = new ObjectFunctionPathNode(base.value.slice(0, -1), args, this.endPosition(position), <ObjectNode>parent, this.parseObjectOffsetExpression())
         return this.addNodeToNodesByType(node)
     }
 

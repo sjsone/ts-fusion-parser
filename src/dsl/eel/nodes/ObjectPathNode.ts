@@ -1,12 +1,13 @@
 import { AbstractNode } from "../../../common/AbstractNode";
 import { NodePositionInterface } from "../../../common/NodePositionInterface";
 import { AbstractValueNode } from "./AbstractValueNode";
+import { LiteralObjectNode } from "./LiteralObjectNode";
 import { ObjectNode } from "./ObjectNode";
 
 export class ObjectPathNode extends AbstractValueNode<string> {
     public offset: AbstractNode | undefined
 
-    public constructor(value: string, position: NodePositionInterface, parent: ObjectNode, offset: AbstractNode | undefined = undefined) {
+    public constructor(value: string, position: NodePositionInterface, parent?: ObjectNode | LiteralObjectNode, offset: AbstractNode | undefined = undefined) {
         super(value, position, parent)
         this.offset = offset
         if (this.offset) this.offset["parent"] = this

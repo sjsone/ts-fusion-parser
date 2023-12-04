@@ -1,5 +1,5 @@
-import { Lexer } from "./lexer";
 import { AbstractNode } from "../../common/AbstractNode";
+import { Lexer } from "./lexer";
 import { BlockExpressionNode } from "./nodes/BlockExpressionNode";
 import { LiteralArrayNode } from "./nodes/LiteralArrayNode";
 import { LiteralNumberNode } from "./nodes/LiteralNumberNode";
@@ -14,16 +14,16 @@ import { ObjectPathNode } from "./nodes/ObjectPathNode";
 import { OperationNode } from "./nodes/OperationNode";
 import { TernaryOperationNode } from "./nodes/TernaryOperationNode";
 
-import { ParserHandoverResult, ParserInterface } from "../parserInterface";
-import { CallbackSignatureToken, ColonToken, CommaToken, DivisionToken, DotToken, ExclamationMarkToken, FalseValueToken, FloatToken, IntegerToken, IsEqualToken, IsNotEqualToken, LBraceToken, LBracketToken, LessThanOrEqualToken, LessThanToken, LogicalAndToken, LogicalOrToken, LParenToken, MinusToken, ModuloToken, MoreThanOrEqualToken, MoreThanToken, MultiplicationToken, NullValueToken, ObjectFunctionPathPartToken, ObjectPathPartToken, PlusToken, QuestionMarkToken, RBraceToken, RBracketToken, RParenToken, SpreadToken, StringDoubleQuotedToken, StringSingleQuotedToken, TrueValueToken, WhitespaceToken } from "./tokens";
 import { NodePositionInterface } from "../../common/NodePositionInterface";
-import { SpreadOperationNode } from "./nodes/SpreadOperationNode";
-import { LiteralBooleanNode } from "./nodes/LiteralBooleanNode";
-import { LiteralNullNode } from "./nodes/LiteralNullNode";
+import { EelParserError } from "../errors/EelParserError";
+import { IncompleteObjectPathError } from "../errors/IncompleteObjectPathError";
+import { ParserHandoverResult, ParserInterface } from "../parserInterface";
 import { CallbackNode } from "./nodes/CallbackNode";
 import { EmptyEelNode } from "./nodes/EmptyEelNode";
-import { IncompleteObjectPathError } from "../errors/IncompleteObjectPathError";
-import { EelParserError } from "../errors/EelParserError";
+import { LiteralBooleanNode } from "./nodes/LiteralBooleanNode";
+import { LiteralNullNode } from "./nodes/LiteralNullNode";
+import { SpreadOperationNode } from "./nodes/SpreadOperationNode";
+import { CallbackSignatureToken, ColonToken, CommaToken, DivisionToken, DotToken, ExclamationMarkToken, FalseValueToken, FloatToken, IntegerToken, IsEqualToken, IsNotEqualToken, LBraceToken, LBracketToken, LParenToken, LessThanOrEqualToken, LessThanToken, LogicalAndToken, LogicalOrToken, MinusToken, ModuloToken, MoreThanOrEqualToken, MoreThanToken, MultiplicationToken, NullValueToken, ObjectFunctionPathPartToken, ObjectPathPartToken, PlusToken, QuestionMarkToken, RBraceToken, RBracketToken, RParenToken, SpreadToken, StringDoubleQuotedToken, StringSingleQuotedToken, TrueValueToken, WhitespaceToken } from "./tokens";
 
 export interface EelParserOptions {
     allowIncompleteObjectPaths: boolean
@@ -81,39 +81,40 @@ export class Parser implements ParserInterface {
         switch (true) {
             case this.lexer.lookAhead(SpreadToken):
                 this.lexer.consumeLookAhead()
-                object = new SpreadOperationNode(this.parseExpression(), this.endPosition(position), parent)
+                object = this.addNodeToNodesByType(new SpreadOperationNode(this.parseExpression(), this.endPosition(position), parent))
                 break
             case this.lexer.lookAhead(ExclamationMarkToken):
                 this.lexer.consumeLookAhead()
-                object = new NotOperationNode(this.parseExpression(), this.endPosition(position), parent)
+                object = this.addNodeToNodesByType(new NotOperationNode(this.parseExpression(), this.endPosition(position), parent))
                 break
 
             case this.lexer.lookAhead(FloatToken):
             case this.lexer.lookAhead(IntegerToken):
-                object = new LiteralNumberNode(this.lexer.consumeLookAhead().value, this.endPosition(position), parent)
+                object = this.addNodeToNodesByType(new LiteralNumberNode(this.lexer.consumeLookAhead().value, this.endPosition(position), parent))
                 break
 
             case this.lexer.lookAhead(TrueValueToken):
             case this.lexer.lookAhead(FalseValueToken):
-                object = new LiteralBooleanNode(this.lexer.consumeLookAhead().value, this.endPosition(position), parent)
+                object = this.addNodeToNodesByType(new LiteralBooleanNode(this.lexer.consumeLookAhead().value, this.endPosition(position), parent))
                 break
 
             case this.lexer.lookAhead(NullValueToken):
-                object = new LiteralNullNode(this.lexer.consumeLookAhead().value, this.endPosition(position), parent)
+                object = this.addNodeToNodesByType(new LiteralNullNode(this.lexer.consumeLookAhead().value, this.endPosition(position), parent))
                 break
 
-            case this.lexer.lookAhead(CallbackSignatureToken):
+            case this.lexer.lookAhead(CallbackSignatureToken): {
                 const signature = this.lexer.consumeLookAhead()
                 this.parseLazyWhitespace()
                 const callbackBody = this.parseExpression()
                 this.parseLazyWhitespace()
-                object = new CallbackNode(signature.value, callbackBody, this.endPosition(position), parent)
+                object = this.addNodeToNodesByType(new CallbackNode(signature.value, callbackBody, this.endPosition(position), parent))
                 break
+            }
 
             case this.lexer.lookAhead(LParenToken):
                 this.lexer.consumeLookAhead()
                 this.parseLazyWhitespace()
-                object = new BlockExpressionNode(this.parseExpression(), this.endPosition(position), parent)
+                object = this.addNodeToNodesByType(new BlockExpressionNode(this.parseExpression(), this.endPosition(position), parent))
                 this.parseLazyWhitespace()
                 this.lexer.consume(RParenToken)
                 break;
@@ -141,8 +142,6 @@ export class Parser implements ParserInterface {
             if (this.options.logDebug) this.lexer.debug()
             throw Error("parseExpression")
         }
-
-        this.addNodeToNodesByType(object)
 
         const operation = this.parseOperationIfPossible(object)
         if (operation) return this.addNodeToNodesByType(operation)
@@ -204,8 +203,7 @@ export class Parser implements ParserInterface {
         switch (true) {
             case this.lexer.lookAhead(StringDoubleQuotedToken):
             case this.lexer.lookAhead(StringSingleQuotedToken):
-                const stringNode = new LiteralStringNode(this.lexer.consumeLookAhead().value, this.endPosition(position), parent)
-                return this.addNodeToNodesByType(stringNode)
+                return this.addNodeToNodesByType(new LiteralStringNode(this.lexer.consumeLookAhead().value, this.endPosition(position), parent))
         }
         if (this.options.logDebug) this.lexer.debug()
         throw new EelParserError("parseString", this.lexer.getCursor())
@@ -214,11 +212,10 @@ export class Parser implements ParserInterface {
     protected parseObjectExpression(parent: AbstractNode | undefined = undefined) {
         const position = this.beginPosition()
         const rootPart = this.parseObjectExpressionPart(parent)
-        this.addNodeToNodesByType(rootPart)
         const parts = [rootPart]
         while (this.lexer.lazyConsume(DotToken)) {
             try {
-                parts.push(this.addNodeToNodesByType(this.parseObjectExpressionPart(parent)))
+                parts.push(this.parseObjectExpressionPart(parent))
             } catch (error) {
                 if (!(error instanceof IncompleteObjectPathError && this.options.allowIncompleteObjectPaths)) throw error
                 continue
@@ -232,7 +229,7 @@ export class Parser implements ParserInterface {
             case this.lexer.lookAhead(ObjectFunctionPathPartToken):
                 return this.parseObjectFunctionExpressionPart(parent)
             case this.lexer.lookAhead(ObjectPathPartToken):
-                return this.parseObjectPath(parent)
+                return this.parseObjectPath(<ObjectNode>parent)
         }
         if (this.options.logDebug) this.lexer.debug()
         throw new IncompleteObjectPathError("parseObjectExpressionPart: " + this.lexer.getRemainingText(), this.lexer.getCursor())
@@ -247,7 +244,7 @@ export class Parser implements ParserInterface {
         if (!this.lexer.lookAhead(RParenToken)) {
             do {
                 this.parseLazyWhitespace()
-                args.push(this.addNodeToNodesByType(this.parseExpression()))
+                args.push(this.parseExpression())
             } while (this.lexer.lazyConsume(CommaToken))
         }
         this.parseLazyWhitespace()
@@ -257,7 +254,7 @@ export class Parser implements ParserInterface {
         return this.addNodeToNodesByType(node)
     }
 
-    protected parseObjectPath(parent: AbstractNode | undefined = undefined) {
+    protected parseObjectPath(parent?: ObjectNode | LiteralObjectNode) {
         const position = this.beginPosition()
         const node = new ObjectPathNode(this.lexer.consumeLookAhead().value, this.endPosition(position), parent, this.parseObjectOffsetExpression());
         return this.addNodeToNodesByType(node)
@@ -345,7 +342,7 @@ export class Parser implements ParserInterface {
         this.positionOffset = offset
         const nodeOrNodes = this.parse()
         const result = {
-            nodeOrNodes: <any>nodeOrNodes,
+            nodeOrNodes,
             cursor: this.lexer["cursor"],
             nodesByType: <any>this.nodesByType
         }
@@ -362,7 +359,7 @@ export class Parser implements ParserInterface {
     protected addNodeToNodesByType<T extends AbstractNode>(node: T): T {
         const type = <typeof AbstractNode>node.constructor
         const list = this.nodesByType.get(type) ?? []
-        if(list.includes(node)) throw Error(`Did not expect to add already added node`)
+        if (list.includes(node)) throw Error(`Did not expect to add already added node <${node.constructor.name}>: ${node.toString()} `)
         list.push(node)
         this.nodesByType.set(type, list)
         return node

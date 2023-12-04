@@ -26,26 +26,20 @@ const fusionParserOptions: FusionParserOptions = {
 }
 
 const fusion = `
-renderer = afx\`
-    <!--  @fusion-ignore -->
-    <div>
-        before{props.eeltest}
-        after <span>inspan</span>
-    </div>
-\`
+renderer = \${props.eeltest ? "left" : "right"}
 `
 
 
 const fusionPath = "./data/eel.fusion"
 const fusionFile = NodeFs.readFileSync(fusionPath).toString()
 
-const fusionToParse = fusion
+const fusionToParse = fusionFile
 const timeStart = process.hrtime();
 const objectTree = ObjectTreeParser.parse(fusionToParse, undefined, fusionParserOptions)
 const timeEnd = process.hrtime(timeStart);
 console.info('Execution time: %ds %dms', timeEnd[0], timeEnd[1] / 1000000)
 
-
+console.log(objectTree)
 // const dslExpressionValue = <DslExpressionValue>objectTree.statementList.statements[0].operation.pathValue
 // console.log(dslExpressionValue.htmlNodes[1].content.map(c => ({
 //     name: c.constructor.name,

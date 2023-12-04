@@ -362,8 +362,8 @@ export class Parser implements ParserInterface {
     protected addNodeToNodesByType<T extends AbstractNode>(node: T): T {
         const type = <typeof AbstractNode>node.constructor
         const list = this.nodesByType.get(type) ?? []
-        // FIXME: Checking before pushing should not be necessary
-        if (!list.includes(node)) list.push(node)
+        if(list.includes(node)) throw Error(`Did not expect to add already added node`)
+        list.push(node)
         this.nodesByType.set(type, list)
         return node
     }

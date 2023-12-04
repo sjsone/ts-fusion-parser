@@ -4,18 +4,18 @@ import { EelParserOptions } from './dsl/eel/parser'
 import { FusionParserOptions, ObjectTreeParser } from "./lib"
 
 const eelParserOptions: EelParserOptions = {
-    allowIncompleteObjectPaths: true
+    allowIncompleteObjectPaths: false
 }
 
 const afxParserOptions: AfxParserOptions = {
     eelParserOptions,
-    allowUnclosedTags: true
+    allowUnclosedTags: false
 }
 
 const fusionParserOptions: FusionParserOptions = {
     eelParserOptions,
     afxParserOptions,
-    ignoreErrors: true
+    ignoreErrors: false
 }
 
 
@@ -25,7 +25,7 @@ const fusionFile = NodeFs.readFileSync(fusionPath).toString()
 const fusionToParse = fusionFile
 // const timeStart = process.hrtime();
 
-for(let i = 0; i < 3000; i++) {
+for(let i = 0; i < 5000; i++) {
     const objectTree = ObjectTreeParser.parse(fusionToParse, undefined, fusionParserOptions)
 }
 

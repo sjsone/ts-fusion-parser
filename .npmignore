@@ -8,3 +8,5 @@ test.fusion
 out/main.js
 out/main.d.ts
 tsconfig.json
+
+*.cpuprofile

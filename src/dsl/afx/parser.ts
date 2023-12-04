@@ -225,7 +225,8 @@ export class Parser implements ParserInterface {
             begin: eelBegin.position.begin,
             end: eelEnd.position.end
         }
-        return new TagSpreadEelAttributeNode(position, Array.isArray(result) ? result : [result])
+        const eel = this.lexer.getSnippet(position.begin+1, position.end-1)
+        return new TagSpreadEelAttributeNode(position, Array.isArray(result) ? result : [result], eel)
     }
 
     parseTagAttribute() {

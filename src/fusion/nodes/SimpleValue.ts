@@ -1,6 +1,3 @@
-
-
-
 import { NodePositionStub } from "../../common/NodePosition";
 import { AstNodeVisitorInterface } from "../../common/nodeVisitorInterface";
 import { AbstractPathValue } from "./AbstractPathValue";

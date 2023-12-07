@@ -9,12 +9,10 @@ import { Lexer } from "./lexer";
 import { InlineEelNode } from "./nodes/InlineEelNode";
 import { TagAttributeNode } from "./nodes/TagAttributeNode";
 import { TagNameNode } from "./nodes/TagNameNode";
-import { TagNode } from "./nodes/TagNode";
+import { TagNode, type TagNodeContent } from "./nodes/TagNode";
 import { TagSpreadEelAttributeNode } from "./nodes/TagSpreadEelAttributeNode";
 import { TextNode } from "./nodes/TextNode";
 import { AnyCharacterToken, AttributeEelBeginToken, AttributeEelEndToken, AttributeNameToken, AttributeStringValueToken, AttributeValueAssignToken, CharacterToken, CommentToken, EscapedCharacterToken, ScriptEndToken, TagBeginToken, TagCloseToken, TagEndToken, TagSelfCloseToken, WhitespaceToken, WordToken } from "./tokens";
-
-import { type TagNodeContent } from "./nodes/TagNode";
 
 export interface AfxParserOptions {
     allowUnclosedTags: boolean
@@ -124,7 +122,7 @@ export class Parser implements ParserInterface {
     }
 
     *parseComment() {
-        const commentValueRegex = /^<!--([\w\W]*?)-->$/gm
+        const commentValueRegex = /^<!--([.]*?)-->$/gm
         const token = this.lexer.consume(CommentToken)
         const commentValueRegexResult = commentValueRegex.exec(token.value)
         if (commentValueRegexResult) {
@@ -225,7 +223,7 @@ export class Parser implements ParserInterface {
             begin: eelBegin.position.begin,
             end: eelEnd.position.end
         }
-        const eel = this.lexer.getSnippet(position.begin+1, position.end-1)
+        const eel = this.lexer.getSnippet(position.begin + 1, position.end - 1)
         return new TagSpreadEelAttributeNode(position, Array.isArray(result) ? result : [result], eel)
     }
 

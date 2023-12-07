@@ -1,11 +1,11 @@
-import { NodePositionInterface } from "../../../common/NodePositionInterface";
 import { AbstractNode } from "../../../common/AbstractNode";
+import { Comment } from "../../../common/Comment";
+import { NodePositionInterface } from "../../../common/NodePositionInterface";
+import { type InlineEelNode } from "./InlineEelNode";
 import { TagAttributeNode } from "./TagAttributeNode";
 import { TagNameNode } from "./TagNameNode";
-import { TextNode } from "./TextNode";
 import { TagSpreadEelAttributeNode } from "./TagSpreadEelAttributeNode";
-import { Comment } from "../../../common/Comment";
-import { type InlineEelNode } from "./InlineEelNode";
+import { TextNode } from "./TextNode";
 
 export type TagNodeContent = Array<TagNode | TextNode | Comment | InlineEelNode>
 

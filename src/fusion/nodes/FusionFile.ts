@@ -3,8 +3,7 @@ import { VisitableAbstractNode } from "./VisitableAbstractNode";
 import { StatementList } from "./StatementList"
 import { AbstractNode } from "../../common/AbstractNode";
 import { NodePositionStub } from "../../common/NodePosition";
-
-type AstNodeVisitorInterface = any
+import { AstNodeVisitorInterface } from "../../common/nodeVisitorInterface";
 
 export class FusionFile extends VisitableAbstractNode {
     public statementList: StatementList

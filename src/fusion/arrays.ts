@@ -1,32 +1,11 @@
 export class Arrays {
-    // public static arrayMergeRecursiveOverrule(firstArray: { [key: string]: any }, secondArray: { [key: string]: any }, doNotAddNewKeys = false, emptyValuesOverride = true): { [key: string]: any } {
-    //     for (const [key, value] of Object.entries(secondArray)) {
-    //         if (firstArray[key] !== undefined && typeof firstArray[key] === "object") {
-    //             if ((!emptyValuesOverride || value.length > 0) && Array.isArray(value)) {
-    //                 firstArray[key] = this.arrayMergeRecursiveOverrule(firstArray[key], value, doNotAddNewKeys, emptyValuesOverride);
-    //             } else {
-    //                 firstArray[key] = value;
-    //             }
-    //         } else {
-    //             if (!doNotAddNewKeys || Object.keys(firstArray).includes(key)) {
-    //                 if (emptyValuesOverride || !value || value.length > 0) {
-    //                     firstArray[key] = value;
-    //                 }
-    //             }
-    //         }
-    //     }
-    //     return firstArray;
-    // }
-
     public static arrayMergeRecursiveOverrule(firstArray: { [key: string]: any }, secondArray: { [key: string]: any }, doNotAddNewKeys = false, emptyValuesOverride = true): { [key: string]: any } {
-        const secondArraySanitized = secondArray === null ? {} : secondArray
+        const secondArraySanitized = secondArray ?? {}
         for (const [key, value] of Object.entries(secondArraySanitized)) {
             if (firstArray[key] !== undefined && firstArray[key] !== null && typeof firstArray[key] === "object") {
                 firstArray[key] = this.arrayMergeRecursiveOverrule(firstArray[key], value, doNotAddNewKeys, emptyValuesOverride);
-            } else {
-                if (!doNotAddNewKeys || Object.keys(firstArray).includes(key)) {
-                    firstArray[key] = emptyValuesOverride || !value || value.length > 0 ? value : firstArray[key];
-                }
+            } else if (!doNotAddNewKeys || Object.keys(firstArray).includes(key)) {
+                firstArray[key] = emptyValuesOverride || !value || value.length > 0 ? value : firstArray[key];
             }
         }
         return firstArray;
@@ -48,10 +27,10 @@ export class Arrays {
     }
 
 
-    public static getValueByPath(array: { [key: string]: any }, path: string | string[]): null | any {
+    public static getValueByPath(array: { [key: string]: any }, path: string | string[]): any {
         if (typeof path === "string") {
             path = path.split('.');
-        } else if (!(typeof path === "object")) {
+        } else if (typeof path !== "object") {
             throw new Error('getValueByPath() expects path to be string or array, "' + (typeof path) + '" given.')
             // throw new \InvalidArgumentException('getValueByPath() expects path to be string or array, "' . gettype(path) . '" given.', 1304950007);
         }
@@ -79,16 +58,14 @@ export class Arrays {
                 if (firstArrayInner[key] === undefined || typeof firstArrayInner[key] !== "object" || typeof value !== "object") {
                     firstArrayInner[key] = value;
                 } else {
-                    if (typeof value !== "object") {
-                        value = toArray(value);
-                    }
+                    if (typeof value !== "object") value = toArray(value)
 
                     if (typeof firstArrayInner[key] !== "object") {
                         firstArrayInner[key] = toArray(firstArrayInner[key]);
                     }
 
                     if (typeof firstArrayInner[key] === "object" && typeof value === "object") {
-                        if (overrideFirst && overrideFirst(key, firstArrayInner[key], value)) {
+                        if (overrideFirst?.(key, firstArrayInner[key], value)) {
                             firstArrayInner[key] = value;
                         } else {
                             data.push(firstArrayInner[key], value);

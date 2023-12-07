@@ -1,5 +1,5 @@
-import { NodePositionInterface } from "../../../common/NodePositionInterface";
 import { AbstractNode } from "../../../common/AbstractNode";
+import { NodePositionInterface } from "../../../common/NodePositionInterface";
 import { TagBeginToken, TagEndToken } from "../tokens";
 
 export class TagNameNode extends AbstractNode {

@@ -282,12 +282,13 @@ export class Parser implements ParserInterface {
         if (!this.lexer.lookAhead(RBraceToken)) {
             do {
                 this.parseLazyWhitespace()
+                const entryPosition = this.beginPosition()
                 const key = this.parseObjectLiteralEntryKey()
                 this.parseLazyWhitespace()
                 this.lexer.consume(ColonToken)
                 this.parseLazyWhitespace()
                 const value: any = this.parseExpression()
-                entries.push(this.addNodeToNodesByType(new LiteralObjectEntryNode(key, value, this.endPosition(position))))
+                entries.push(this.addNodeToNodesByType(new LiteralObjectEntryNode(key, value, this.endPosition(entryPosition))))
             }
             while (this.lexer.lazyConsume(CommaToken))
         }
@@ -316,7 +317,7 @@ export class Parser implements ParserInterface {
         if (!this.lexer.lookAhead(RBracketToken)) {
             do {
                 this.parseLazyWhitespace()
-                entries.push(this.addNodeToNodesByType(this.parseExpression()))
+                entries.push(this.parseExpression())
                 this.parseLazyWhitespace()
             } while (this.lexer.lazyConsume(CommaToken))
             this.parseLazyWhitespace()

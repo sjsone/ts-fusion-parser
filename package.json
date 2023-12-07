@@ -5,11 +5,14 @@
     "dependencies": {},
     "devDependencies": {
         "@types/node": "^18.15.3",
+        "ava": "^6.0.1",
         "esbuild": "^0.17.15",
         "typescript": "^5.0.2"
     },
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
+        "test": "ava test/eel/** ",
+        "watch-test": "ava --watch test/eel/** ",
+        "tsc": "tsc",
         "prepublishOnly": "git rev-parse --abbrev-ref HEAD | grep -q 'main' && rm -rf out && tsc",
         "watch-ts": "tsc --watch",
         "perf": "tsc && node --cpu-prof out/perf.js",

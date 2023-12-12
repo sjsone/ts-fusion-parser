@@ -34,7 +34,7 @@ import { IncompletePathSegment } from './nodes/IncompletePathSegment';
 import { ParserError } from '../common/ParserError';
 
 
-const stripslashes = (str: string) => str.replace('\\', '')
+const stripslashes = (str: string) => str.replace(/\\./g, (match) => (new Function(`return "${match}"`))() || match)
 const stripcslashes = stripslashes // TODO: stripcslashes = stripslashes = uff
 
 export interface FusionParserOptions {

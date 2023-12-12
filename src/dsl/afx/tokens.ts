@@ -14,7 +14,7 @@ export class AttributeStringValueToken extends Token { public regex = /^((?:"[^"
 export class AttributeEelBeginToken extends Token { public regex = /^({)/ }
 export class AttributeEelEndToken extends Token { public regex = /^(})/ }
 
-export class CommentToken extends Token { public regex = /^(<!-- ?[.]*? ?-->)/ }
+export class CommentToken extends Token { public regex = /^(<!-- ?.*? ?-->)/ }
 
 export class WordToken extends Token { public regex = /^(\w+)/ }
 export class CharacterToken extends Token { public regex = /^([^<])/ }

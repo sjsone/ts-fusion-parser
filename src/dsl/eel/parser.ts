@@ -214,17 +214,23 @@ export class Parser implements ParserInterface {
         const rootPart = this.parseObjectExpressionPart(parent)
         const parts = [rootPart]
         while (this.lexer.lazyConsume(DotToken)) {
+            const positionInCaseOfException = this.beginPosition()
+            positionInCaseOfException.begin = positionInCaseOfException.begin - 1 // account for consumed DotToken
+
             try {
                 parts.push(this.parseObjectExpressionPart(parent))
             } catch (error) {
-                if (!(error instanceof IncompleteObjectPathError && this.options.allowIncompleteObjectPaths)) throw error
-                continue
+                if (error instanceof IncompleteObjectPathError && this.options.allowIncompleteObjectPaths) {
+                    const incompleteObjectPath = new ObjectPathNode('.', this.endPosition(positionInCaseOfException), <ObjectNode>parent)
+                    incompleteObjectPath.incomplete = true
+                    parts.push(incompleteObjectPath)
+                } else throw error
             }
         }
         return this.addNodeToNodesByType(new ObjectNode(parts, this.endPosition(position), parent))
     }
 
-    protected parseObjectExpressionPart(parent: AbstractNode | undefined): any {
+    protected parseObjectExpressionPart(parent: AbstractNode | undefined) {
         switch (true) {
             case this.lexer.lookAhead(ObjectFunctionPathPartToken):
                 return this.parseObjectFunctionExpressionPart(parent)

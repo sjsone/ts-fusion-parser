@@ -6,6 +6,7 @@ import { ObjectNode } from "./ObjectNode";
 
 export class ObjectPathNode extends AbstractValueNode<string> {
     public offset: AbstractNode | undefined
+    public incomplete: boolean = false
 
     public constructor(value: string, position: NodePositionInterface, parent?: ObjectNode | LiteralObjectNode, offset: AbstractNode | undefined = undefined) {
         super(value, position, parent)

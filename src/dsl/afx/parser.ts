@@ -229,6 +229,7 @@ export class Parser implements ParserInterface {
 
     parseTagAttribute() {
         this.parseLazyWhitespace()
+        // TODO: check if TagAttribute begins with `"`. If so, parse it as a string instead of using the token regex
         const name = this.lexer.consume(AttributeNameToken)
         const position = name.position
         let value: any

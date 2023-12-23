@@ -14,7 +14,7 @@ export class Lexer {
         [Token.SLASH_COMMENT]: '^\\/\\/.*',
         [Token.HASH_COMMENT]: '^#.*',
 
-        [Token.MULTILINE_COMMENT]: `^\\/\\*[^*]*(?:\\*[^/][^*]*)*\\*\\/`,
+        [Token.MULTILINE_COMMENT]: `^\\/\\*[^*]*(?:\\*[^/][^*]*)*\\*?\\*\\/`,
 
         [Token.NEWLINE]: '^[\\n\\r]+',
         [Token.SPACE]: '^[ \\t]+',

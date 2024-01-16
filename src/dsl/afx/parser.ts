@@ -69,7 +69,7 @@ export class Parser implements ParserInterface {
                     begin: eelBegin.position.begin,
                     end: eelEnd.position.end
                 }
-                const inlineEelNode = new InlineEelNode(position, result)
+                const inlineEelNode = new InlineEelNode(this.applyOffset(position), result)
                 this.addNodeToNodesByType(inlineEelNode)
                 yield inlineEelNode
             } else {

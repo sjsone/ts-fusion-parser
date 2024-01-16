@@ -54,7 +54,7 @@ export class Parser implements ParserInterface {
             if ((new AttributeEelBeginToken).regex.test(charToken.value)) {
                 if (currentText !== '') {
                     currentTextPosition.end = this.lexer.getCursor() - 1
-                    const textNode = new TextNode(currentTextPosition, currentText, parent)
+                    const textNode = new TextNode(this.applyOffset(currentTextPosition), currentText, parent)
                     this.addNodeToNodesByType(textNode)
                     yield textNode
                     currentTextPosition = { begin: this.lexer.getCursor(), end: -1 }
@@ -82,7 +82,7 @@ export class Parser implements ParserInterface {
 
         if (currentText !== '') {
             currentTextPosition.end = this.lexer.getCursor() - 1
-            const textNode = new TextNode(currentTextPosition, currentText, parent)
+            const textNode = new TextNode(this.applyOffset(currentTextPosition), currentText, parent)
             this.addNodeToNodesByType(textNode)
             yield textNode
         }

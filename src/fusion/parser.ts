@@ -419,7 +419,7 @@ export class ObjectTreeParser {
                 return new PathSegment(quotedPathKey, this.endPosition(position));
             case this.accept(Token.SPACE):
             case this.accept(Token.NEWLINE):
-                if (this.options.ignoreErrors) return new IncompletePathSegment(this.endPosition(this.createPosition()));
+                if (this.options.ignoreErrors) return new IncompletePathSegment("", this.endPosition(this.createPosition()));
         }
 
         throw Error("Could not parse segment")

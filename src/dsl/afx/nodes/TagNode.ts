@@ -10,14 +10,14 @@ import { TextNode } from "./TextNode";
 export type TagNodeContent = Array<TagNode | TextNode | Comment | InlineEelNode>
 
 export class TagNode extends AbstractNode {
-    protected name: string
-    protected begin: TagNameNode
+    public name: string
 
-    protected end: TagNameNode | undefined
+    public begin: TagNameNode
+    public end: TagNameNode | undefined
 
-    protected attributes: Array<TagSpreadEelAttributeNode | TagAttributeNode>
-    protected content: TagNodeContent
-    protected selfClosing: boolean
+    public attributes: Array<TagSpreadEelAttributeNode | TagAttributeNode>
+    public content: TagNodeContent
+    public selfClosing: boolean
     protected artificiallyClosed: boolean = false
 
     constructor(position: NodePositionInterface, name: string, begin: TagNameNode, attributes: Array<TagSpreadEelAttributeNode | TagAttributeNode>, content: TagNodeContent, end: TagNameNode | undefined = undefined, selfClosing: boolean = false, parent: AbstractNode | undefined = undefined) {

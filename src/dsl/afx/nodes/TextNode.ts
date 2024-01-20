@@ -2,7 +2,7 @@ import { AbstractNode } from "../../../common/AbstractNode";
 import { NodePositionInterface } from "../../../common/NodePositionInterface";
 
 export class TextNode extends AbstractNode {
-    protected text: string
+    public text: string
 
     constructor(position: NodePositionInterface, text: string, parent: AbstractNode | undefined = undefined) {
         super(position, parent)

@@ -1,10 +1,7 @@
 import { NodePositionInterface } from "./NodePositionInterface";
 
 export abstract class AbstractNode {
-    protected position: NodePositionInterface
-    protected parent: AbstractNode | undefined
-
-    constructor(position: NodePositionInterface, parent: AbstractNode | undefined = undefined) {
+    constructor(public position: NodePositionInterface, public parent: AbstractNode | undefined = undefined) {
         this.position = position
         this.parent = parent
     }
@@ -20,7 +17,7 @@ export abstract class AbstractNode {
     }
 
     protected debugPositionToString() {
-        return ' Pos: ' + this.position?.toString()
+        return `Pos: begin ${this.position.begin} end ${this.position.end}`
     }
 
     protected debugPrintInner() {

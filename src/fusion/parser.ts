@@ -255,7 +255,10 @@ export class ObjectTreeParser {
             }
 
         }
-        return new StatementList(statements, comments)
+
+        const statementList = new StatementList(statements, comments)
+        this.addNodeToNodesByType(statementList)
+        return statementList
     }
 
     /**

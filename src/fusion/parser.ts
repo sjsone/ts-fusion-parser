@@ -271,7 +271,10 @@ export class ObjectTreeParser {
             case this.accept(Token.INCLUDE):
                 return this.parseIncludeStatement();
             case this.accept(Token.PROTOTYPE_START):
+                return this.parseObjectStatement();
             case this.accept(Token.OBJECT_PATH_PART):
+                this.lexer.advanceCursor(-1 * this.lexer.consumeLookahead().getValue().length)
+                return this.parseObjectStatement();
             case this.accept(Token.META_PATH_START):
             case this.accept(Token.STRING_SINGLE_QUOTED):
             case this.accept(Token.STRING_DOUBLE_QUOTED):

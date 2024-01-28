@@ -9,12 +9,10 @@ import { Lexer } from "./lexer";
 import { InlineEelNode } from "./nodes/InlineEelNode";
 import { TagAttributeNode } from "./nodes/TagAttributeNode";
 import { TagNameNode } from "./nodes/TagNameNode";
-import { TagNode } from "./nodes/TagNode";
+import { TagNode, type TagNodeContent } from "./nodes/TagNode";
 import { TagSpreadEelAttributeNode } from "./nodes/TagSpreadEelAttributeNode";
 import { TextNode } from "./nodes/TextNode";
 import { AnyCharacterToken, AttributeEelBeginToken, AttributeEelEndToken, AttributeNameToken, AttributeStringValueToken, AttributeValueAssignToken, CharacterToken, CommentToken, EscapedCharacterToken, ScriptEndToken, TagBeginToken, TagCloseToken, TagEndToken, TagSelfCloseToken, WhitespaceToken, WordToken } from "./tokens";
-
-import { type TagNodeContent } from "./nodes/TagNode";
 
 export interface AfxParserOptions {
     allowUnclosedTags: boolean
@@ -56,7 +54,7 @@ export class Parser implements ParserInterface {
             if ((new AttributeEelBeginToken).regex.test(charToken.value)) {
                 if (currentText !== '') {
                     currentTextPosition.end = this.lexer.getCursor() - 1
-                    const textNode = new TextNode(currentTextPosition, currentText, parent)
+                    const textNode = new TextNode(this.applyOffset(currentTextPosition), currentText, parent)
                     this.addNodeToNodesByType(textNode)
                     yield textNode
                     currentTextPosition = { begin: this.lexer.getCursor(), end: -1 }
@@ -71,7 +69,7 @@ export class Parser implements ParserInterface {
                     begin: eelBegin.position.begin,
                     end: eelEnd.position.end
                 }
-                const inlineEelNode = new InlineEelNode(position, result)
+                const inlineEelNode = new InlineEelNode(this.applyOffset(position), result)
                 this.addNodeToNodesByType(inlineEelNode)
                 yield inlineEelNode
             } else {
@@ -84,7 +82,7 @@ export class Parser implements ParserInterface {
 
         if (currentText !== '') {
             currentTextPosition.end = this.lexer.getCursor() - 1
-            const textNode = new TextNode(currentTextPosition, currentText, parent)
+            const textNode = new TextNode(this.applyOffset(currentTextPosition), currentText, parent)
             this.addNodeToNodesByType(textNode)
             yield textNode
         }
@@ -124,7 +122,7 @@ export class Parser implements ParserInterface {
     }
 
     *parseComment() {
-        const commentValueRegex = /^<!--([\w\W]*?)-->$/gm
+        const commentValueRegex = /^<!--([.]*?)-->$/gm
         const token = this.lexer.consume(CommentToken)
         const commentValueRegexResult = commentValueRegex.exec(token.value)
         if (commentValueRegexResult) {
@@ -225,12 +223,13 @@ export class Parser implements ParserInterface {
             begin: eelBegin.position.begin,
             end: eelEnd.position.end
         }
-        const eel = this.lexer.getSnippet(position.begin+1, position.end-1)
-        return new TagSpreadEelAttributeNode(position, Array.isArray(result) ? result : [result], eel)
+        const eel = this.lexer.getSnippet(position.begin + 1, position.end - 1)
+        return new TagSpreadEelAttributeNode(this.applyOffset(position), Array.isArray(result) ? result : [result], eel)
     }
 
     parseTagAttribute() {
         this.parseLazyWhitespace()
+        // TODO: check if TagAttribute begins with `"`. If so, parse it as a string instead of using the token regex
         const name = this.lexer.consume(AttributeNameToken)
         const position = name.position
         let value: any

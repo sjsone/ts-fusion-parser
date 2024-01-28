@@ -3,7 +3,7 @@ import { NodePositionInterface } from "../../../common/NodePositionInterface";
 import { AbstractLiteralNode } from "./AbstractLiteralNode";
 
 export class LiteralStringNode extends AbstractLiteralNode<string> {
-    protected quotationType: string
+    public quotationType: string
 
     constructor(value: string, position: NodePositionInterface, parent: AbstractNode | undefined = undefined) {
         const quotationType = value[0]

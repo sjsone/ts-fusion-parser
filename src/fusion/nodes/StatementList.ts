@@ -1,11 +1,10 @@
 
 
-import { VisitableAbstractNode } from "./VisitableAbstractNode";
-import { AbstractStatement } from './AbstractStatement'
-import { NodePositionStub } from "../../common/NodePosition";
 import { Comment } from "../../common/Comment";
-
-type AstNodeVisitorInterface = any
+import { NodePositionStub } from "../../common/NodePosition";
+import { AstNodeVisitorInterface } from "../../common/nodeVisitorInterface";
+import { AbstractStatement } from './AbstractStatement';
+import { VisitableAbstractNode } from "./VisitableAbstractNode";
 
 export class StatementList extends VisitableAbstractNode {
     public statements: AbstractStatement[] = [];

@@ -34,7 +34,7 @@ import { IncompletePathSegment } from './nodes/IncompletePathSegment';
 import { ParserError } from '../common/ParserError';
 
 
-const stripslashes = (str: string) => str.replace('\\', '')
+const stripslashes = (str: string) => str.replace(/\\./g, (match) => (new Function(`return "${match}"`))() || match)
 const stripcslashes = stripslashes // TODO: stripcslashes = stripslashes = uff
 
 export interface FusionParserOptions {
@@ -255,7 +255,10 @@ export class ObjectTreeParser {
             }
 
         }
-        return new StatementList(statements, comments)
+
+        const statementList = new StatementList(statements, comments)
+        this.addNodeToNodesByType(statementList)
+        return statementList
     }
 
     /**
@@ -268,7 +271,10 @@ export class ObjectTreeParser {
             case this.accept(Token.INCLUDE):
                 return this.parseIncludeStatement();
             case this.accept(Token.PROTOTYPE_START):
+                return this.parseObjectStatement();
             case this.accept(Token.OBJECT_PATH_PART):
+                this.lexer.advanceCursor(-1 * this.lexer.consumeLookahead().getValue().length)
+                return this.parseObjectStatement();
             case this.accept(Token.META_PATH_START):
             case this.accept(Token.STRING_SINGLE_QUOTED):
             case this.accept(Token.STRING_DOUBLE_QUOTED):
@@ -419,7 +425,7 @@ export class ObjectTreeParser {
                 return new PathSegment(quotedPathKey, this.endPosition(position));
             case this.accept(Token.SPACE):
             case this.accept(Token.NEWLINE):
-                if (this.options.ignoreErrors) return new IncompletePathSegment(this.endPosition(this.createPosition()));
+                if (this.options.ignoreErrors) return new IncompletePathSegment("", this.endPosition(this.createPosition()));
         }
 
         throw Error("Could not parse segment")

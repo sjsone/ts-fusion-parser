@@ -1,6 +1,5 @@
 import { VisitableAbstractNode } from "./VisitableAbstractNode";
 
 
-export abstract class AbstractStatement extends VisitableAbstractNode
-{
+export abstract class AbstractStatement extends VisitableAbstractNode {
 }

@@ -1,9 +1,9 @@
-import { NodePositionInterface } from "../../../common/NodePositionInterface";
 import { AbstractNode } from "../../../common/AbstractNode";
+import { NodePositionInterface } from "../../../common/NodePositionInterface";
 import { TagBeginToken, TagEndToken } from "../tokens";
 
 export class TagNameNode extends AbstractNode {
-    protected name: string
+    public name: string
 
     constructor(position: NodePositionInterface, name: string, parent: AbstractNode | undefined = undefined) {
         super(position, parent)

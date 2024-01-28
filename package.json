@@ -1,13 +1,13 @@
 {
     "name": "ts-fusion-parser",
-    "version": "0.1.29",
+    "version": "0.1.42",
     "description": "Parser for Neos Fusion Files",
     "dependencies": {},
     "devDependencies": {
         "@types/node": "^18.15.3",
         "ava": "^6.0.1",
-        "esbuild": "^0.17.15",
-        "typescript": "^5.0.2"
+        "esbuild": "^0.19.8",
+        "typescript": "^5.3.3"
     },
     "scripts": {
         "test": "ava test/eel/** ",

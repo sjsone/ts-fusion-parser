@@ -1,23 +1,23 @@
-import { NodePositionInterface } from "../../../common/NodePositionInterface";
 import { AbstractNode } from "../../../common/AbstractNode";
+import { Comment } from "../../../common/Comment";
+import { NodePositionInterface } from "../../../common/NodePositionInterface";
+import { type InlineEelNode } from "./InlineEelNode";
 import { TagAttributeNode } from "./TagAttributeNode";
 import { TagNameNode } from "./TagNameNode";
-import { TextNode } from "./TextNode";
 import { TagSpreadEelAttributeNode } from "./TagSpreadEelAttributeNode";
-import { Comment } from "../../../common/Comment";
-import { type InlineEelNode } from "./InlineEelNode";
+import { TextNode } from "./TextNode";
 
 export type TagNodeContent = Array<TagNode | TextNode | Comment | InlineEelNode>
 
 export class TagNode extends AbstractNode {
-    protected name: string
-    protected begin: TagNameNode
+    public name: string
 
-    protected end: TagNameNode | undefined
+    public begin: TagNameNode
+    public end: TagNameNode | undefined
 
-    protected attributes: Array<TagSpreadEelAttributeNode | TagAttributeNode>
-    protected content: TagNodeContent
-    protected selfClosing: boolean
+    public attributes: Array<TagSpreadEelAttributeNode | TagAttributeNode>
+    public content: TagNodeContent
+    public selfClosing: boolean
     protected artificiallyClosed: boolean = false
 
     constructor(position: NodePositionInterface, name: string, begin: TagNameNode, attributes: Array<TagSpreadEelAttributeNode | TagAttributeNode>, content: TagNodeContent, end: TagNameNode | undefined = undefined, selfClosing: boolean = false, parent: AbstractNode | undefined = undefined) {

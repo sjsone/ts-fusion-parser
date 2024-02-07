@@ -598,7 +598,9 @@ export class ObjectTreeParser {
      */
     protected parseBlock(debugName: string = ""): Block {
         this.expect(Token.LBRACE);
-        const cursorPositionStartOfBlock = this.lexer.getCursor() - 1;
+        const blockPosition = this.createPosition()
+        blockPosition.begin -= 1
+
         this.parseEndOfStatement("parseBlock");
 
         const statementList = this.parseStatementList(Token.RBRACE, debugName);
@@ -613,7 +615,9 @@ export class ObjectTreeParser {
             }
         }
 
-        return new Block(statementList);
+        const block = new Block(statementList, this.endPosition(blockPosition))
+        this.addNodeToNodesByType(block)
+        return block
     }
 
     /**

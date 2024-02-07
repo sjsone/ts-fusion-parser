@@ -2,12 +2,11 @@ import { AstNodeVisitorInterface } from "../../common/nodeVisitorInterface";
 import { VisitableAbstractNode } from "./VisitableAbstractNode";
 import { StatementList } from "./StatementList";
 import { NodePositionStub } from "../../common/NodePosition";
+import { NodePositionInterface } from "../../common/NodePositionInterface";
 
 export class Block extends VisitableAbstractNode {
-    public statementList: StatementList
-
-    public constructor(statementList: StatementList) {
-        super(NodePositionStub)
+    public constructor(public statementList: StatementList, position: NodePositionInterface) {
+        super(position)
         this.statementList = statementList
         this.statementList["parent"] = this
     }

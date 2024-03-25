@@ -45,16 +45,12 @@ const afx = `
 `
 
 const notWorking = `
-
-<div class="asdf" {...props.testClass}>
-before
-{props.}
-after
+<div data-__neos-insertion-anchor={props.addBackendMetadata}>
+    {props.content}
 </div>
-<div>
 `
 const parser = new Parser(new Lexer(notWorking), undefined, {
-    allowUnclosedTags: true,
+    allowUnclosedTags: false,
     eelParserOptions: {
         allowIncompleteObjectPaths: true
     }

@@ -1,5 +1,4 @@
 import { Token } from "./token";
-import NodeProcess from "process"
 
 export class Lexer {
     // Difference to: Neos\Eel\Package.EelExpressionRecognizer
@@ -10,7 +9,8 @@ export class Lexer {
     protected mode = "fusion"
 
 
-    public static TOKEN_REGEX: { [key: number]: string } = {
+    public static readonly TOKEN_REGEX: { [key: number]: string } = {
+        // [Token.DOCUMENTATION_SINGLE_LINE]: '^\\/\\/\\/.*',
         [Token.SLASH_COMMENT]: '^\\/\\/.*',
         [Token.HASH_COMMENT]: '^#.*',
 
@@ -44,7 +44,8 @@ export class Lexer {
         // Symbols
         [Token.DOT]: '^\\.',
         [Token.COLON]: '^:',
-        [Token.RPAREN]: '^\\)',
+        [Token.R_PARENTHESIS]: '^\\)',
+        [Token.L_PARENTHESIS]: '^\\(',
         [Token.LBRACE]: '^{',
         [Token.RBRACE]: '^}',
         [Token.LBRACKET]: '^\\[',
@@ -67,7 +68,6 @@ export class Lexer {
         [Token.EEL_EXPRESSION_OBJECT_PATH_PART]: `^[0-9a-zA-Z]+`,
         [Token.EEL_EXPRESSION_CALLBACK]: `^\\(([a-zA-Z]+(?:\\s*,\\s*[a-zA-Z]+)*)\\)\\s*=>`,
 
-        [Token.LPAREN]: '^\\(',
         [Token.COMMA]: '^,',
     };
     protected code: string = '';

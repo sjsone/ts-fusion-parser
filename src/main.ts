@@ -9,6 +9,8 @@ import { EelParserOptions } from './dsl/eel/parser'
 import { PathSegment } from './fusion/nodes/PathSegment'
 import { FusionParserOptions, ObjectTreeParser } from "./lib"
 import { DslExpressionValue } from './fusion/nodes/DslExpressionValue'
+import { DocumentationSingleLine } from './fusion/nodes/DocumentationSingleLine'
+import { DocumentationMultiLine } from './fusion/nodes/DocumentationMultiLine'
 
 const eelParserOptions: EelParserOptions = {
     allowIncompleteObjectPaths: true
@@ -38,6 +40,14 @@ const timeStart = process.hrtime();
 const objectTree = ObjectTreeParser.parse(fusionToParse, undefined, fusionParserOptions)
 const timeEnd = process.hrtime(timeStart);
 console.info('Execution time: %ds %dms', timeEnd[0], timeEnd[1] / 1000000)
+
+for (const singleLine of objectTree.getNodesByType(DocumentationSingleLine) ?? []) {
+    console.log("singleLine", singleLine.value, singleLine["followingStatement"]?.toString())
+}
+for (const multiLine of objectTree.getNodesByType(DocumentationMultiLine) ?? []) {
+    console.log("multiLine", multiLine.value, multiLine["followingStatement"]?.toString())
+}
+
 
 // console.log(objectTree)
 // const dslExpressionValue = <DslExpressionValue>objectTree.statementList.statements[0].operation.pathValue

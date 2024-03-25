@@ -19,6 +19,7 @@
         "watch-eel": "watchexec -c -w data/ -w src/ -e ts,fusion yarn run esbuild-eel",
         "version-patch": "npm version patch && git push --tags && git push --all",
         "esbuild-main": "esbuild ./src/main.ts --bundle --outfile=out/main.js --format=cjs --platform=node --keep-names && node out/main.js",
+        "esbuild-doc": "esbuild ./src/doc.ts --bundle --outfile=out/doc.js --format=cjs --platform=node --keep-names && node out/doc.js",
         "esbuild-afx": "esbuild ./src/afx.ts --bundle --outfile=out/afx.js --format=cjs --platform=node --keep-names && node out/afx.js",
         "esbuild-eel": "esbuild ./src/eel.ts --bundle --outfile=out/eel.js --format=cjs --platform=node --keep-names && node out/eel.js"
     },

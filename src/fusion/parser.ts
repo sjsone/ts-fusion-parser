@@ -32,6 +32,9 @@ import { Comment } from '../common/Comment';
 import { AfxParserOptions } from '../dsl/afx/parser';
 import { IncompletePathSegment } from './nodes/IncompletePathSegment';
 import { ParserError } from '../common/ParserError';
+import { DocumentationMultiLine } from './nodes/DocumentationMultiLine';
+import { DocumentationSingleLine } from './nodes/DocumentationSingleLine';
+import { AbstractDocumentation } from './nodes/AbstractDocumentation';
 
 
 const stripslashes = (str: string) => str.replace(/\\./g, (match) => (new Function(`return "${match}"`))() || match)
@@ -168,32 +171,44 @@ export class ObjectTreeParser {
         }
     }
 
-    protected parseComment() {
-        let type: number | undefined = undefined
-        let prefix: string | undefined = undefined
-        switch (true) {
-            case this.accept(Token.SLASH_COMMENT):
-                type = type ?? Token.SLASH_COMMENT
-                prefix = prefix ?? "//"
-
-            case this.accept(Token.HASH_COMMENT):
-                type = type ?? Token.HASH_COMMENT
-                prefix = prefix ?? "#"
-
-            case this.accept(Token.MULTILINE_COMMENT):
-                type = type ?? Token.MULTILINE_COMMENT
-                prefix = prefix ?? "/*"
-
-                const position = this.createPosition()
-                const rawComment = this.consume().getValue();
-
-                position.begin -= rawComment.length
-                const comment = new Comment(rawComment.replace(prefix, ""), type === Token.MULTILINE_COMMENT, prefix, this.endPosition(position))
-                this.addNodeToNodesByType(comment)
-                return comment
-            default:
-                throw new Error('Expected Comment')
+    protected parseCommentTypeAndPrefix() {
+        if (this.accept(Token.SLASH_COMMENT)) return {
+            type: Token.SLASH_COMMENT,
+            prefix: "//"
         }
+
+        if (this.accept(Token.HASH_COMMENT)) return {
+            type: Token.HASH_COMMENT,
+            prefix: "#"
+        }
+
+        if (this.accept(Token.MULTILINE_COMMENT)) return {
+            type: Token.MULTILINE_COMMENT,
+            prefix: "/*"
+        }
+
+        throw new Error('Expected Comment')
+    }
+
+    protected parseComment() {
+        const { type, prefix } = this.parseCommentTypeAndPrefix()
+
+        const position = this.createPosition()
+        const rawComment = this.consume().getValue();
+        position.begin -= rawComment.length
+
+        let comment
+        if (rawComment.startsWith("/**") && rawComment.endsWith("**/")) {
+            comment = new DocumentationMultiLine(rawComment, true, "/**", this.endPosition(position))
+        }
+
+        if (rawComment.startsWith("///")) {
+            comment = new DocumentationSingleLine(rawComment, false, "///", this.endPosition(position))
+        }
+
+        if (!comment) comment = new Comment(rawComment.replace(prefix, ""), type === Token.MULTILINE_COMMENT, prefix, this.endPosition(position))
+        this.addNodeToNodesByType(comment)
+        return comment
     }
 
     /**
@@ -235,16 +250,26 @@ export class ObjectTreeParser {
     protected parseStatementList(stopLookahead: number | null = null, debugName: string = ""): StatementList {
         const statements = [];
         const comments = []
-        comments.push(...this.lazyBigGap())
 
         while (this.accept(Token.EOF) === false && (stopLookahead === null || this.accept(stopLookahead) === false)) {
             let statement
             try {
+                // TODO: save order of statements and comments => check again why this is needed
+                const commentsBeforeStatement = this.lazyBigGap()
+
+                const firstDocumentation = <AbstractDocumentation | undefined>commentsBeforeStatement.find(comment => comment instanceof AbstractDocumentation)
+
+                if (firstDocumentation) firstDocumentation.addFollowingComments(...commentsBeforeStatement.slice(commentsBeforeStatement.indexOf(firstDocumentation) + 1))
+
+                comments.push(...commentsBeforeStatement)
+
                 statement = this.parseStatement()
+                if (firstDocumentation) {
+                    firstDocumentation.setFollowingStatement(statement)
+                }
                 this.addNodeToNodesByType(statement)
                 statements.push(statement)
-                // TODO: save order of statements and comments => check again why this is needed
-                comments.push(...this.lazyBigGap())
+                // comments.push(...this.lazyBigGap())
             } catch (e) {
                 if (!this.options.ignoreErrors) {
                     throw e
@@ -402,7 +427,7 @@ export class ObjectTreeParser {
                     //     .build();
                 }
                 position = this.endPosition(position)
-                this.expect(Token.RPAREN);
+                this.expect(Token.R_PARENTHESIS);
                 return new PrototypePathSegment(prototypeName, position);
 
             case this.accept(Token.OBJECT_PATH_PART):

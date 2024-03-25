@@ -1,5 +1,15 @@
+
+/**
+asdfasdf
+asdfasdf
+asdfas
+dfas
+dfa
+sfd
+**/
 prototype(WebExcess.OpenStreetMap:Map.Component) < prototype(Neos.Fusion:Component) {
 
+    /// <test>  asdfasdf
     tilesUrl = null
     defaultTilesUrl = ${Configuration.setting('WebExcess.OpenStreetMap.tilesUrl')}
     tilesUrlRenderer = ${this.tilesUrl ? this.tilesUrl : this.defaultTilesUrl}

@@ -33,4 +33,8 @@ export class ObjectStatement extends AbstractStatement {
     public visit(visitor: AstNodeVisitorInterface, ...args: any[]) {
         return visitor.visitObjectStatement(this, args.shift())
     }
+
+    public toString(intend: number = 0): string {
+        return '    '.repeat(intend) + `<${this.constructor.name}>${this.path?.toString(intend + 1)}`
+    }
 }

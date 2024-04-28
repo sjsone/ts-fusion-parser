@@ -26,8 +26,11 @@ export class Lexer {
         [Token.INTEGER]: '^-?[0-9]+',
         [Token.FLOAT]: '^-?[0-9]+\\.[0-9]+',
 
-        [Token.DSL_EXPRESSION_START]: '^[a-zA-Z0-9\.]+(?=`)', // '/^[a-zA-Z0-9\.]++(?=`)/'
-        [Token.DSL_EXPRESSION_CONTENT]: '^`[^`]*`', // /^`[^`]*+`/
+        // '/^[a-zA-Z0-9\.]++(?=`)/'
+        [Token.DSL_EXPRESSION_START]: '^[a-zA-Z0-9\.]+(?=`)',
+
+        // /^`[^`]*+`/
+        [Token.DSL_EXPRESSION_CONTENT]: '^`[^`]*`',
         [Token.EEL_EXPRESSION]: Lexer.PATTERN_EEL_EXPRESSION,
         // Object type part
         [Token.FUSION_OBJECT_NAME]: '^[0-9a-zA-Z.]+(?::[0-9a-zA-Z.]+)?',

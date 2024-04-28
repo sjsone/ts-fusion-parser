@@ -31,16 +31,16 @@ renderer = \${props.eeltest ? "left" : "right"}
 
 
 const fusionPath = "./data/test.fusion"
-const fusionFile = NodeFs.readFileSync(fusionPath).toString()
+const fusionFileText = NodeFs.readFileSync(fusionPath).toString()
 
-const fusionToParse = fusionFile
+const fusionToParse = fusionFileText
 const timeStart = process.hrtime();
-const objectTree = ObjectTreeParser.parse(fusionToParse, undefined, fusionParserOptions)
+const fusionFile = ObjectTreeParser.parse(fusionToParse, undefined, fusionParserOptions)
 const timeEnd = process.hrtime(timeStart);
 console.info('Execution time: %ds %dms', timeEnd[0], timeEnd[1] / 1000000)
 
-// console.log(objectTree)
-// const dslExpressionValue = <DslExpressionValue>objectTree.statementList.statements[0].operation.pathValue
+// console.log(fusionFile)
+// const dslExpressionValue = <DslExpressionValue>fusionFile.statementList.statements[0].operation.pathValue
 // console.log(dslExpressionValue.htmlNodes[1].content.map(c => ({
 //     name: c.constructor.name,
 //     text: c["text"] 

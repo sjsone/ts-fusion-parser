@@ -1,6 +1,5 @@
 import { AstNodeVisitorInterface } from "../../common/nodeVisitorInterface";
 import { AbstractPathSegment } from "./AbstractPathSegment";
-import { NodePosition, NodePositionStub } from "../../common/NodePosition";
 
 export class PrototypePathSegment extends AbstractPathSegment {
     public visit(visitor: AstNodeVisitorInterface) {

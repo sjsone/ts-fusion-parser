@@ -21,7 +21,6 @@ export class DslExpressionValue extends AbstractPathValue<string> {
 
     public constructor(identifier: string, code: string, position: NodePosition, afxParserOptions?: AfxParserOptions) {
         super(code, position)
-        console.log(`${this.constructor.name} is using NodePositionStub`)
         this.identifier = identifier
         this.afxParserOptions = afxParserOptions
     }

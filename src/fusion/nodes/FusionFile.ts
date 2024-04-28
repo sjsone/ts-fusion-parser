@@ -15,7 +15,6 @@ export class FusionFile extends VisitableAbstractNode {
             begin: -1,
             end: -1
         })
-        console.log(`${this.constructor.name} is using NodePositionStub`)
         this.statementList = statementList
         AbstractNode.setParentOfNode(this.statementList, this)
 

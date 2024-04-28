@@ -228,7 +228,7 @@ export class ObjectTreeParser {
             }
 
         }
-
+        // TODO: positioning of StatementList begins to late
         const statementList = new StatementList(statements, comments, this.endPosition(position), parent)
         this.addNodeToNodesByType(statementList)
         return statementList

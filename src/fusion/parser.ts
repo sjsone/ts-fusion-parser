@@ -355,7 +355,9 @@ export class ObjectTreeParser {
             this.addNodeToNodesByType(segment)
             segments.push(segment);
         } while (this.lazyExpect(Token.DOT));
-        return new ObjectPath(this.endPosition(position), parent, ...segments);
+
+        position.end = segments[segments.length - 1].position.end
+        return new ObjectPath(position, parent, ...segments);
     }
 
     /**
@@ -486,7 +488,7 @@ export class ObjectTreeParser {
 
                 this.lexer.advanceCursor(eelLexer.getCursor() + 1)
                 const code = this.lexer.getCode().slice(eelPosition.begin, eelPosition.end - 1)
-                return new EelExpressionValue(code, this.endPosition(eelPosition), eelNodes);
+                return new EelExpressionValue(code, this.endPosition(eelPosition, -1), eelNodes);
         }
 
         if (!this.options.ignoreErrors) console.log("parsePathValue")
@@ -601,8 +603,8 @@ export class ObjectTreeParser {
         return new NodePosition(this.lexer.getCursor())
     }
 
-    protected endPosition(position: NodePosition): NodePosition {
-        position.end = this.lexer.getCursor()
+    protected endPosition(position: NodePosition, offset: number = 0): NodePosition {
+        position.end = this.lexer.getCursor() + offset
         return position
     }
 

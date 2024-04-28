@@ -11,9 +11,9 @@ export class LiteralObjectEntryNode extends EelNode {
     public constructor(key: LiteralStringNode | ObjectPathNode, value: AbstractNode, position: NodePositionInterface) {
         super(position)
         this.key = key
-        this.key["parent"] = this
+        AbstractNode.setParentOfNode(this.key, this)
         this.value = value
-        this.value["parent"] = this
+        AbstractNode.setParentOfNode(this.value, this)
         this.position = position
     }
 

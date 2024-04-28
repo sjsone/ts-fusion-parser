@@ -12,6 +12,10 @@ export abstract class AbstractNode {
         if (withGroup) console.groupEnd()
     }
 
+    protected static setParentOfNode(node: AbstractNode, parent: AbstractNode) {
+        node.parent = parent
+    }
+
     public toString(intend: number = 0): string {
         return '    '.repeat(intend) + `<${this.constructor.name}>`
     }

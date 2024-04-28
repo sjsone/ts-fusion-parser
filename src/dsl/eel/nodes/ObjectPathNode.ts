@@ -11,7 +11,7 @@ export class ObjectPathNode extends AbstractValueNode<string> {
     public constructor(value: string, position: NodePositionInterface, parent?: ObjectNode | LiteralObjectNode, offset: AbstractNode | undefined = undefined) {
         super(value, position, parent)
         this.offset = offset
-        if (this.offset) this.offset["parent"] = this
+        if (this.offset) AbstractNode.setParentOfNode(this.offset, this)
     }
 
     public toString(intend?: number | undefined): string {

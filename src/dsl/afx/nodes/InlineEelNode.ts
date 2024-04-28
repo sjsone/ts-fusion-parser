@@ -8,7 +8,7 @@ export class InlineEelNode extends AbstractNode {
         super(position, parent)
         this.eel = eel
         for (const eelNode of this.eel) {
-            eelNode["parent"] = this
+            AbstractNode.setParentOfNode(eelNode, this)
         }
     }
 }

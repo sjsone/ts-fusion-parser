@@ -24,16 +24,16 @@ export class TagNode extends AbstractNode {
         super(position, parent)
         this.name = name
         this.begin = begin
-        this.begin["parent"] = this
+        AbstractNode.setParentOfNode(this.begin, this)
 
         this.end = end
-        if (this.end) this.end["parent"] = this
+        if (this.end) AbstractNode.setParentOfNode(this.end, this)
 
         this.attributes = attributes
-        for (const attribute of this.attributes) { attribute["parent"] = this }
+        for (const attribute of this.attributes) AbstractNode.setParentOfNode(attribute, this)
 
         this.content = content
-        for (const content of this.content) { content["parent"] = this }
+        for (const content of this.content) AbstractNode.setParentOfNode(content, this)
 
         this.selfClosing = selfClosing
     }

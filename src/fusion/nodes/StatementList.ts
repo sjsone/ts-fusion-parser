@@ -1,26 +1,25 @@
-
-
+import { AbstractNode } from "../../common/AbstractNode";
 import { Comment } from "../../common/Comment";
-import { NodePositionStub } from "../../common/NodePosition";
+import { NodePosition } from "../../common/NodePosition";
 import { AstNodeVisitorInterface } from "../../common/nodeVisitorInterface";
 import { AbstractStatement } from './AbstractStatement';
 import { VisitableAbstractNode } from "./VisitableAbstractNode";
 
 export class StatementList extends VisitableAbstractNode {
-    public statements: AbstractStatement[] = [];
-    public comments: Comment[]
+    public readonly statements: AbstractStatement[] = [];
+    public readonly comments: Comment[]
 
-    public constructor(statements: AbstractStatement[], comments: Comment[] = []) {
-        super(NodePositionStub)
+    public constructor(statements: AbstractStatement[], comments: Comment[] = [], position: NodePosition, parent: AbstractNode) {
+        super(position, parent)
 
         this.statements = statements;
         for (const statement of this.statements) {
-            statement["parent"] = this
+            AbstractNode.setParentOfNode(statement, this)
         }
 
         this.comments = comments;
         for (const comment of this.comments) {
-            comment["parent"] = this
+            AbstractNode.setParentOfNode(comment, this)
         }
     }
 

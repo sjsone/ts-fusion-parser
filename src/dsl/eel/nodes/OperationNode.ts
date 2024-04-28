@@ -10,9 +10,9 @@ export class OperationNode extends EelNode {
     public constructor(leftHand: AbstractNode, operation: string, rightHand: AbstractNode, position: NodePositionInterface) {
         super(position)
         this.leftHand = leftHand
-        this.leftHand["parent"] = this
+        AbstractNode.setParentOfNode(this.leftHand, this)
         this.rightHand = rightHand
-        this.rightHand["parent"] = this
+        AbstractNode.setParentOfNode(this.rightHand, this)
         this.operation = operation
         this.position = position
     }

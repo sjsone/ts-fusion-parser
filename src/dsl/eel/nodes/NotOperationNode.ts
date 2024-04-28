@@ -8,7 +8,7 @@ export class NotOperationNode extends EelNode {
     public constructor(node: AbstractNode, position: NodePositionInterface, parent: AbstractNode | undefined = undefined) {
         super(position, parent)
         this.node = node
-        this.node["parent"] = this
+        AbstractNode.setParentOfNode(node, this)
         this.position = position
     }
 

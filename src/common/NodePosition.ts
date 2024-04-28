@@ -13,8 +13,3 @@ export class NodePosition implements NodePositionInterface {
         return `${this.begin}-${this.end}`
     }
 }
-
-export const NodePositionStub: NodePositionInterface = {
-    begin: -1,
-    end: -1
-}

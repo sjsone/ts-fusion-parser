@@ -2,7 +2,6 @@
 import { VisitableAbstractNode } from "./VisitableAbstractNode";
 import { StatementList } from "./StatementList"
 import { AbstractNode } from "../../common/AbstractNode";
-import { NodePositionStub } from "../../common/NodePosition";
 import { AstNodeVisitorInterface } from "../../common/nodeVisitorInterface";
 
 export class FusionFile extends VisitableAbstractNode {
@@ -12,9 +11,13 @@ export class FusionFile extends VisitableAbstractNode {
     public errors: Error[] = []
 
     public constructor(statementList: StatementList, contextPathAndFileName: string | undefined) {
-        super(NodePositionStub)
+        super({
+            begin: -1,
+            end: -1
+        })
+        console.log(`${this.constructor.name} is using NodePositionStub`)
         this.statementList = statementList
-        this.statementList["parent"] = this
+        AbstractNode.setParentOfNode(this.statementList, this)
 
         this.contextPathAndFileName = contextPathAndFileName
     }

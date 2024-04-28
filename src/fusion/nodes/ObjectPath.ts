@@ -1,18 +1,19 @@
 import { AstNodeVisitorInterface } from "../../common/nodeVisitorInterface";
 import { VisitableAbstractNode } from "./VisitableAbstractNode";
 import { AbstractPathSegment } from "./AbstractPathSegment";
-import { NodePosition, NodePositionStub } from "../../common/NodePosition";
+import { NodePosition } from "../../common/NodePosition";
+import { AbstractNode } from "../../common/AbstractNode";
 
 
 export class ObjectPath extends VisitableAbstractNode {
     public segments: AbstractPathSegment[];
 
-    public constructor(...segments: AbstractPathSegment[]) {
-        super(NodePositionStub)
+    public constructor(position: NodePosition, parent: AbstractNode, ...segments: AbstractPathSegment[]) {
+        super(position, parent)
 
         this.segments = segments;
         for (const segment of this.segments) {
-            segment["parent"] = this
+            AbstractNode.setParentOfNode(segment, this)
         }
     }
 

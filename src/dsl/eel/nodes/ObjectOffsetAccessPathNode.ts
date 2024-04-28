@@ -8,7 +8,7 @@ export class ObjectOffsetAccessPathNode extends ObjectPathNode {
     public constructor(expression: AbstractNode, position: NodePositionInterface, offset: AbstractNode | undefined = undefined) {
         super('', position, undefined, offset)
         this.expression = expression
-        this.expression["parent"] = this
+        AbstractNode.setParentOfNode(this.expression, this)
     }
 
     public toString(intend?: number | undefined): string {

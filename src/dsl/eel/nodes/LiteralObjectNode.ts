@@ -7,7 +7,7 @@ export class LiteralObjectNode extends AbstractLiteralNode<LiteralObjectEntryNod
     public constructor(entries: LiteralObjectEntryNode[], position: NodePositionInterface, parent: AbstractNode | undefined = undefined) {
         super(entries, position, parent)
         for (const entry of this.value) {
-            entry["parent"] = this
+            AbstractNode.setParentOfNode(entry, this)
         }
     }
 

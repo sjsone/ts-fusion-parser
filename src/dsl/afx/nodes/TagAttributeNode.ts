@@ -11,7 +11,7 @@ export class TagAttributeNode extends AbstractNode {
         this.value = value
         if (Array.isArray(this.value)) {
             for (const element of this.value) {
-                if (element instanceof AbstractNode) element["parent"] = this
+                if (element instanceof AbstractNode) AbstractNode.setParentOfNode(element, this)
             }
         }
     }

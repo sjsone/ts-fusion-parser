@@ -1,7 +1,8 @@
 import { AstNodeVisitorInterface } from "../../common/nodeVisitorInterface"
 import { VisitableAbstractNode } from "./VisitableAbstractNode";
 import { ObjectPath } from "./ObjectPath"
-import { NodePositionStub } from "../../common/NodePosition";
+import { NodePosition } from "../../common/NodePosition";
+import { AbstractNode } from "../../common/AbstractNode";
 
 
 export class AssignedObjectPath extends VisitableAbstractNode {
@@ -9,10 +10,10 @@ export class AssignedObjectPath extends VisitableAbstractNode {
 
     public isRelative: boolean
 
-    public constructor(objectPath: ObjectPath, isRelative: boolean) {
-        super(NodePositionStub)
+    public constructor(position: NodePosition, parent: AbstractNode, objectPath: ObjectPath, isRelative: boolean) {
+        super(position, parent)
         this.objectPath = objectPath
-        this.objectPath["parent"] = this
+        AbstractNode.setParentOfNode(this.objectPath, this)
         this.isRelative = isRelative
     }
 

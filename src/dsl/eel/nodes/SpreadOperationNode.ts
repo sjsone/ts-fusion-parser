@@ -8,7 +8,7 @@ export class SpreadOperationNode extends EelNode {
     public constructor(node: EelNode, position: NodePositionInterface, parent: AbstractNode | undefined = undefined) {
         super(position, parent)
         this.node = node
-        this.node["parent"] = this
+        AbstractNode.setParentOfNode(node, this)
         this.position = position
     }
 

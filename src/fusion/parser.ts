@@ -1,3 +1,11 @@
+import { AbstractNode } from '../common/AbstractNode';
+import { Comment } from '../common/Comment';
+import { NodePosition } from '../common/NodePosition';
+import { ParserError } from '../common/ParserError';
+import { AfxParserOptions } from '../dsl/afx/parser';
+import { Lexer as EelLexer } from '../dsl/eel/lexer';
+import { Parser as EelParser, EelParserOptions } from '../dsl/eel/parser';
+import { Lexer } from './lexer';
 import { AbstractPathSegment } from './nodes/AbstractPathSegment';
 import { AbstractPathValue } from './nodes/AbstractPathValue';
 import { AbstractStatement } from './nodes/AbstractStatement';
@@ -10,6 +18,7 @@ import { FloatValue } from './nodes/FloatValue';
 import { FusionFile } from './nodes/FusionFile';
 import { FusionObjectValue } from './nodes/FusionObjectValue';
 import { IncludeStatement } from './nodes/IncludeStatement';
+import { IncompletePathSegment } from './nodes/IncompletePathSegment';
 import { IntValue } from './nodes/IntValue';
 import { MetaPathSegment } from './nodes/MetaPathSegment';
 import { NullValue } from './nodes/NullValue';
@@ -22,20 +31,11 @@ import { StringValue } from './nodes/StringValue';
 import { ValueAssignment } from './nodes/ValueAssignment';
 import { ValueCopy } from './nodes/ValueCopy';
 import { ValueUnset } from './nodes/ValueUnset';
-import { Lexer } from './lexer'
 import { Token } from './token';
-import { NodePosition, NodePositionStub } from '../common/NodePosition';
-import { AbstractNode } from '../common/AbstractNode';
-import { EelParserOptions, Parser as EelParser } from '../dsl/eel/parser';
-import { Lexer as EelLexer } from '../dsl/eel/lexer';
-import { Comment } from '../common/Comment';
-import { AfxParserOptions } from '../dsl/afx/parser';
-import { IncompletePathSegment } from './nodes/IncompletePathSegment';
-import { ParserError } from '../common/ParserError';
 
 
-const stripslashes = (str: string) => str.replace(/\\./g, (match) => (new Function(`return "${match}"`))() || match)
-const stripcslashes = stripslashes // TODO: stripcslashes = stripslashes = uff
+const stripSlashes = (str: string) => str.replace(/\\./g, (match) => (new Function(`return "${match}"`))() || match)
+const stripCClashes = stripSlashes // TODO: stripCClashes = stripSlashes = uff
 
 export interface FusionParserOptions {
     ignoreErrors: boolean
@@ -44,19 +44,13 @@ export interface FusionParserOptions {
 }
 
 export class ObjectTreeParser {
-    protected lexer: Lexer;
-
-    protected contextPathAndFilename: string | undefined;
-
     protected nodesByType: Map<typeof AbstractNode, AbstractNode[]> = new Map()
-
     protected ignoredErrors: Error[] = []
-
     protected options: FusionParserOptions = {
         ignoreErrors: false
     }
 
-    protected constructor(lexer: Lexer, contextPathAndFilename: string | undefined, options?: FusionParserOptions) {
+    protected constructor(protected lexer: Lexer, protected contextPathAndFilename: string | undefined, options?: FusionParserOptions) {
         this.lexer = lexer;
         this.contextPathAndFilename = contextPathAndFilename;
         if (options) this.options = options
@@ -68,12 +62,6 @@ export class ObjectTreeParser {
         return parser.parseFusionFile();
     }
 
-    /**
-     * Consume the current token.
-     * Can only consume if accept was called before.
-     *
-     * @return Token
-     */
     protected consume(): Token {
         return this.lexer.consumeLookahead();
     }
@@ -107,7 +95,7 @@ export class ObjectTreeParser {
         const token = this.lexer.getCachedLookaheadOrTryToGenerateLookaheadForTokenAndGetLookahead(tokenType);
         if (token === null || token.getType() !== tokenType) {
             throw Error(`Expected token: '${Token.typeToString(tokenType)}'.`)
-            // throw new ParserUnexpectedCharException("Expected token: 'tokenReadable'.", 1646988824);
+            // // throw new ParserUnexpectedCharException("Expected token: 'tokenReadable'.", 1646988824);
         }
         return this.lexer.consumeLookahead();
     }
@@ -126,10 +114,6 @@ export class ObjectTreeParser {
         return true;
     }
 
-    /**
-     * OptionalBigGap
-     *  = ( NEWLINE / OptionalSmallGap )*
-     */
     protected lazyBigGap(): Comment[] {
         const comments = []
         while (true) {
@@ -149,10 +133,6 @@ export class ObjectTreeParser {
         }
     }
 
-    /**
-     * OptionalSmallGap
-     *  = ( SPACE / SLASH_COMMENT / HASH_COMMENT / MULTILINE_COMMENT )*
-     */
     protected lazySmallGap(): Comment | undefined {
         while (true) {
             switch (true) {
@@ -171,38 +151,30 @@ export class ObjectTreeParser {
     protected parseComment() {
         let type: number | undefined = undefined
         let prefix: string | undefined = undefined
-        switch (true) {
-            case this.accept(Token.SLASH_COMMENT):
-                type = type ?? Token.SLASH_COMMENT
-                prefix = prefix ?? "//"
 
-            case this.accept(Token.HASH_COMMENT):
-                type = type ?? Token.HASH_COMMENT
-                prefix = prefix ?? "#"
+        if (this.accept(Token.SLASH_COMMENT)) {
+            type = Token.SLASH_COMMENT
+            prefix = "//"
+        } else if (this.accept(Token.HASH_COMMENT)) {
+            type = Token.HASH_COMMENT
+            prefix = "#"
+        } else if (this.accept(Token.MULTILINE_COMMENT)) {
+            type = Token.MULTILINE_COMMENT
+            prefix = "/*"
+        } else throw new Error('Expected Comment')
 
-            case this.accept(Token.MULTILINE_COMMENT):
-                type = type ?? Token.MULTILINE_COMMENT
-                prefix = prefix ?? "/*"
+        const position = this.createPosition()
+        const rawComment = this.consume().getValue();
 
-                const position = this.createPosition()
-                const rawComment = this.consume().getValue();
-
-                position.begin -= rawComment.length
-                const comment = new Comment(rawComment.replace(prefix, ""), type === Token.MULTILINE_COMMENT, prefix, this.endPosition(position))
-                this.addNodeToNodesByType(comment)
-                return comment
-            default:
-                throw new Error('Expected Comment')
-        }
+        position.begin -= rawComment.length
+        const comment = new Comment(rawComment.replace(prefix, ""), type === Token.MULTILINE_COMMENT, prefix, this.endPosition(position))
+        this.addNodeToNodesByType(comment)
+        return comment
     }
 
-    /**
-     * FusionFile
-     *  = StatementList
-     */
     protected parseFusionFile() {
         // try {
-        const file = new FusionFile(this.parseStatementList(null, "file"), this.contextPathAndFilename);
+        const file = new FusionFile(this.parseStatementList(<FusionFile><unknown>null, null, "file"), this.contextPathAndFilename);
         file.nodesByType = this.flushNodesByType()
         file.errors = this.ignoredErrors
         return file
@@ -232,7 +204,8 @@ export class ObjectTreeParser {
      *
      * @param ?int stopLookahead When this tokenType is encountered the loop will be stopped
      */
-    protected parseStatementList(stopLookahead: number | null = null, debugName: string = ""): StatementList {
+    protected parseStatementList(parent: AbstractNode, stopLookahead: number | null = null, debugName: string = ""): StatementList {
+        const position = this.createPosition()
         const statements = [];
         const comments = []
         comments.push(...this.lazyBigGap())
@@ -240,7 +213,7 @@ export class ObjectTreeParser {
         while (this.accept(Token.EOF) === false && (stopLookahead === null || this.accept(stopLookahead) === false)) {
             let statement
             try {
-                statement = this.parseStatement()
+                statement = this.parseStatement(<StatementList><unknown>null)
                 this.addNodeToNodesByType(statement)
                 statements.push(statement)
                 // TODO: save order of statements and comments => check again why this is needed
@@ -256,7 +229,7 @@ export class ObjectTreeParser {
 
         }
 
-        const statementList = new StatementList(statements, comments)
+        const statementList = new StatementList(statements, comments, this.endPosition(position), parent)
         this.addNodeToNodesByType(statementList)
         return statementList
     }
@@ -265,20 +238,25 @@ export class ObjectTreeParser {
      * Statement
      *  = IncludeStatement / ObjectStatement
      */
-    protected parseStatement(): AbstractStatement {
+    protected parseStatement(parent: AbstractNode): AbstractStatement {
         // watch out for the order, its regex matching and first one wins.
-        switch (true) {
-            case this.accept(Token.INCLUDE):
-                return this.parseIncludeStatement();
-            case this.accept(Token.PROTOTYPE_START):
-                return this.parseObjectStatement();
-            case this.accept(Token.OBJECT_PATH_PART):
-                this.lexer.advanceCursor(-1 * this.lexer.consumeLookahead().getValue().length)
-                return this.parseObjectStatement();
-            case this.accept(Token.META_PATH_START):
-            case this.accept(Token.STRING_SINGLE_QUOTED):
-            case this.accept(Token.STRING_DOUBLE_QUOTED):
-                return this.parseObjectStatement();
+
+        if (this.accept(Token.INCLUDE))
+            return this.parseIncludeStatement(parent);
+
+        if (this.accept(Token.PROTOTYPE_START))
+            return this.parseObjectStatement(parent);
+
+        if (this.accept(Token.OBJECT_PATH_PART)) {
+            this.lexer.advanceCursor(-1 * this.lexer.consumeLookahead().getValue().length)
+            return this.parseObjectStatement(parent);
+        }
+
+        if (this.accept(Token.META_PATH_START)
+            || this.accept(Token.STRING_SINGLE_QUOTED)
+            || this.accept(Token.STRING_DOUBLE_QUOTED)
+        ) {
+            return this.parseObjectStatement(parent);
         }
 
         if (!this.options.ignoreErrors) console.log("parseStatement")
@@ -290,7 +268,7 @@ export class ObjectTreeParser {
      * IncludeStatement
      *  = INCLUDE ( STRING / CHAR / FILE_PATTERN ) EndOfStatement
      */
-    protected parseIncludeStatement(): IncludeStatement {
+    protected parseIncludeStatement(parent: AbstractNode): IncludeStatement {
         const position = this.createPosition()
         this.expect(Token.INCLUDE);
         this.lazyExpect(Token.SPACE);
@@ -306,21 +284,21 @@ export class ObjectTreeParser {
                 break;
             default:
                 throw new Error('Expected file pattern in quotes or [a-zA-Z0-9.*:/_-]')
-            // throw new ParserUnexpectedCharException('Expected file pattern in quotes or [a-zA-Z0-9.*:/_-]', 1646988832);
+            // // throw new ParserUnexpectedCharException('Expected file pattern in quotes or [a-zA-Z0-9.*:/_-]', 1646988832);
         }
 
         this.parseEndOfStatement("parseIncludeStatement");
 
-        return new IncludeStatement(filePattern, this.endPosition(position));
+        return new IncludeStatement(filePattern, this.endPosition(position), parent);
     }
 
     /**
      * ObjectStatement
      *  = ObjectPath ( ValueAssignment / ValueUnset / ValueCopy )? ( Block / EndOfStatement )
      */
-    protected parseObjectStatement(): ObjectStatement {
+    protected parseObjectStatement(parent: AbstractNode): ObjectStatement {
         const position = this.createPosition()
-        const currentPath = this.parseObjectPath();
+        const currentPath = this.parseObjectPath(<ObjectStatement><unknown>null);
 
         this.addNodeToNodesByType(currentPath)
         this.lazyExpect(Token.SPACE);
@@ -329,9 +307,9 @@ export class ObjectTreeParser {
 
         let operation = null
         switch (true) {
-            case this.accept(Token.ASSIGNMENT): operation = this.parseValueAssignment(); break;
-            case this.accept(Token.UNSET): operation = this.parseValueUnset(); break;
-            case this.accept(Token.COPY): operation = this.parseValueCopy(); break;
+            case this.accept(Token.ASSIGNMENT): operation = this.parseValueAssignment(<ObjectStatement><unknown>null); break;
+            case this.accept(Token.UNSET): operation = this.parseValueUnset(<ObjectStatement><unknown>null); break;
+            case this.accept(Token.COPY): operation = this.parseValueCopy(<ObjectStatement><unknown>null); break;
         }
 
         if (operation !== null) {
@@ -341,9 +319,9 @@ export class ObjectTreeParser {
         this.lazyExpect(Token.SPACE);
 
         if (this.accept(Token.LBRACE)) {
-            const block = this.parseBlock();
+            const block = this.parseBlock(<ObjectStatement><unknown>null);
 
-            return new ObjectStatement(currentPath, operation, block, cursorAfterObjectPath, this.endPosition(position));
+            return new ObjectStatement(currentPath, operation, block, cursorAfterObjectPath, this.endPosition(position), parent);
         }
         if (operation === null) {
             if (this.options.ignoreErrors) {
@@ -351,7 +329,8 @@ export class ObjectTreeParser {
                     begin: this.lexer.getCursor(),
                     end: this.lexer.getCursor()
                 }
-                operation = new ValueAssignment(new NullValue(NodePositionStub), newPosition)
+                // TODO: do not reuse "newPosition" 
+                operation = new ValueAssignment(new NullValue(newPosition), newPosition, <ObjectStatement><unknown>null)
             } else {
                 throw Error("operation is null")
             }
@@ -360,7 +339,7 @@ export class ObjectTreeParser {
             this.parseEndOfStatement("parseObjectStatement");
         }
 
-        return new ObjectStatement(currentPath, operation, undefined, cursorAfterObjectPath, this.endPosition(position));
+        return new ObjectStatement(currentPath, operation, undefined, cursorAfterObjectPath, this.endPosition(position), parent);
     }
 
     /**
@@ -368,7 +347,7 @@ export class ObjectTreeParser {
      *  = PathSegment ( '.' PathSegment )*
      *
      */
-    protected parseObjectPath(): ObjectPath {
+    protected parseObjectPath(parent: AbstractNode): ObjectPath {
         const position = this.createPosition()
         const segments = [];
         do {
@@ -376,9 +355,7 @@ export class ObjectTreeParser {
             this.addNodeToNodesByType(segment)
             segments.push(segment);
         } while (this.lazyExpect(Token.DOT));
-        const objectPath = new ObjectPath(...segments);
-        objectPath.setPosition(this.endPosition(position))
-        return objectPath
+        return new ObjectPath(this.endPosition(position), parent, ...segments);
     }
 
     /**
@@ -396,10 +373,10 @@ export class ObjectTreeParser {
                     prototypeName = this.expect(Token.FUSION_OBJECT_NAME).getValue();
                 } catch (error) {
                     throw error
-                    // throw this.prepareParserException(new ParserException())
-                    //     .setCode(1646991578)
-                    //     .setMessageCreator([MessageCreator.class, 'forPathSegmentPrototypeName'])
-                    //     .build();
+                    // // throw this.prepareParserException(new ParserException())
+                    // //      .setCode(1646991578)
+                    // //     .setMessageCreator([MessageCreator.class, 'forPathSegmentPrototypeName'])
+                    // //     .build();
                 }
                 position = this.endPosition(position)
                 this.expect(Token.RPAREN);
@@ -429,23 +406,19 @@ export class ObjectTreeParser {
         }
 
         throw Error("Could not parse segment")
-        // throw this.prepareParserException(new ParserException())
-        //     .setCode(1635708755)
-        //     .setMessageCreator([MessageCreator.class, 'forParsePathSegment'])
-        //     .build();
+        // // throw this.prepareParserException(new ParserException())
+        // //     .setCode(1635708755)
+        // //     .setMessageCreator([MessageCreator.class, 'forParsePathSegment'])
+        // //     .build();
     }
 
-    /**
-     * ValueAssignment
-     *  = ASSIGNMENT PathValue
-     */
-    protected parseValueAssignment(): ValueAssignment {
+    protected parseValueAssignment(parent: AbstractNode): ValueAssignment {
         const position = this.createPosition()
         this.expect(Token.ASSIGNMENT);
         this.lazyExpect(Token.SPACE);
         const value = this.parsePathValue();
         this.addNodeToNodesByType(value)
-        return new ValueAssignment(value, this.endPosition(position));
+        return new ValueAssignment(value, this.endPosition(position), parent);
     }
 
     /**
@@ -461,33 +434,33 @@ export class ObjectTreeParser {
             case this.accept(Token.STRING_SINGLE_QUOTED):
                 const charWrapped = this.consume().getValue();
                 stringContent = charWrapped.substring(1, charWrapped.length - 1);
-                return new StringValue(stripslashes(stringContent), this.endPosition(position));
+                return new StringValue(stripSlashes(stringContent), this.endPosition(position));
 
             case this.accept(Token.STRING_DOUBLE_QUOTED):
                 const stringWrapped = this.consume().getValue();
                 stringContent = stringWrapped.substring(1, stringWrapped.length - 1);
-                return new StringValue(stripcslashes(stringContent), this.endPosition(position));
+                return new StringValue(stripCClashes(stringContent), this.endPosition(position));
 
             case this.accept(Token.DSL_EXPRESSION_START):
                 return this.parseDslExpression();
 
             case this.accept(Token.FLOAT):
-                return new FloatValue(parseFloat(this.consume().getValue()));
+                return new FloatValue(parseFloat(this.consume().getValue()), this.endPosition(position));
 
             case this.accept(Token.INTEGER):
-                return new IntValue(parseInt(this.consume().getValue()));
+                return new IntValue(parseInt(this.consume().getValue()), this.endPosition(position));
 
             case this.accept(Token.TRUE_VALUE):
                 this.consume();
-                return new BoolValue(true);
+                return new BoolValue(true, this.endPosition(position));
 
             case this.accept(Token.FALSE_VALUE):
                 this.consume();
-                return new BoolValue(false);
+                return new BoolValue(false, this.endPosition(position));
 
             case this.accept(Token.NULL_VALUE):
                 this.consume();
-                return new NullValue(NodePositionStub);
+                return new NullValue(this.endPosition(position));
 
             case this.accept(Token.FUSION_OBJECT_NAME):
                 const nodePosition = this.createPosition()
@@ -496,14 +469,11 @@ export class ObjectTreeParser {
                 return new FusionObjectValue(value, this.endPosition(nodePosition));
 
             case this.accept(Token.EEL_EXPRESSION_START):
-                const eelExpressionValue = new EelExpressionValue();
                 this.consume()
                 const eelPosition = this.createPosition()
                 const eelLexer = new EelLexer(this.lexer.getRemainingCode())
                 const eelParser = new EelParser(eelLexer, this.lexer.getCursor(), this.options.eelParserOptions)
                 const eelNodes = eelParser.parse()
-
-                eelNodes["parent"] = <any>eelExpressionValue
 
                 for (const [type, nodes] of eelParser.nodesByType.entries()) {
                     const list = this.nodesByType.get(<any>type) ?? []
@@ -512,29 +482,23 @@ export class ObjectTreeParser {
                     }
                     this.nodesByType.set(<any>type, list)
                 }
-                eelExpressionValue.nodes = eelNodes
+
+
                 this.lexer.advanceCursor(eelLexer.getCursor() + 1)
-                eelExpressionValue["position"] = this.endPosition(eelPosition)
-                eelExpressionValue.value = this.lexer.getCode().slice(eelPosition.begin, eelPosition.end - 1) // -1 for `}`
-                return eelExpressionValue
-
-
+                const code = this.lexer.getCode().slice(eelPosition.begin, eelPosition.end - 1)
+                return new EelExpressionValue(code, this.endPosition(eelPosition), eelNodes);
         }
 
         if (!this.options.ignoreErrors) console.log("parsePathValue")
         if (!this.options.ignoreErrors) this.lexer.debug()
 
         throw new ParserError("Could not parse value", this.lexer.getCursor())
-        // throw this.prepareParserException(new ParserException())
-        //     .setCode(1646988841)
-        //     .setMessageCreator([MessageCreator.class, 'forParsePathValue'])
-        //     .build();
+        // // throw this.prepareParserException(new ParserException())
+        // //     .setCode(1646988841)
+        // //     .setMessageCreator([MessageCreator.class, 'forParsePathValue'])
+        // //     .build();
     }
 
-    /**
-     * DslExpression
-     *  = DSL_EXPRESSION_START DSL_EXPRESSION_CONTENT
-     */
     protected parseDslExpression(): DslExpressionValue {
         const dslIdentifier = this.expect(Token.DSL_EXPRESSION_START).getValue();
         const position = this.createPosition()
@@ -543,12 +507,10 @@ export class ObjectTreeParser {
         try {
             dslCode = this.expect(Token.DSL_EXPRESSION_CONTENT).getValue();
         } catch (error) {
-            if (this.options.ignoreErrors) {
-                this.ignoredErrors.push(<Error>error)
-            } else {
-                throw error
-            }
+            if (this.options.ignoreErrors) this.ignoredErrors.push(<Error>error)
+            else throw error
         }
+
         dslCode = dslCode.substring(1, dslCode.length - 1);
         const dslExpression = new DslExpressionValue(dslIdentifier, dslCode, this.endPosition(position), this.options.afxParserOptions);
         const nodesByType = dslExpression.parse()
@@ -563,47 +525,38 @@ export class ObjectTreeParser {
         return dslExpression
     }
 
-    /**
-     * ValueUnset
-     *  = UNSET
-     */
-    protected parseValueUnset(): ValueUnset {
+    protected parseValueUnset(parent: AbstractNode): ValueUnset {
+        const position = this.createPosition()
         this.expect(Token.UNSET);
-        return new ValueUnset(NodePositionStub);
+        return new ValueUnset(this.endPosition(position), parent);
     }
 
-    /**
-     * ValueCopy
-     *  = COPY ObjectPathAssignment
-     */
-    protected parseValueCopy(): ValueCopy {
+    protected parseValueCopy(parent: AbstractNode): ValueCopy {
+        const position = this.createPosition()
         this.expect(Token.COPY);
         this.lazyExpect(Token.SPACE);
-        const sourcePath = this.parseAssignedObjectPath();
-        return new ValueCopy(sourcePath);
+        const sourcePath = this.parseAssignedObjectPath(<ValueCopy><unknown>null);
+        return new ValueCopy(sourcePath, this.endPosition(position), parent);
     }
 
-    /**
-     * AssignedObjectPath
-     *  = '.'? ObjectPath
-     */
-    protected parseAssignedObjectPath(): AssignedObjectPath {
+    protected parseAssignedObjectPath(parent: AbstractNode): AssignedObjectPath {
+        const position = this.createPosition()
         const isRelative = this.lazyExpect(Token.DOT);
-        return new AssignedObjectPath(this.parseObjectPath(), Boolean(isRelative));
+        return new AssignedObjectPath(this.endPosition(position), parent, this.parseObjectPath(<AssignedObjectPath><unknown>null), Boolean(isRelative));
     }
 
     /**
      * Block:
      *  = '{' StatementList? '}'
      */
-    protected parseBlock(debugName: string = ""): Block {
+    protected parseBlock(parent: AbstractNode, debugName: string = ""): Block {
         this.expect(Token.LBRACE);
         const blockPosition = this.createPosition()
         blockPosition.begin -= 1
 
         this.parseEndOfStatement("parseBlock");
 
-        const statementList = this.parseStatementList(Token.RBRACE, debugName);
+        const statementList = this.parseStatementList(<Block><unknown>null, Token.RBRACE, debugName);
 
         try {
             this.expect(Token.RBRACE);
@@ -615,7 +568,7 @@ export class ObjectTreeParser {
             }
         }
 
-        const block = new Block(statementList, this.endPosition(blockPosition))
+        const block = new Block(parent, statementList, this.endPosition(blockPosition))
         this.addNodeToNodesByType(block)
         return block
     }
@@ -638,10 +591,10 @@ export class ObjectTreeParser {
         if (!this.options.ignoreErrors) console.log("parseEndOfStatement")
         if (!this.options.ignoreErrors) this.lexer.debug()
         throw Error("parsed EOF from: " + debugFrom)
-        // throw this.prepareParserException(new ParserException())
-        //     .setCode(1635878683)
-        //     .setMessageCreator([MessageCreator.class, 'forParseEndOfStatement'])
-        //     .build();
+        // //  throw this.prepareParserException(new ParserException())
+        // //     .setCode(1635878683)
+        // //     .setMessageCreator([MessageCreator.class, 'forParseEndOfStatement'])
+        // //     .build();
     }
 
     protected createPosition() {

@@ -8,7 +8,7 @@ export class LiteralArrayNode extends AbstractLiteralNode<AbstractNode[]> {
         super(entries, position, parent)
 
         for (const entry of this.value) {
-            entry["parent"] = this
+            AbstractNode.setParentOfNode(entry, this)
         }
     }
 

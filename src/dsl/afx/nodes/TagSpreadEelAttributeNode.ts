@@ -9,7 +9,7 @@ export class TagSpreadEelAttributeNode extends AbstractNode {
         super(position)
         this.nodes = nodes
         for (const node of this.nodes) {
-            node["parent"] = this
+            AbstractNode.setParentOfNode(node, this)
         }
         this.eel = eel
     }

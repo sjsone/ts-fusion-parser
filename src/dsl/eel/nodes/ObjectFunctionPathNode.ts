@@ -11,7 +11,7 @@ export class ObjectFunctionPathNode extends ObjectPathNode {
         super(value, position, parent, offset)
         this.args = args
         for (const arg of this.args) {
-            arg["parent"] = this
+            AbstractNode.setParentOfNode(arg, this)
         }
     }
 

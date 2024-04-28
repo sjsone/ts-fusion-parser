@@ -10,11 +10,11 @@ export class TernaryOperationNode extends EelNode {
     public constructor(condition: EelNode, thenPart: EelNode, elsePart: EelNode, position: NodePositionInterface) {
         super(position)
         this.thenPart = thenPart
-        this.thenPart["parent"] = this
+        AbstractNode.setParentOfNode(this.thenPart, this)
         this.elsePart = elsePart
-        this.elsePart["parent"] = this
+        AbstractNode.setParentOfNode(this.elsePart, this)
         this.condition = condition
-        this.condition["parent"] = this
+        AbstractNode.setParentOfNode(this.condition, this)
         this.position = position
     }
 

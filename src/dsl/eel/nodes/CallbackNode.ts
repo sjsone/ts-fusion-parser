@@ -10,7 +10,7 @@ export class CallbackNode extends EelNode {
         super(position, parent)
         this.signature = signature
         this.body = body
-        this.body["parent"] = this
+        AbstractNode.setParentOfNode(body, this)
     }
 
     public toString(intend?: number): string {

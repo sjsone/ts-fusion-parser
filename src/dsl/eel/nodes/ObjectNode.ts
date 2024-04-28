@@ -10,7 +10,7 @@ export class ObjectNode extends EelNode {
         super(position, parent)
         this.path = path
         for (const part of this.path) {
-            part["parent"] = this
+            AbstractNode.setParentOfNode(part, this)
         }
     }
 

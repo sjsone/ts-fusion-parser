@@ -4,9 +4,9 @@
     "description": "Parser for Neos Fusion Files",
     "dependencies": {},
     "devDependencies": {
-        "@types/node": "^18.15.3",
-        "esbuild": "^0.19.8",
-        "typescript": "^5.3.3"
+        "@types/node": "^20.12.11",
+        "esbuild": "^0.21.1",
+        "typescript": "^5.4.5"
     },
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",

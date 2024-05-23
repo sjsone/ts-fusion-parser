@@ -27,7 +27,7 @@ export class StatementList extends VisitableAbstractNode {
         return this.statements.map(statement => statement.toString(intend + 1)).join("\n")
     }
 
-    public visit(visitor: AstNodeVisitorInterface) {
+    public visit(visitor: AstNodeVisitorInterface): unknown {
         return visitor.visitStatementList(this)
     }
 }

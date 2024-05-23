@@ -5,7 +5,7 @@ export class Lexer {
     // Difference to: Neos\Eel\Package.EelExpressionRecognizer
     // added an atomic group (to prevent catastrophic backtracking) and removed the end anchor 
     // protected static PATTERN_EEL_EXPRESSION = `^\\\${(?<exp>(>{ (>exp) }|[^{}"']+|"[^"\\\\]*(?:\\\\.[^"\\\\]*)*"|'[^'\\\\]*(?:\\\\.[^'\\\\]*)*')*)}`;
-    protected static PATTERN_EEL_EXPRESSION = `^\\\${(.*)}(?=\\s*\\n)`;
+    protected static PATTERN_EEL_EXPRESSION: string = `^\\\${(.*)}(?=\\s*\\n)`;
 
     protected mode = "fusion"
 

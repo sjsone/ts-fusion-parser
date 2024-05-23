@@ -11,7 +11,7 @@ export class IncludeStatement extends AbstractStatement {
         this.position = position
     }
 
-    public visit(visitor: AstNodeVisitorInterface) {
+    public visit(visitor: AstNodeVisitorInterface): unknown {
         return visitor.visitIncludeStatement(this)
     }
 }

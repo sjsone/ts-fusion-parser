@@ -2,7 +2,7 @@ import { AstNodeVisitorInterface } from "../../common/nodeVisitorInterface";
 import { AbstractPathSegment } from "./AbstractPathSegment";
 
 export class PrototypePathSegment extends AbstractPathSegment {
-    public visit(visitor: AstNodeVisitorInterface) {
+    public visit(visitor: AstNodeVisitorInterface): unknown {
         return visitor.visitPrototypePathSegment(this);
     }
 

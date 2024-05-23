@@ -25,7 +25,7 @@ export class DslExpressionValue extends AbstractPathValue<string> {
         this.afxParserOptions = afxParserOptions
     }
 
-    public parse() {
+    public parse(): Map<typeof AbstractNode, AbstractNode[]> {
         const lexer = new Lexer(this.value)
         const parser = new Parser(lexer, this.position.begin + this.identifier.length + 1, this.afxParserOptions) // +1 because of [`] in afx`...`
         this.htmlNodes = parser.parse()
@@ -35,7 +35,7 @@ export class DslExpressionValue extends AbstractPathValue<string> {
         return parser.nodesByType
     }
 
-    public visit(visitor: AstNodeVisitorInterface, ...args: any[]) {
+    public visit(visitor: AstNodeVisitorInterface, ...args: any[]): unknown {
         return visitor.visitDslExpressionValue(this, args.shift());
     }
 }

@@ -30,7 +30,7 @@ export class ObjectStatement extends AbstractStatement {
         this.cursor = cursor
     }
 
-    public visit(visitor: AstNodeVisitorInterface, ...args: any[]) {
+    public visit(visitor: AstNodeVisitorInterface, ...args: any[]): unknown {
         return visitor.visitObjectStatement(this, args.shift())
     }
 }

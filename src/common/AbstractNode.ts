@@ -20,7 +20,7 @@ export abstract class AbstractNode {
         return '    '.repeat(intend) + `<${this.constructor.name}>`
     }
 
-    protected debugPositionToString() {
+    protected debugPositionToString(): string {
         return `Pos: begin ${this.position.begin} end ${this.position.end}`
     }
 

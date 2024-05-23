@@ -9,7 +9,7 @@ export class NodePosition implements NodePositionInterface {
         this.end = end
     }
 
-    toString() {
+    toString(): string {
         return `${this.begin}-${this.end}`
     }
 }

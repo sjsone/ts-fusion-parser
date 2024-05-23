@@ -13,7 +13,7 @@ export class ValueCopy extends AbstractOperation {
         AbstractNode.setParentOfNode(this.assignedObjectPath, this)
     }
 
-    public visit(visitor: AstNodeVisitorInterface, ...args: any[]) {
+    public visit(visitor: AstNodeVisitorInterface, ...args: any[]): unknown {
         return visitor.visitValueCopy(this);
     }
 }

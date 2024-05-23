@@ -16,7 +16,7 @@ export class EelExpressionValue extends AbstractPathValue<string> {
         }
     }
 
-    public visit(visitor: AstNodeVisitorInterface) {
+    public visit(visitor: AstNodeVisitorInterface): unknown {
         return visitor.visitEelExpressionValue(this);
     }
 }

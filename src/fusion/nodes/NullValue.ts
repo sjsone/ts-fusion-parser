@@ -7,7 +7,7 @@ export class NullValue extends AbstractPathValue<null> {
         super(null, position)
     }
 
-    public visit(visitor: AstNodeVisitorInterface) {
+    public visit(visitor: AstNodeVisitorInterface): unknown {
         return visitor.visitNullValue(this);
     }
 }

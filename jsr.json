@@ -1,0 +1,5 @@
+{
+    "name": "@sjs/ts-fusion-parser",
+    "version": "0.1.46",
+    "exports": "./src/lib.ts"
+}

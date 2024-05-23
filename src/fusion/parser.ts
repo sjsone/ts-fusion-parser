@@ -56,7 +56,7 @@ export class ObjectTreeParser {
         if (options) this.options = options
     }
 
-    public static parse(sourceCode: string, contextPathAndFilename: string | undefined = undefined, options?: FusionParserOptions) {
+    public static parse(sourceCode: string, contextPathAndFilename: string | undefined = undefined, options?: FusionParserOptions): FusionFile {
         const lexer = new Lexer(sourceCode);
         const parser = new ObjectTreeParser(lexer, contextPathAndFilename, options);
         return parser.parseFusionFile();
@@ -148,7 +148,7 @@ export class ObjectTreeParser {
         }
     }
 
-    protected parseComment() {
+    protected parseComment(): Comment {
         let type: number | undefined = undefined
         let prefix: string | undefined = undefined
 
@@ -172,7 +172,7 @@ export class ObjectTreeParser {
         return comment
     }
 
-    protected parseFusionFile() {
+    protected parseFusionFile(): FusionFile {
         // try {
         const file = new FusionFile(this.parseStatementList(<FusionFile><unknown>null, null, "file"), this.contextPathAndFilename);
         file.nodesByType = this.flushNodesByType()
@@ -599,7 +599,7 @@ export class ObjectTreeParser {
         // //     .build();
     }
 
-    protected createPosition() {
+    protected createPosition(): NodePosition {
         return new NodePosition(this.lexer.getCursor())
     }
 
@@ -615,7 +615,7 @@ export class ObjectTreeParser {
         this.nodesByType.set(type, list)
     }
 
-    protected flushNodesByType() {
+    protected flushNodesByType(): Map<typeof AbstractNode, AbstractNode[]> {
         const map = new Map(this.nodesByType)
         this.nodesByType.clear()
         return map

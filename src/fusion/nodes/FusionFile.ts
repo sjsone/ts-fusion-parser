@@ -21,16 +21,16 @@ export class FusionFile extends VisitableAbstractNode {
         this.contextPathAndFileName = contextPathAndFileName
     }
 
-    public visit(visitor: AstNodeVisitorInterface) {
+    public visit(visitor: AstNodeVisitorInterface): unknown {
         return visitor.visitFusionFile(this)
     }
 
-    getNodesByType<T extends abstract new (...args: any) => any>(type: T) {
+    getNodesByType<T extends abstract new (...args: any) => any>(type: T): InstanceType<T>[] | undefined {
         const nodes = this.nodesByType.get(type);
         return nodes !== undefined ? nodes as InstanceType<T>[] : undefined;
     }
 
-    public hasErrors() {
+    public hasErrors(): boolean {
         return this.errors.length > 0
     }
 

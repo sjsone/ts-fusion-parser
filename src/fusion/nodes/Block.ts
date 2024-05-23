@@ -11,7 +11,7 @@ export class Block extends VisitableAbstractNode {
         AbstractNode.setParentOfNode(this.statementList, this)
     }
 
-    public visit(visitor: AstNodeVisitorInterface, ...args: any[]) {
+    public visit(visitor: AstNodeVisitorInterface, ...args: any[]): unknown {
         return visitor.visitBlock(this, args.shift());
     }
 }
